@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  app:
+    container_name: grumbler
+    build: ./backend
+    ports:
+      - 8080:8080
+    tty: true

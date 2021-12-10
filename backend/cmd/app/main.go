@@ -1,13 +1,26 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"log"
+
+	"github.com/guricerin/grumbler/backend/db"
+	"github.com/guricerin/grumbler/backend/server"
+	"github.com/guricerin/grumbler/backend/util"
+)
 
 func main() {
-	router := gin.Default()
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	router.Run("0.0.0.0:8080")
+	cfg, err := util.LoadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	db, err := db.OpenMySql(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	s := server.NewServer(cfg, db)
+
+	if err := s.Run(); err != nil {
+		log.Fatal(err)
+	}
 }

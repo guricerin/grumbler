@@ -5,7 +5,10 @@ WORKDIR /go/src/app
 COPY . .
 RUN go build -o /go/bin/app ./cmd/app/main.go
 
+
 FROM gcr.io/distroless/base-debian11 AS production
 
-COPY --from=builder /go/bin/app /
-CMD ["/app"]
+WORKDIR /work
+COPY --from=builder /go/bin/app .
+COPY --from=builder /go/src/app/env ./env
+CMD ["./app"]

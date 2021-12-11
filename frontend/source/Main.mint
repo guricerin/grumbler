@@ -1,4 +1,6 @@
 component Main {
+  connect Application exposing { page }
+
   style app {
     justify-content: center;
     flex-direction: column;
@@ -14,6 +16,17 @@ component Main {
   }
 
   fun render : Html {
+     /* index() */
+     case (page) {
+       Page::Initial => Html.empty()
+
+       Page::Home => index()
+
+       Page::NotFound => notFound()
+     }
+  }
+
+  fun index : Html {
     <div::app>
       <Logo/>
 
@@ -25,8 +38,16 @@ component Main {
       <Link href={ apiurl }>
         "api"
       </Link>
+
+      <Footer/>
     </div>
   } where {
     apiurl = "#{ @ENDPOINT }/api"
+  }
+
+  fun notFound : Html {
+    <div>
+      <p>"what's the fuck."</p>
+    </div>
   }
 }

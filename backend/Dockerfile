@@ -11,4 +11,5 @@ FROM gcr.io/distroless/base-debian11 AS production
 WORKDIR /work
 COPY --from=builder /go/bin/app .
 COPY --from=builder /go/src/app/env ./env
+EXPOSE 8080
 CMD ["./app"]

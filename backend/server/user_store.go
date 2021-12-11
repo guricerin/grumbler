@@ -28,3 +28,12 @@ func (s *userStore) RetrieveById(userId string) (model.User, error) {
 	}
 	return user, nil
 }
+
+func (s *userStore) RetrieveByPk(pk uint) (model.User, error) {
+	user := model.User{}
+	err := s.db.QueryRow("select pk, id, name, password from users where pk = ?", pk).Scan(&user.Pk, &user.Id, &user.Name, &user.Password)
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}

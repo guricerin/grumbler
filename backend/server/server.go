@@ -9,10 +9,13 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/guricerin/grumbler/backend/model"
 	"github.com/guricerin/grumbler/backend/util"
 )
 
-const SESSION_TOKEN string = "sesstoken"
+const (
+	SESSION_TOKEN string = "sesstoken"
+)
 
 type Server struct {
 	cfg          util.Config
@@ -38,29 +41,33 @@ func (s *Server) Run() error {
 
 func (s *Server) setupRouter() {
 	router := gin.Default()
+	// todo: 'secret'は設定ファイルで指定可能にすべき？
 	store := cookie.NewStore([]byte("secret"))
-	router.Use(sessions.Sessions("mysessions", store))
+	store.Options(sessions.Options{
+		MaxAge:   60 * 60 * 24 * 7, // 寿命は一週間
+		HttpOnly: true,             // JSなどからのクッキーへのアクセスを禁止
+	})
+	router.Use(sessions.Sessions("grumbler_session", store))
 
-	router.GET("/", func(c *gin.Context) {
+	router.GET("/api", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"home": "hohoho",
 		})
 	})
-	router.GET("/login", func(c *gin.Context) {
-		// todo
-		c.JSON(http.StatusOK, gin.H{
-			"hoge": false,
-		})
-	})
-	router.POST("/login", s.postLogin())
-	router.POST("/signup", s.postSignup())
+	router.POST("/api/login", s.postLogin())
+	router.POST("/api/signup", s.postSignup())
 
-	menu := router.Group("/menu")
-	menu.Use(s.authenticationMiddleware())
+	auth := router.Group("/api/auth")
+	auth.Use(s.authenticationMiddleware())
 	{
-		menu.GET("/user/:id", func(c *gin.Context) {
+		auth.GET("/user/:id", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"is_logged_in": true,
+			})
+		})
+		auth.GET("/user/:id/logout", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{
+				"is_logged_in": false,
 			})
 		})
 	}
@@ -72,43 +79,57 @@ func (s *Server) setupRouter() {
 func (s *Server) authenticationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
-		token := session.Get(SESSION_TOKEN)
-		if token == nil {
+		v := session.Get(SESSION_TOKEN)
+		if v == nil {
 			c.Redirect(http.StatusFound, "/login")
 			c.Abort()
-		} else {
-			// セッション固定化攻撃対策 : 認証毎に新たなトークンを発行
-			newToken, err := createUuid()
-			if err != nil {
-				// todo: err msgをユーザ用に変更
-				c.JSON(http.StatusInternalServerError, errorRes(err))
-				c.Abort()
-				return
-			}
-
-			oldToken, ok := token.(string)
-			if !ok {
-				// todo: err msgをユーザ用に変更
-				err = errors.New("token is not string")
-				c.JSON(http.StatusInternalServerError, errorRes(err))
-				c.Abort()
-				return
-			}
-			s.sessionStore.Update(oldToken, newToken)
-			session.Set(SESSION_TOKEN, newToken)
-			session.Save()
-			c.Next()
+			return
 		}
+
+		oldToken, ok := v.(string)
+		if !ok {
+			// todo: err msgをユーザ用に変更
+			err := errors.New("token is not string")
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			c.Abort()
+			return
+		}
+
+		// セッション固定化攻撃対策 : 認証毎に新たなトークンを発行
+		newToken, err := createUuid()
+		if err != nil {
+			// todo: err msgをユーザ用に変更
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.Abort()
+			return
+		}
+
+		s.sessionStore.Update(oldToken, newToken)
+		session.Set(SESSION_TOKEN, newToken)
+		session.Save()
+		c.Next()
 	}
 }
 
-func (s *Server) fetchUserFromSession(c *gin.Context) error {
-	token := sessions.Default(c).Get(SESSION_TOKEN)
-	if token == nil {
-		// todo
+func (s *Server) fetchUserFromSession(c *gin.Context) (user model.User, err error) {
+	user = model.User{}
+	session := sessions.Default(c)
+	v := session.Get(SESSION_TOKEN)
+	if v == nil {
+		err = errors.New("cookie value not set.")
+		return
 	}
-	// todo: トークンをキーにログインユーザ情報を取得
-	return nil
+	token, ok := v.(string)
+	if !ok {
+		err = errors.New("cookie value is not string.")
+		return
+	}
+	sess, err := s.sessionStore.RetrieveByToken(token)
+	if err != nil {
+		return
+	}
+	user, err = s.userStore.RetrieveByPk(sess.UserPk)
+	return
 }
 
 func errorRes(err error) gin.H {

@@ -15,11 +15,11 @@ func NewSessionStore(db *sql.DB) sessionStore {
 }
 
 func (s *sessionStore) Create(token string, user model.User) error {
-	_, err := s.db.Exec("insert into sessions (token, user_id) values (?, ?)", token, user.Id)
+	_, err := s.db.Exec("insert into sessions (token, user_pk) values (?, ?)", token, user.Pk)
 	return err
 }
 
-func (s *userStore) RetrieveByToken(token string) (model.Session, error) {
+func (s *sessionStore) RetrieveByToken(token string) (model.Session, error) {
 	sess := model.Session{}
 	err := s.db.QueryRow("select pk, token, user_pk from sessions where token = ?", token).Scan(&sess.Pk, &sess.Token, &sess.UserPk)
 	if err != nil {
@@ -30,5 +30,10 @@ func (s *userStore) RetrieveByToken(token string) (model.Session, error) {
 
 func (s *sessionStore) Update(oldToken string, newToken string) error {
 	_, err := s.db.Exec("update sessions set token = ? where token = ?", newToken, oldToken)
+	return err
+}
+
+func (s *sessionStore) DeleteByToken(token string) error {
+	_, err := s.db.Exec("delete from sessions where token = ?", token)
 	return err
 }

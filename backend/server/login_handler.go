@@ -22,7 +22,6 @@ type loginUserReq struct {
 	Password string `json:"password" binding:"required, min=8, max=255"`
 }
 
-// POST /signup
 func (s *Server) postSignup() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req signupUserReq
@@ -82,7 +81,6 @@ func (s *Server) postSignup() gin.HandlerFunc {
 	}
 }
 
-// POST /login
 func (s *Server) postLogin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req loginUserReq
@@ -116,8 +114,8 @@ func (s *Server) postLogin() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
-		err = s.sessionStore.Create(token, user)
-		if err != nil {
+
+		if err = s.sessionStore.Create(token, user); err != nil {
 			// todo: err msgをユーザ用に変更
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
@@ -128,5 +126,34 @@ func (s *Server) postLogin() gin.HandlerFunc {
 
 		url := fmt.Sprintf("/user/%s", req.Id)
 		c.Redirect(http.StatusFound, url)
+	}
+}
+
+func (s *Server) postLogout() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// セッション破棄
+		session := sessions.Default(c)
+		v := session.Get(SESSION_TOKEN)
+		if v == nil {
+			// todo: err msgをユーザ用に変更
+			err := errors.New("cookie is not set.")
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+		token, ok := v.(string)
+		if !ok {
+			// todo: err msgをユーザ用に変更
+			err := errors.New("token is not string.")
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+		if err := s.sessionStore.DeleteByToken(token); err != nil {
+			// todo: err msgをユーザ用に変更
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+		session.Clear()
+		session.Save()
+		c.Redirect(http.StatusFound, "/")
 	}
 }

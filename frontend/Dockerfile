@@ -8,4 +8,4 @@ COPY . .
 EXPOSE 3000
 
 ENTRYPOINT ["/bin/mint"]
-CMD ["start", "-h", "0.0.0.0"]
+CMD ["start", "-h", "0.0.0.0", "--env", ".env"]

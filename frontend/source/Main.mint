@@ -22,9 +22,11 @@ component Main {
       <Link href="https://www.mint-lang.com/">
         "Learn Mint"
       </Link>
-      <Link href="http://localhost:8080/api">
+      <Link href={ apiurl }>
         "api"
       </Link>
     </div>
+  } where {
+    apiurl = "#{ @ENDPOINT }/api"
   }
 }

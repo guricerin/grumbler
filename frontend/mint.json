@@ -3,7 +3,11 @@
   "application": {
     "head": "assets/head.html",
     "title": "grumbler",
-    "icon": "assets/favicon.png"
+    "icon": "assets/favicon.png",
+    "meta": {
+      "charset": "utf-8",
+      "viewport": "width=device-width, initial-scale=1"
+    }
   },
   "external": {
     "stylesheets": [

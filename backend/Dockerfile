@@ -1,7 +1,7 @@
 FROM golang:1.17 AS builder
 
 WORKDIR /go/src/app
-# copy the go src
+# copy source
 COPY . .
 RUN go build -o /go/bin/app ./cmd/app/main.go
 

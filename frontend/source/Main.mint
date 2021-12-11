@@ -22,6 +22,9 @@ component Main {
       <Link href="https://www.mint-lang.com/">
         "Learn Mint"
       </Link>
+      <Link href="http://localhost:8080/api">
+        "api"
+      </Link>
     </div>
   }
 }

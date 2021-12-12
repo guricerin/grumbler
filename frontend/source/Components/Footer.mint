@@ -1,9 +1,9 @@
 component Footer {
   fun render : Html {
     <footer class="footer">
-      <a>
+      <p>
         "powerd by mint-lang"
-      </a>
+      </p>
     </footer>
   }
 }

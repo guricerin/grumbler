@@ -1,15 +1,17 @@
 component Main {
+  connect Application exposing { page }
+
   fun render : Html {
     <div>
       <Header/>
-      <Content/>
+      <Content page={page}/>
       <Footer/>
     </div>
   }
 }
 
 component Content {
-  connect Application exposing { page }
+  property page : Page
 
   fun render : Html {
     case (page) {

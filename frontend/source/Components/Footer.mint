@@ -9,13 +9,13 @@ component Footer {
 
   fun render : Html {
     <footer::stickyFooter class="footer">
-    <div class="content has-text-centered">
-      "powerd by "
+      <div class="content has-text-centered">
+        "powerd by "
 
-      <Link href="https://www.mint-lang.com/">
-        "mint-lang"
-      </Link>
-    </div>
+        <Link href="https://www.mint-lang.com/">
+          "mint-lang"
+        </Link>
+      </div>
     </footer>
   }
 }

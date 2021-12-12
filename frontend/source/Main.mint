@@ -1,8 +1,12 @@
 component Main {
   connect Application exposing { page, userStatus }
 
+  style app {
+    font-family: Open Sans;
+  }
+
   fun render : Html {
-    <div>
+    <div::app>
       <Header userStatus={userStatus}/>
 
       <Content
@@ -18,13 +22,17 @@ component Content {
   property page : Page
   property userStatus : UserStatus
 
+  style section {
+    margin-top: 50px;
+  }
+
   fun render : Html {
     <div class="container sf-site-all">
-      <section class="section sf-site-content">
+      <section::section class="section sf-site-content">
         case (page) {
           Page::Initial => Html.empty()
 
-          Page::Home => index()
+          Page::Home => <Pages.Home/>
 
           Page::NotFound => notFound()
         }

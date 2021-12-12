@@ -8,7 +8,7 @@ component Header {
 
   fun render : Html {
     <div>
-      <nav::head class="navbar is-fixed-top ">
+      <nav::head class="navbar is-fixed-top">
         <div class="navbar-brand">
           <a
             class="navbar-item"
@@ -108,11 +108,13 @@ component Header {
 component NavbarItem {
   property route : String = ""
   property title : String = ""
+
   fun render : Html {
     <a
       class="navbar-item"
       href={route}
       onClick={Application.toggleMenu}>
+
       <span>"#{title}"</span>
 
     </a>
@@ -127,12 +129,14 @@ component NavbarUser {
   style icon {
     margin-right: 10px;
   }
+
   fun render : Html {
     <a
       class="navbar-item"
       href={route}
       onClick={Application.toggleMenu}>
-      <i::icon class="#{icon}"></i>
+
+      <i::icon class="#{icon}"/>
       <span>"#{title}"</span>
 
     </a>

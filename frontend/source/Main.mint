@@ -1,10 +1,14 @@
 component Main {
-  connect Application exposing { page }
+  connect Application exposing { page, userStatus }
 
   fun render : Html {
     <div>
-      <Header/>
-      <Content page={page}/>
+      <Header userStatus={userStatus}/>
+
+      <Content
+        page={page}
+        userStatus={userStatus}/>
+
       <Footer/>
     </div>
   }
@@ -12,6 +16,7 @@ component Main {
 
 component Content {
   property page : Page
+  property userStatus : UserStatus
 
   fun render : Html {
     case (page) {
@@ -37,6 +42,14 @@ component Content {
     font-weight: bold;
   }
 
+  style notFound {
+    height: 100vh;
+    width: 100vw;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+  }
+
   fun index : Html {
     <div::app>
       <Logo/>
@@ -57,7 +70,7 @@ component Content {
   }
 
   fun notFound : Html {
-    <div::app>
+    <div::notFound>
       <p>"what's the fuck."</p>
     </div>
   }

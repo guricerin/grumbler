@@ -1,7 +1,118 @@
 component Header {
+  connect Application exposing { navMenuStatus }
+  property userStatus : UserStatus
+
   fun render : Html {
     <div>
-      <nav class="navbar is-fixed-top is-dark"/>
+      <nav class="navbar is-fixed-top is-dark">
+        <div class="navbar-brand">
+          <a
+            class="navbar-item"
+            href="/"
+            onClick={Application.resetMenu}>
+
+            <img
+              src={@asset(../../assets/logo.svg)}
+              width="64"
+              height="64"
+              alt="grumbler"/>
+
+            <h1>"Grumbler"</h1>
+
+          </a>
+
+          <{ navbarBurger() }>
+        </div>
+
+        <{ navbarMenu() }>
+      </nav>
     </div>
+  }
+
+  get getNavMenuStatus : String {
+    case (navMenuStatus) {
+      NavMenuStatus::Active => "is-active"
+      NavMenuStatus::Reset => "burger"
+    }
+  }
+
+  fun navbarBurger : Html {
+    <div
+      class="navbar-burger burger #{getNavMenuStatus}"
+      data-target="navMenu"
+      onClick={Application.toggleMenu}>
+
+      <span/>
+      <span/>
+      <span/>
+
+    </div>
+  }
+
+  fun navbarMenu : Html {
+    <div
+      id="navMenu"
+      class="navbar-menu #{getNavMenuStatus}">
+
+      <div class="navbar-start">
+        <{ navbarItems() }>
+      </div>
+
+      <div class="navbar-end">
+        <{ navbarUser() }>
+      </div>
+
+    </div>
+  }
+
+  fun navbarItems : Array(Html) {
+    case (userStatus) {
+      UserStatus::LoggedOut =>
+        [
+          <NavbarItem
+            route="/sign-in"
+            title="Sign In"/>,
+          <NavbarItem
+            route="/sign-up"
+            title="Sign Up"/>
+        ]
+
+      UserStatus::LoggedIn =>
+        [
+          <NavbarItem
+            route="/sign-out"
+            title="Sign Out"/>
+        ]
+    }
+  }
+
+  fun navbarUser : Html {
+    case (userStatus) {
+      UserStatus::LoggedOut =>
+        <NavbarItem
+          route="/"
+          title="Guest"/>
+
+      UserStatus::LoggedIn =>
+        <NavbarItem
+          route="/"
+          title="Login User"/>
+    }
+  }
+}
+
+component NavbarItem {
+  property route : String = ""
+  property title : String = ""
+
+  fun render : Html {
+    <a
+      class="navbar-item"
+      href={route}
+      onClick={Application.toggleMenu}>
+
+      <span>"#{title}"</span>
+
+    </a>
   }
 }

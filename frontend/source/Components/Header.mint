@@ -2,9 +2,13 @@ component Header {
   connect Application exposing { navMenuStatus }
   property userStatus : UserStatus
 
+  style head {
+    box-shadow: 2px 2px 8px rgba(0,0,0,.06),0px .5px 1px rgba(0,0,0,.05);
+  }
+
   fun render : Html {
     <div>
-      <nav class="navbar is-fixed-top is-dark">
+      <nav::head class="navbar is-fixed-top ">
         <div class="navbar-brand">
           <a
             class="navbar-item"

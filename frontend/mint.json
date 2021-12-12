@@ -11,7 +11,8 @@
   },
   "external": {
     "stylesheets": [
-      "assets/style.css"
+      "assets/style.css",
+      "assets/css/sticky-footer.css"
     ]
   },
   "source-directories": [

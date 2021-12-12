@@ -19,13 +19,17 @@ component Content {
   property userStatus : UserStatus
 
   fun render : Html {
-    case (page) {
-      Page::Initial => Html.empty()
+    <div class="container sf-site-all">
+      <section class="section sf-site-content">
+        case (page) {
+          Page::Initial => Html.empty()
 
-      Page::Home => index()
+          Page::Home => index()
 
-      Page::NotFound => notFound()
-    }
+          Page::NotFound => notFound()
+        }
+      </section>
+    </div>
   }
 
   style app {
@@ -35,16 +39,18 @@ component Content {
     display: flex;
 
     background-color: #eeeeee;
-    height: 100vh;
-    width: 100vw;
 
+    height: 100vh;
+
+    /* width: 100vw; */
     font-family: Open Sans;
     font-weight: bold;
   }
 
   style notFound {
     height: 100vh;
-    width: 100vw;
+
+    /* width: 100vw; */
     align-items: center;
     justify-content: center;
     display: flex;
@@ -71,7 +77,7 @@ component Content {
 
   fun notFound : Html {
     <div::notFound>
-      <p>"what's the fuck."</p>
+      <p>"404 page not found."</p>
     </div>
   }
 }

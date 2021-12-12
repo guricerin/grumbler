@@ -1,0 +1,9 @@
+.sf-site-all {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.sf-site-content {
+  flex: 1;
+}

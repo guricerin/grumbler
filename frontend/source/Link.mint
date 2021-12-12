@@ -3,10 +3,6 @@ component Link {
   property href : String
 
   style link {
-    font-size: calc(10px + 2vmin);
-    text-decoration: none;
-    color: #DDDDDD;
-
     &:hover {
       text-decoration: underline;
     }

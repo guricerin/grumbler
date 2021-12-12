@@ -1,5 +1,25 @@
 component Main {
+  fun render : Html {
+    <div>
+      <Header/>
+      <Content/>
+      <Footer/>
+    </div>
+  }
+}
+
+component Content {
   connect Application exposing { page }
+
+  fun render : Html {
+    case (page) {
+      Page::Initial => Html.empty()
+
+      Page::Home => index()
+
+      Page::NotFound => notFound()
+    }
+  }
 
   style app {
     justify-content: center;
@@ -7,23 +27,12 @@ component Main {
     align-items: center;
     display: flex;
 
-    background-color: #282C34;
+    background-color: #eeeeee;
     height: 100vh;
     width: 100vw;
 
     font-family: Open Sans;
     font-weight: bold;
-  }
-
-  fun render : Html {
-     /* index() */
-     case (page) {
-       Page::Initial => Html.empty()
-
-       Page::Home => index()
-
-       Page::NotFound => notFound()
-     }
   }
 
   fun index : Html {
@@ -35,18 +44,18 @@ component Main {
       <Link href="https://www.mint-lang.com/">
         "Learn Mint"
       </Link>
-      <Link href={ apiurl }>
+
+      <Link href={apiurl}>
         "api"
       </Link>
-
-      <Footer/>
     </div>
   } where {
-    apiurl = "#{ @ENDPOINT }/api"
+    apiurl =
+      "#{@ENDPOINT}/api"
   }
 
   fun notFound : Html {
-    <div>
+    <div::app>
       <p>"what's the fuck."</p>
     </div>
   }

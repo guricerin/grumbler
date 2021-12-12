@@ -4,7 +4,7 @@ routes {
   }
 
   /user/:id {
-     sequence {
+    sequence {
       Application.setPage(Page::Initial)
     }
   }

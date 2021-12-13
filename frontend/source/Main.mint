@@ -34,6 +34,8 @@ component Content {
 
           Page::Home => <Pages.Home/>
 
+          Page::SignUp => <Pages.SignUp/>
+
           Page::NotFound => notFound()
         }
       </section>

@@ -1,5 +1,5 @@
 component Header {
-  connect Application exposing { navMenuStatus }
+  connect Application exposing { isNavMenuActive }
   property userStatus : UserStatus
 
   style head {
@@ -34,9 +34,10 @@ component Header {
   }
 
   get getNavMenuStatus : String {
-    case (navMenuStatus) {
-      NavMenuStatus::Active => "is-active"
-      NavMenuStatus::Reset => "burger"
+    if (isNavMenuActive) {
+      "is-active"
+    } else {
+      "burger"
     }
   }
 
@@ -74,17 +75,17 @@ component Header {
       UserStatus::LoggedOut =>
         [
           <NavbarItem
-            route="/sign-in"
+            route="/signin"
             title="Sign In"/>,
           <NavbarItem
-            route="/sign-up"
+            route="/signup"
             title="Sign Up"/>
         ]
 
       UserStatus::LoggedIn =>
         [
           <NavbarItem
-            route="/sign-out"
+            route="/signout"
             title="Sign Out"/>
         ]
     }
@@ -94,6 +95,7 @@ component Header {
     case (userStatus) {
       UserStatus::LoggedOut =>
         <NavbarUser
+          route="/"
           title="Guest"
           icon="fas fa-user"/>
 
@@ -113,7 +115,7 @@ component NavbarItem {
     <a
       class="navbar-item"
       href={route}
-      onClick={Application.toggleMenu}>
+      onClick={Application.resetMenu}>
 
       <span>"#{title}"</span>
 
@@ -134,7 +136,7 @@ component NavbarUser {
     <a
       class="navbar-item"
       href={route}
-      onClick={Application.toggleMenu}>
+      onClick={Application.resetMenu}>
 
       <i::icon class="#{icon}"/>
       <span>"#{title}"</span>

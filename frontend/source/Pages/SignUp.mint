@@ -97,29 +97,6 @@ component Pages.SignUp {
 
         </button>
       </div>
-
-      <button
-        class="button is-primary"
-        onClick={
-          (event : Html.Event) : Promise(Never, String) {
-            sequence {
-              a =
-                "userId: #{userId}"
-
-              b =
-                "userName: #{userName}"
-
-              c =
-                "password: #{password}"
-
-              Debug.log("#{a}, #{b}, #{c}")
-            }
-          }
-        }>
-
-        <{ "debug" }>
-
-      </button>
     </div>
   }
 }

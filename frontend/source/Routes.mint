@@ -7,9 +7,9 @@ routes {
     Application.setPage(Page::SignUp)
   }
 
-  /user/:id {
+  /user/:id/timeline {
     sequence {
-      Application.setPage(Page::NotFound)
+      Application.setPage(Page::Timeline)
     }
   }
 

@@ -2,6 +2,7 @@ enum Page {
   Initial
   Home
   SignUp
+  Timeline
   NotFound
 }
 
@@ -37,10 +38,7 @@ store Application {
     sequence {
       next { userStatus = UserStatus::SignIn(user) }
 
-      url =
-        "/user/#{user.id}"
-
-      Window.navigate(url)
+      Window.navigate("/user/#{user.id}/timeline")
     }
   }
 }

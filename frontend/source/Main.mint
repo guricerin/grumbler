@@ -36,6 +36,8 @@ component Content {
 
           Page::SignUp => <Pages.SignUp/>
 
+          Page::Timeline => <Pages.Timeline/>
+
           Page::NotFound => notFound()
         }
       </section>

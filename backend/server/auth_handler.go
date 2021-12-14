@@ -67,8 +67,10 @@ func (s *Server) postSignup() gin.HandlerFunc {
 			session.Set(SESSION_TOKEN, token)
 			session.Save()
 
-			url := fmt.Sprintf("/user/%s", signupUser.Id)
-			c.Redirect(http.StatusFound, url)
+			c.JSON(http.StatusOK, gin.H{
+				"id":   signupUser.Id,
+				"name": signupUser.Name,
+			})
 		} else if err != nil && err != sql.ErrNoRows {
 			// todo: err msgをユーザ用に変更
 			c.JSON(http.StatusInternalServerError, errorRes(err))

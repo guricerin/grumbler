@@ -1,0 +1,10 @@
+FROM golang:1.17
+
+WORKDIR /go/src/app
+# copy source
+COPY . .
+RUN go get -u github.com/cosmtrek/air && \
+    go build -o /go/bin/app ./cmd/app/main.go
+
+EXPOSE 8080
+CMD ["air", "-c", ".air.toml"]

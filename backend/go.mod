@@ -6,6 +6,7 @@ require (
 	github.com/cosmtrek/air v1.27.8 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
+	github.com/gin-contrib/cors v1.3.1 // indirect
 	github.com/gin-contrib/sessions v0.0.4 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.7.7 // indirect
@@ -35,8 +36,8 @@ require (
 	github.com/spf13/viper v1.9.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/ugorji/go/codec v1.2.6 // indirect
-	golang.org/x/crypto v0.0.0-20211202192323-5770296d904e // indirect
-	golang.org/x/sys v0.0.0-20211209171907-798191bca915 // indirect
+	golang.org/x/crypto v0.0.0-20211209193657-4570a0811e8b // indirect
+	golang.org/x/sys v0.0.0-20211213223007-03aa0b5f6827 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect

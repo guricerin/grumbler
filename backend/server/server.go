@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -48,6 +49,17 @@ func (s *Server) setupRouter() {
 		HttpOnly: true,             // JSなどからのクッキーへのアクセスを禁止
 	})
 	router.Use(sessions.Sessions("grumbler_session", store))
+	// router.Use(cors.New(cors.Config{
+	// 	AllowOrigins:     []string{"http://localhost"},
+	// 	AllowMethods:     []string{"GET", "POST", "OPTIONS"},
+	// 	AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
+	// 	AllowCredentials: true,
+	// 	// PreFlight要求がキャッシュされる時間
+	// 	MaxAge: 24 * time.Hour,
+	// }))
+	corsconf := cors.DefaultConfig()
+	corsconf.AllowOrigins = []string{"http://localhost"}
+	router.Use(cors.New(corsconf))
 
 	router.GET("/api", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -133,5 +145,6 @@ func (s *Server) fetchUserFromSession(c *gin.Context) (user model.User, err erro
 }
 
 func errorRes(err error) gin.H {
-	return gin.H{"error": err.Error()}
+	es := []string{err.Error()}
+	return gin.H{"error": es}
 }

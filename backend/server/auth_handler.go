@@ -18,7 +18,7 @@ type signupUserReq struct {
 	Password string `json:"password" binding:"required,min=8,max=255"`
 }
 
-type loginUserReq struct {
+type signinUserReq struct {
 	Id       string `json:"id" binding:"required,alphanum,min=1,max=255"`
 	Password string `json:"password" binding:"required,min=8,max=255"`
 }
@@ -84,9 +84,9 @@ func (s *Server) postSignup() gin.HandlerFunc {
 	}
 }
 
-func (s *Server) postLogin() gin.HandlerFunc {
+func (s *Server) postSignIn() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req loginUserReq
+		var req signinUserReq
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			log.Printf("%s\n", err.Error())
@@ -133,8 +133,10 @@ func (s *Server) postLogin() gin.HandlerFunc {
 		session.Set(SESSION_TOKEN, token)
 		session.Save()
 
-		url := fmt.Sprintf("/user/%s", req.Id)
-		c.Redirect(http.StatusFound, url)
+		c.JSON(http.StatusOK, gin.H{
+			"id":   user.Id,
+			"name": user.Name,
+		})
 	}
 }
 

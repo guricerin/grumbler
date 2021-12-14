@@ -1,10 +1,8 @@
-component Pages.SignUp {
-  connect Stores.SignUp exposing {
+component Pages.SignIn {
+  connect Stores.SignIn exposing {
     setUserId,
-    setUserName,
     setPassword,
     userId,
-    userName,
     password,
     setApiStatus
   }
@@ -22,18 +20,17 @@ component Pages.SignUp {
 
   fun submit : Promise(Never, Void) {
     sequence {
-      signupUser =
+      signinUser =
         {
           id = userId,
-          name = userName,
-          password = password
+          password=password,
         }
 
       reqBody =
-        encode signupUser
+        encode signinUser
 
       status =
-        Http.post("#{@ENDPOINT}/signup")
+        Http.post("#{@ENDPOINT}/signin")
         |> Http.jsonBody(reqBody)
         |> Api.send(User.decodes)
 
@@ -67,19 +64,6 @@ component Pages.SignUp {
 
           <div class="field">
             <label class="label">
-              "User Name"
-            </label>
-
-            <input
-              class="input"
-              type="text"
-              placeholder="User Name"
-              value={userName}
-              onChange={handleInput(setUserName)}/>
-          </div>
-
-          <div class="field">
-            <label class="label">
               "Password"
             </label>
 
@@ -97,7 +81,7 @@ component Pages.SignUp {
           type="submit"
           onClick={submit}>
 
-          <{ "新規登録" }>
+          <{ "サインイン" }>
 
         </button>
       </div>

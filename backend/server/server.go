@@ -66,7 +66,7 @@ func (s *Server) setupRouter() {
 			"home": "hohoho",
 		})
 	})
-	router.POST("/api/login", s.postLogin())
+	router.POST("/api/signin", s.postSignIn())
 	router.POST("/api/signup", s.postSignup())
 
 	auth := router.Group("/api/auth")

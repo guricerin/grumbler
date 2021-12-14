@@ -4,6 +4,11 @@ record SignUpUser {
   password : String
 }
 
+record SignInUser {
+  id : String,
+  password : String
+}
+
 record User {
   id : String,
   name : String

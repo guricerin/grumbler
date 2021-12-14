@@ -2,6 +2,7 @@ enum Page {
   Initial
   Home
   SignUp
+  SignIn
   Timeline
   NotFound
 }

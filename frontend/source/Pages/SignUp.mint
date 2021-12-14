@@ -35,7 +35,7 @@ component Pages.SignUp {
       status =
         Http.post("#{@ENDPOINT}/signup")
         |> Http.jsonBody(reqBody)
-        |> Api.send(User.decode)
+        |> Api.send(User.decodes)
 
       case (status) {
         Api.Status::Ok(user) => Application.signin(user)
@@ -46,59 +46,57 @@ component Pages.SignUp {
 
   fun render : Html {
     <div::content class="column">
-      <form
-        action="#{@ENDPOINT}/signup"
-        method="post"
-        class="box form-box">
+      <div class="box form-box">
+        <form>
+          <div class="field">
+            <label class="label">
+              "User ID"
+            </label>
 
-        <div class="field">
-          <label class="label">
-            "User ID"
-          </label>
+            <input
+              class="input"
+              type="text"
+              placeholder="User ID"
+              value={userId}
+              onChange={handleInput(setUserId)}/>
+          </div>
 
-          <input
-            class="input"
-            type="text"
-            placeholder="User ID"
-            value={userId}
-            onChange={handleInput(setUserId)}/>
-        </div>
+          <div class="field">
+            <label class="label">
+              "User Name"
+            </label>
 
-        <div class="field">
-          <label class="label">
-            "User Name"
-          </label>
+            <input
+              class="input"
+              type="text"
+              placeholder="User Name"
+              value={userName}
+              onChange={handleInput(setUserName)}/>
+          </div>
 
-          <input
-            class="input"
-            type="text"
-            placeholder="User Name"
-            value={userName}
-            onChange={handleInput(setUserName)}/>
-        </div>
+          <div class="field">
+            <label class="label">
+              "Password"
+            </label>
 
-        <div class="field">
-          <label class="label">
-            "Password"
-          </label>
-
-          <input
-            class="input"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={handleInput(setPassword)}/>
-        </div>
+            <input
+              class="input"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={handleInput(setPassword)}/>
+          </div>
+        </form>
 
         <button
           class="button is-primary"
-          type="submit">
+          type="submit"
+          onClick={submit}>
 
           <{ "登録" }>
 
         </button>
-
-      </form>
+      </div>
 
       <button
         class="button is-primary"

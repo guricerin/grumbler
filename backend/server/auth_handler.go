@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -12,14 +13,14 @@ import (
 )
 
 type signupUserReq struct {
-	Id       string `json:"id" binding:"required, alphanum, min=1, max=255"`
-	Name     string `json:"name" binding:"required, min=1"`
-	Password string `json:"password" binding:"required, min=8, max=255"`
+	Id       string `json:"id" binding:"required,alphanum,min=1,max=255"`
+	Name     string `json:"name" binding:"required,min=1"`
+	Password string `json:"password" binding:"required,min=8,max=255"`
 }
 
 type loginUserReq struct {
-	Id       string `json:"id" binding:"required, alphanum, min=1, max=255"`
-	Password string `json:"password" binding:"required, min=8, max=255"`
+	Id       string `json:"id" binding:"required,alphanum,min=1,max=255"`
+	Password string `json:"password" binding:"required,min=8,max=255"`
 }
 
 func (s *Server) postSignup() gin.HandlerFunc {
@@ -88,6 +89,7 @@ func (s *Server) postLogin() gin.HandlerFunc {
 		var req loginUserReq
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
+			log.Printf("%s\n", err.Error())
 			return
 		}
 
@@ -96,10 +98,12 @@ func (s *Server) postLogin() gin.HandlerFunc {
 			if err == sql.ErrNoRows {
 				err := errors.New("id or password is wrong.")
 				c.JSON(http.StatusBadRequest, errorRes(err))
+				log.Printf("%s\n", err.Error())
 				return
 			} else {
 				// todo: err msgをユーザ用に変更
 				c.JSON(http.StatusInternalServerError, errorRes(err))
+				log.Printf("%s\n", err.Error())
 				return
 			}
 		}
@@ -107,6 +111,7 @@ func (s *Server) postLogin() gin.HandlerFunc {
 		if !verifyPasswordHash(user.Password, req.Password) {
 			err := errors.New("id or password is wrong.")
 			c.JSON(http.StatusBadRequest, errorRes(err))
+			log.Printf("%s\n", err.Error())
 			return
 		}
 
@@ -114,12 +119,14 @@ func (s *Server) postLogin() gin.HandlerFunc {
 		if err != nil {
 			// todo: err msgをユーザ用に変更
 			c.JSON(http.StatusInternalServerError, errorRes(err))
+			log.Printf("%s\n", err.Error())
 			return
 		}
 
 		if err = s.sessionStore.Create(token, user); err != nil {
 			// todo: err msgをユーザ用に変更
 			c.JSON(http.StatusInternalServerError, errorRes(err))
+			log.Printf("%s\n", err.Error())
 			return
 		}
 		session := sessions.Default(c)

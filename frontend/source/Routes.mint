@@ -9,7 +9,7 @@ routes {
 
   /user/:id {
     sequence {
-      Application.setPage(Page::Initial)
+      Application.setPage(Page::NotFound)
     }
   }
 

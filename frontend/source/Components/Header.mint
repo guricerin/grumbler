@@ -72,7 +72,7 @@ component Header {
 
   fun navbarItems : Array(Html) {
     case (userStatus) {
-      UserStatus::LoggedOut =>
+      UserStatus::Guest =>
         [
           <NavbarItem
             route="/signin"
@@ -82,7 +82,7 @@ component Header {
             title="Sign Up"/>
         ]
 
-      UserStatus::LoggedIn =>
+      UserStatus::SignIn(user) =>
         [
           <NavbarItem
             route="/signout"
@@ -93,16 +93,17 @@ component Header {
 
   fun navbarUser : Html {
     case (userStatus) {
-      UserStatus::LoggedOut =>
+      UserStatus::Guest =>
         <NavbarUser
           route="/"
           title="Guest"
           icon="fas fa-user"/>
 
-      UserStatus::LoggedIn =>
+      UserStatus::SignIn(user) =>
         <NavbarUser
-          route="/"
-          title="Login User"/>
+          route="/user/#{user.id}"
+          title="#{user.id}@#{user.name}"
+          icon="fas fa-user"/>
     }
   }
 }

@@ -58,7 +58,7 @@ func (s *Server) setupRouter() {
 	// 	MaxAge: 24 * time.Hour,
 	// }))
 	corsconf := cors.DefaultConfig()
-	corsconf.AllowOrigins = []string{"http://localhost"}
+	corsconf.AllowOrigins = []string{"http://localhost", "http://localhost:3000"}
 	router.Use(cors.New(corsconf))
 
 	router.GET("/api", func(c *gin.Context) {

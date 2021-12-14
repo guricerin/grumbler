@@ -10,7 +10,14 @@ record User {
 }
 
 module User {
-  fun decode (obj : Object) : Result(Object.Error, User) {
+  fun empty : User {
+    {
+      id = "",
+      name = ""
+    }
+  }
+
+  fun decodes (obj : Object) : Result(Object.Error, User) {
     decode obj as User
   }
 }

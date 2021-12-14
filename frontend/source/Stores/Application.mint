@@ -6,14 +6,14 @@ enum Page {
 }
 
 enum UserStatus {
-  LoggedOut
-  LoggedIn
+  Guest
+  SignIn(User)
 }
 
 store Application {
   state isNavMenuActive : Bool = false
   state page : Page = Page::Initial
-  state userStatus : UserStatus = UserStatus::LoggedOut
+  state userStatus : UserStatus = UserStatus::Guest
 
   fun toggleMenu : Promise(Never, Void) {
     next { isNavMenuActive = !isNavMenuActive }
@@ -34,6 +34,13 @@ store Application {
   }
 
   fun signin (user : User) : Promise(Never, Void) {
-    next { userStatus = UserStatus::LoggedIn }
+    sequence {
+      next { userStatus = UserStatus::SignIn(user) }
+
+      url =
+        "/user/#{user.id}"
+
+      Window.navigate(url)
+    }
   }
 }

@@ -19,9 +19,10 @@ component Pages.Error {
   get message : String {
     case (statusCode) {
       200 => "#{code} unreachable!"
-      403 => "#{code} Formidden."
-      404 => "#{code} Page not found."
-      500 => "#{code} Internal server error."
+      401 => "#{code} unauthorized"
+      403 => "#{code} forbidden"
+      404 => "#{code} not found"
+      500 => "#{code} internal server error"
       => "#{code} unexausted!"
     }
   } where {

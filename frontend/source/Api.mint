@@ -43,6 +43,7 @@ module Api {
       res =
         req
         |> Http.header("Content-Type", "application/json")
+        |> Http.withCredentials(true)
         |> Http.send()
 
       case (res.status) {

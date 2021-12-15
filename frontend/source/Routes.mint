@@ -1,18 +1,29 @@
 routes {
   / {
-    Application.setPage(Page::Home)
+    sequence {
+      Application.dbgUser()
+      Application.setPage(Page::Home)
+    }
   }
 
   /signup {
-    Application.setPage(Page::SignUp)
+    sequence {
+      Application.dbgUser()
+      Application.setPage(Page::SignUp)
+    }
   }
 
   /signin {
-    Application.setPage(Page::SignIn)
+    sequence {
+      Application.dbgUser()
+      Application.setPage(Page::SignIn)
+    }
   }
 
   /user/:id/signout (id : String) {
     sequence {
+      Application.dbgUser()
+
       case (Application.userStatus) {
         UserStatus::Guest => Application.setPage(Page::Error(403))
 
@@ -28,6 +39,8 @@ routes {
 
   /user/:id/timeline (id : String) {
     sequence {
+      Application.dbgUser()
+
       case (Application.userStatus) {
         UserStatus::Guest => Application.setPage(Page::Error(403))
 
@@ -42,6 +55,9 @@ routes {
   }
 
   * {
-    Application.setPage(Page::Error(404))
+    sequence {
+      Application.dbgUser()
+      Application.setPage(Page::Error(404))
+    }
   }
 }

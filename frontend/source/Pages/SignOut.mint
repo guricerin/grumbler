@@ -1,5 +1,11 @@
 component Pages.SignOut {
-  connect Application exposing { userStatus }
+  connect Application exposing { userStatus,signout }
+
+  state apiStatus : Api.Status(SignOutRes) = Api.Status::Initial
+
+  fun setApiStatus (v : Api.Status(SignOutRes)) : Promise(Never, Void) {
+    next { apiStatus = v }
+  }
 
   fun cancel (user : User, event : Html.Event) : Promise(Never, Void) {
     sequence {
@@ -8,7 +14,16 @@ component Pages.SignOut {
   }
 
   fun doSignOut (user : User, event : Html.Event) : Promise(Never, Void) {
-    Window.navigate("/user/#{user.id}/timeline")
+    sequence {
+      status =
+        Http.post("#{@ENDPOINT}/auth/user/#{user.id}/signout")
+        |> Api.send(SignOutRes.decodes)
+
+      case (status) {
+        Api.Status::Ok(res) => signout()
+        => setApiStatus(status)
+      }
+    }
   }
 
   style content {

@@ -19,6 +19,13 @@ store Application {
   state page : Page = Page::Initial
   state userStatus : UserStatus = UserStatus::Guest
 
+  fun dbgUser : String {
+    case (userStatus) {
+      UserStatus::Guest => Debug.log("Guest")
+      UserStatus::SignIn(user) => Debug.log("signin -  id: #{user.id}, name: #{user.name}")
+    }
+  }
+
   fun toggleMenu : Promise(Never, Void) {
     next { isNavMenuActive = !isNavMenuActive }
   }
@@ -46,7 +53,7 @@ store Application {
     }
   }
 
-  fun signout (user : User) : Promise(Never, Void) {
+  fun signout : Promise(Never, Void) {
     sequence {
       next { userStatus = UserStatus::Guest }
 

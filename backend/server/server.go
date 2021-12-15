@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
@@ -15,7 +16,7 @@ import (
 )
 
 const (
-	SESSION_TOKEN string = "sesstoken"
+	SESSION_TOKEN string = "grumbler_sesstoken"
 )
 
 type Server struct {
@@ -47,19 +48,17 @@ func (s *Server) setupRouter() {
 	store.Options(sessions.Options{
 		MaxAge:   60 * 60 * 24 * 7, // 寿命は一週間
 		HttpOnly: true,             // JSなどからのクッキーへのアクセスを禁止
+		SameSite: http.SameSiteLaxMode,
 	})
-	router.Use(sessions.Sessions("grumbler_session", store))
-	// router.Use(cors.New(cors.Config{
-	// 	AllowOrigins:     []string{"http://localhost"},
-	// 	AllowMethods:     []string{"GET", "POST", "OPTIONS"},
-	// 	AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
-	// 	AllowCredentials: true,
-	// 	// PreFlight要求がキャッシュされる時間
-	// 	MaxAge: 24 * time.Hour,
-	// }))
-	corsconf := cors.DefaultConfig()
-	corsconf.AllowOrigins = []string{"http://localhost", "http://localhost:3000"}
-	router.Use(cors.New(corsconf))
+	router.Use(sessions.Sessions(SESSION_TOKEN, store))
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost", "http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
+		AllowCredentials: true,
+		// PreFlight要求がキャッシュされる時間
+		MaxAge: 24 * time.Hour,
+	}))
 
 	router.GET("/api", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -73,12 +72,7 @@ func (s *Server) setupRouter() {
 	auth.Use(s.authenticationMiddleware())
 	{
 		auth.GET("/user/:id", s.getUser())
-		auth.GET("/user/:id/logout", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"is_logged_in": false,
-			})
-		})
-		auth.GET("/user/:id/signout", s.postSignOut())
+		auth.POST("/user/:id/signout", s.postSignOut())
 	}
 
 	s.router = router
@@ -90,7 +84,8 @@ func (s *Server) authenticationMiddleware() gin.HandlerFunc {
 		session := sessions.Default(c)
 		v := session.Get(SESSION_TOKEN)
 		if v == nil {
-			c.Redirect(http.StatusFound, "/login")
+			err := errors.New("unauthorized")
+			c.JSON(http.StatusUnauthorized, errorRes(err))
 			c.Abort()
 			return
 		}

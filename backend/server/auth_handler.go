@@ -192,7 +192,7 @@ func (s *Server) postSignOut() gin.HandlerFunc {
 		session.Clear()
 		session.Save()
 		c.JSON(http.StatusOK, gin.H{
-			"signout": true,
+			"ok": true,
 		})
 	}
 }

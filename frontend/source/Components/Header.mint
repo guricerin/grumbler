@@ -85,7 +85,7 @@ component Header {
       UserStatus::SignIn(user) =>
         [
           <NavbarItem
-            route="/signout"
+            route="/user/#{user.id}/signout"
             title="Sign Out"/>
         ]
     }

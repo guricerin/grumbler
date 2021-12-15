@@ -3,7 +3,9 @@ enum Page {
   Home
   SignUp
   SignIn
+  SignOut
   Timeline
+  Error(Number)
   NotFound
 }
 
@@ -28,6 +30,7 @@ store Application {
   fun initializeWithPage (page : Page) : Promise(Never, Void) {
     sequence {
       setPage(page)
+      Http.abortAll()
     }
   }
 
@@ -40,6 +43,14 @@ store Application {
       next { userStatus = UserStatus::SignIn(user) }
 
       Window.navigate("/user/#{user.id}/timeline")
+    }
+  }
+
+  fun signout (user : User) : Promise(Never, Void) {
+    sequence {
+      next { userStatus = UserStatus::Guest }
+
+      Window.navigate("/")
     }
   }
 }

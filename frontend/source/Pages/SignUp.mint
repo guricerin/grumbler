@@ -1,12 +1,23 @@
 component Pages.SignUp {
-  connect Stores.SignUp exposing {
-    setUserId,
-    setUserName,
-    setPassword,
-    userId,
-    userName,
-    password,
-    setApiStatus
+  state userId : String = ""
+  state userName : String = ""
+  state password : String = ""
+  state apiStatus : Api.Status(User) = Api.Status::Initial
+
+  fun setUserId (v : String) : Promise(Never, Void) {
+    next { userId = v }
+  }
+
+  fun setUserName (v : String) : Promise(Never, Void) {
+    next { userName = v }
+  }
+
+  fun setPassword (v : String) : Promise(Never, Void) {
+    next { password = v }
+  }
+
+  fun setApiStatus (v : Api.Status(User)) : Promise(Never, Void) {
+    next { apiStatus = v }
   }
 
   style content {

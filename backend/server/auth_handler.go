@@ -12,6 +12,10 @@ import (
 	"github.com/guricerin/grumbler/backend/model"
 )
 
+type getUserReq struct {
+	Id string `json:"id" binding:"required,alphanum,min=1,max=255"`
+}
+
 type signupUserReq struct {
 	Id       string `json:"id" binding:"required,alphanum,min=1,max=255"`
 	Name     string `json:"name" binding:"required,min=1"`
@@ -21,6 +25,28 @@ type signupUserReq struct {
 type signinUserReq struct {
 	Id       string `json:"id" binding:"required,alphanum,min=1,max=255"`
 	Password string `json:"password" binding:"required,min=8,max=255"`
+}
+
+func (s *Server) getUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req getUserReq
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+
+		user, err := s.userStore.RetrieveById(req.Id)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"id":   user.Id,
+			"name": user.Name,
+		})
+	}
 }
 
 func (s *Server) postSignup() gin.HandlerFunc {
@@ -140,7 +166,7 @@ func (s *Server) postSignIn() gin.HandlerFunc {
 	}
 }
 
-func (s *Server) postLogout() gin.HandlerFunc {
+func (s *Server) postSignOut() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// セッション破棄
 		session := sessions.Default(c)
@@ -165,6 +191,8 @@ func (s *Server) postLogout() gin.HandlerFunc {
 		}
 		session.Clear()
 		session.Save()
-		c.Redirect(http.StatusFound, "/")
+		c.JSON(http.StatusOK, gin.H{
+			"signout": true,
+		})
 	}
 }

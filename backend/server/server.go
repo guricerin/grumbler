@@ -72,16 +72,13 @@ func (s *Server) setupRouter() {
 	auth := router.Group("/api/auth")
 	auth.Use(s.authenticationMiddleware())
 	{
-		auth.GET("/user/:id", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"is_logged_in": true,
-			})
-		})
+		auth.GET("/user/:id", s.getUser())
 		auth.GET("/user/:id/logout", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"is_logged_in": false,
 			})
 		})
+		auth.GET("/user/:id/signout", s.postSignOut())
 	}
 
 	s.router = router

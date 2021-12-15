@@ -9,6 +9,10 @@ record SignInUser {
   password : String
 }
 
+record GetUserReq {
+  id : String
+}
+
 record User {
   id : String,
   name : String

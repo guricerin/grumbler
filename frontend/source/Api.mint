@@ -67,4 +67,21 @@ module Api {
       errorStatus("error", "status code: #{Number.toString(err.status)}, url: #{err.url}")
     }
   }
+
+  fun getUser (userId : String) : Promise(Never, Api.Status(User)) {
+    sequence {
+      getUserReq =
+        { id = userId }
+
+      reqBody =
+        encode getUserReq
+
+      status =
+        Http.get("#{@ENDPOINT}/user/#{userId}")
+        |> Http.jsonBody(reqBody)
+        |> Api.send(User.decodes)
+
+      status
+    }
+  }
 }

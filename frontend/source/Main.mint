@@ -38,7 +38,11 @@ component Content {
 
           Page::SignIn => <Pages.SignIn/>
 
+          Page::SignOut => <Pages.SignOut/>
+
           Page::Timeline => <Pages.Timeline/>
+
+          Page::Error(statusCode) => <Pages.Error statusCode={statusCode}/>
 
           Page::NotFound => notFound()
         }

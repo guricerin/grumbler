@@ -15,6 +15,15 @@ component Pages.SignIn {
     next { apiStatus = v }
   }
 
+  get error : Html {
+    case (apiStatus) {
+      Api.Status::Error => <Errors errors={es}/>
+      => Html.empty()
+    }
+  } where {
+    es = Api.errorsOf("error", apiStatus)
+  }
+
   style content {
     flex-direction: column;
   }
@@ -56,6 +65,7 @@ component Pages.SignIn {
   fun render : Html {
     <div::content class="column">
       <div class="box form-box">
+        <{error}>
         <form>
           <div class="field">
             <label class="label">

@@ -18,6 +18,14 @@ module Api {
       |> Map.set(key, [val])
   }
 
+  fun errorsOf(key:String, status : Api.Status(a)) : Array(String){
+    case (status) {
+      Api.Status::Error(errors) =>
+        errors |> Map.get(key) |> Maybe.withDefault([])
+      => []
+    }
+  }
+
   fun decodeErrors (res : Http.Response) : Api.Status(a) {
     try {
       body =

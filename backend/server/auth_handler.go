@@ -189,7 +189,10 @@ func (s *Server) postSignOut() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
+
 		session.Clear()
+		// クッキー削除
+		session.Options(sessions.Options{MaxAge: -1})
 		session.Save()
 		c.JSON(http.StatusOK, gin.H{
 			"ok": true,

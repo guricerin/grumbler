@@ -53,7 +53,7 @@ func (s *Server) setupRouter() {
 	router.Use(sessions.Sessions(SESSION_TOKEN, store))
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost", "http://localhost:3000"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "OPTION"},
 		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type"},
 		AllowCredentials: true,
 		// PreFlight要求がキャッシュされる時間

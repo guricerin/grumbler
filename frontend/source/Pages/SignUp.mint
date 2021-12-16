@@ -55,6 +55,16 @@ component Pages.SignUp {
     }
   }
 
+  get error : Html {
+    case (apiStatus) {
+      Api.Status::Error => <Errors errors={es}/>
+      => Html.empty()
+    }
+  } where {
+    es =
+      Api.errorsOf("error", apiStatus)
+  }
+
   style button {
     margin-top: 20px;
   }
@@ -63,6 +73,7 @@ component Pages.SignUp {
     <div::content class="column">
       <div class="box form-box">
         <form>
+        <{error}>
           <div class="field">
             <label class="label">
               "User ID"

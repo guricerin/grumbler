@@ -13,18 +13,25 @@ component Errors {
   }
 
   fun renderError (error : String) : Html {
-    <div>
+    <li>
       <{ error }>
-    </div>
+    </li>
   }
 
   fun render : Html {
     if (Array.isEmpty(errors)) {
       Html.empty()
     } else {
-      <div::base>
+      <article class="message is-danger">
+        <div class="message-header">
+          <p>"Error"</p>
+        </div>
+        <div class="message-body">
+          <ul>
         <{ Array.map(renderError, errors) }>
-      </div>
+          </ul>
+        </div>
+      </article>
     }
   }
 }

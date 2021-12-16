@@ -73,7 +73,8 @@ component Pages.SignUp {
     <div::content class="column">
       <div class="box form-box">
         <form>
-        <{error}>
+          <{ error }>
+
           <div class="field">
             <label class="label">
               "User ID"

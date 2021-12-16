@@ -26,9 +26,10 @@ component Errors {
         <div class="message-header">
           <p>"Error"</p>
         </div>
+
         <div class="message-body">
           <ul>
-        <{ Array.map(renderError, errors) }>
+            <{ Array.map(renderError, errors) }>
           </ul>
         </div>
       </article>

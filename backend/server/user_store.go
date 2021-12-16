@@ -37,3 +37,9 @@ func (s *userStore) RetrieveByPk(pk uint) (model.User, error) {
 	}
 	return user, nil
 }
+
+// 対象ユーザに対応する他のテーブルの行も削除する
+func (s *userStore) DeleteByPk(pk uint) error {
+	_, err := s.db.Exec("delete u, s from users as u left join sessions as s on u.pk = s.user_pk where u.pk = ?", pk)
+	return err
+}

@@ -5,10 +5,6 @@ enum Api.Status(a) {
   Ok(a)
 }
 
-record ErrorResponse {
-  errors : Map(String, Array(String))
-}
-
 module Api {
   fun errorStatus (key : String, val : String) : Api.Status(a) {
     Api.Status::Error(err)
@@ -18,10 +14,13 @@ module Api {
       |> Map.set(key, [val])
   }
 
-  fun errorsOf(key:String, status : Api.Status(a)) : Array(String){
+  fun errorsOf (key : String, status : Api.Status(a)) : Array(String) {
     case (status) {
       Api.Status::Error(errors) =>
-        errors |> Map.get(key) |> Maybe.withDefault([])
+        errors
+        |> Map.get(key)
+        |> Maybe.withDefault([])
+
       => []
     }
   }
@@ -30,12 +29,14 @@ module Api {
     try {
       body =
         Json.parse(res.body)
-        |> Maybe.toResult("resEttToStatus: json parse error.")
+        |> Maybe.toResult("decodeErrors() json parse error.")
+
+      Debug.log(body)
 
       errors =
-        decode body as ErrorResponse
+        decode body as Map(String, Array(String))
 
-      Api.Status::Error(errors.errors)
+      Api.Status::Error(errors)
     } catch Object.Error => err {
       errorStatus("error", Object.Error.toString(err))
     } catch String => err {
@@ -60,6 +61,8 @@ module Api {
             obj =
               Json.parse(res.body)
               |> Maybe.toResult("response json parse error.")
+
+            Debug.log(obj)
 
             data =
               decoder(obj)

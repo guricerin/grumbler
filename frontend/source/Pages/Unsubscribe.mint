@@ -1,4 +1,4 @@
-component Pages.SignOut {
+component Pages.Unsubscribe {
   connect Application exposing { userStatus, signout }
 
   state apiStatus : Api.Status(SignOutRes) = Api.Status::Initial
@@ -23,10 +23,10 @@ component Pages.SignOut {
     }
   }
 
-  fun doSignOut (user : User, event : Html.Event) : Promise(Never, Void) {
+  fun doUnsubscribe (user : User, event : Html.Event) : Promise(Never, Void) {
     sequence {
       status =
-        Http.post("#{@ENDPOINT}/auth/user/#{user.id}/signout")
+        Http.post("#{@ENDPOINT}/auth/user/#{user.id}/unsubscribe")
         |> Api.send(SignOutRes.decodes)
 
       case (status) {
@@ -48,13 +48,13 @@ component Pages.SignOut {
     <div::content class="column">
       <div class="box form-box">
         <{ error }>
-        <p>"サインアウトしますか？"</p>
+        <p>"退会しますか？"</p>
         <br/>
 
         <button::button
           class="button is-primary"
           type="submit"
-          onClick={doSignOut(user)}>
+          onClick={doUnsubscribe(user)}>
 
           <{ "はい" }>
 

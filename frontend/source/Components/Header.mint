@@ -86,7 +86,10 @@ component Header {
         [
           <NavbarItem
             route="/user/#{user.id}/signout"
-            title="Sign Out"/>
+            title="Sign Out"/>,
+          <NavbarItem
+            route="/user/#{user.id}/unsubscribe"
+            title="Unsubscribe"/>
         ]
     }
   }

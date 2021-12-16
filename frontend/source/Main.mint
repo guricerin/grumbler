@@ -40,11 +40,11 @@ component Content {
 
           Page::SignOut => <Pages.SignOut/>
 
+          Page::Unsubscribe => <Pages.Unsubscribe/>
+
           Page::Timeline => <Pages.Timeline/>
 
           Page::Error(statusCode) => <Pages.Error statusCode={statusCode}/>
-
-          Page::NotFound => notFound()
         }
       </section>
     </div>
@@ -65,15 +65,6 @@ component Content {
     font-weight: bold;
   }
 
-  style notFound {
-    height: 100vh;
-
-    /* width: 100vw; */
-    align-items: center;
-    justify-content: center;
-    display: flex;
-  }
-
   fun index : Html {
     <div::app>
       <Logo/>
@@ -91,11 +82,5 @@ component Content {
   } where {
     apiurl =
       "#{@ENDPOINT}/api"
-  }
-
-  fun notFound : Html {
-    <div::notFound>
-      <p>"404 page not found."</p>
-    </div>
   }
 }

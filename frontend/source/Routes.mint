@@ -21,37 +21,15 @@ routes {
   }
 
   /user/:id/signout (id : String) {
-    sequence {
-      Application.dbgUser()
+    Application.setPageWithAuthentication(id, Page::SignOut)
+  }
 
-      case (Application.userStatus) {
-        UserStatus::Guest => Application.setPage(Page::Error(403))
-
-        UserStatus::SignIn(user) =>
-          if (user.id == id) {
-            Application.setPage(Page::SignOut)
-          } else {
-            Application.setPage(Page::Error(403))
-          }
-      }
-    }
+  /user/:id/unsubscribe (id : String) {
+    Application.setPageWithAuthentication(id, Page::Unsubscribe)
   }
 
   /user/:id/timeline (id : String) {
-    sequence {
-      Application.dbgUser()
-
-      case (Application.userStatus) {
-        UserStatus::Guest => Application.setPage(Page::Error(403))
-
-        UserStatus::SignIn(user) =>
-          if (user.id == id) {
-            Application.setPage(Page::Timeline)
-          } else {
-            Application.setPage(Page::Error(403))
-          }
-      }
-    }
+    Application.setPageWithAuthentication(id, Page::Timeline)
   }
 
   * {

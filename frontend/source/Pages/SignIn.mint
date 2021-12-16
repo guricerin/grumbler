@@ -21,7 +21,8 @@ component Pages.SignIn {
       => Html.empty()
     }
   } where {
-    es = Api.errorsOf("error", apiStatus)
+    es =
+      Api.errorsOf("error", apiStatus)
   }
 
   style content {
@@ -65,7 +66,8 @@ component Pages.SignIn {
   fun render : Html {
     <div::content class="column">
       <div class="box form-box">
-        <{error}>
+        <{ error }>
+
         <form>
           <div class="field">
             <label class="label">

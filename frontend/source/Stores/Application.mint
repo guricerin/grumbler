@@ -4,9 +4,9 @@ enum Page {
   SignUp
   SignIn
   SignOut
+  Unsubscribe
   Timeline
   Error(Number)
-  NotFound
 }
 
 enum UserStatus {
@@ -38,6 +38,23 @@ store Application {
     sequence {
       setPage(page)
       Http.abortAll()
+    }
+  }
+
+  fun setPageWithAuthentication (userId : String, page : Page) : Promise(Never, Void) {
+    sequence {
+      dbgUser()
+
+      case (userStatus) {
+        UserStatus::Guest => setPage(Page::Error(403))
+
+        UserStatus::SignIn(user) =>
+          if (user.id == userId) {
+            setPage(page)
+          } else {
+            setPage(Page::Error(403))
+          }
+      }
     }
   }
 

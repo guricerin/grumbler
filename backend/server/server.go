@@ -73,6 +73,7 @@ func (s *Server) setupRouter() {
 	{
 		auth.GET("/user/:id", s.getUser())
 		auth.POST("/user/:id/signout", s.postSignOut())
+		auth.POST("/user/:id/unsubscribe", s.postUnsubscribe())
 	}
 
 	s.router = router
@@ -113,6 +114,22 @@ func (s *Server) authenticationMiddleware() gin.HandlerFunc {
 		session.Save()
 		c.Next()
 	}
+}
+
+func (s *Server) fetchSessToken(session sessions.Session) (string, error) {
+	v := session.Get(SESSION_TOKEN)
+	if v == nil {
+		// todo: err msgをユーザ用に変更
+		err := errors.New("cookie is not set.")
+		return "", err
+	}
+	token, ok := v.(string)
+	if !ok {
+		// todo: err msgをユーザ用に変更
+		err := errors.New("token is not string.")
+		return "", err
+	}
+	return token, nil
 }
 
 func (s *Server) fetchUserFromSession(c *gin.Context) (user model.User, err error) {

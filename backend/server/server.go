@@ -60,18 +60,14 @@ func (s *Server) setupRouter() {
 		MaxAge: 24 * time.Hour,
 	}))
 
-	router.GET("/api", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"home": "hohoho",
-		})
-	})
 	router.POST("/api/signin", s.postSignIn())
-	router.POST("/api/signup", s.postSignup())
+	router.POST("/api/signup", s.postSignUp())
 
 	auth := router.Group("/api/auth")
 	auth.Use(s.authenticationMiddleware())
 	{
 		auth.GET("/user/:id", s.getUser())
+		auth.GET("/search", s.getSearch())
 		auth.POST("/user/:id/signout", s.postSignOut())
 		auth.POST("/user/:id/unsubscribe", s.postUnsubscribe())
 	}
@@ -83,18 +79,8 @@ func (s *Server) setupRouter() {
 func (s *Server) authenticationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
-		v := session.Get(SESSION_TOKEN)
-		if v == nil {
-			err := errors.New("unauthorized")
-			c.JSON(http.StatusUnauthorized, errorRes(err))
-			c.Abort()
-			return
-		}
-
-		oldToken, ok := v.(string)
-		if !ok {
-			// todo: err msgをユーザ用に変更
-			err := errors.New("token is not string")
+		oldToken, err := s.fetchSessToken(session)
+		if err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			c.Abort()
 			return
@@ -119,14 +105,12 @@ func (s *Server) authenticationMiddleware() gin.HandlerFunc {
 func (s *Server) fetchSessToken(session sessions.Session) (string, error) {
 	v := session.Get(SESSION_TOKEN)
 	if v == nil {
-		// todo: err msgをユーザ用に変更
-		err := errors.New("cookie is not set.")
+		err := errors.New("unauthenticated")
 		return "", err
 	}
 	token, ok := v.(string)
 	if !ok {
-		// todo: err msgをユーザ用に変更
-		err := errors.New("token is not string.")
+		err := errors.New("illegal token")
 		return "", err
 	}
 	return token, nil
@@ -135,14 +119,8 @@ func (s *Server) fetchSessToken(session sessions.Session) (string, error) {
 func (s *Server) fetchUserFromSession(c *gin.Context) (user model.User, err error) {
 	user = model.User{}
 	session := sessions.Default(c)
-	v := session.Get(SESSION_TOKEN)
-	if v == nil {
-		err = errors.New("cookie value not set.")
-		return
-	}
-	token, ok := v.(string)
-	if !ok {
-		err = errors.New("cookie value is not string.")
+	token, err := s.fetchSessToken(session)
+	if err != nil {
 		return
 	}
 	sess, err := s.sessionStore.RetrieveByToken(token)

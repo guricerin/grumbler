@@ -1,0 +1,10 @@
+{
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "\\.mint$",
+        "cmd": "cd ${workspaceFolder}/frontend && mint format"
+      }
+    ]
+  }
+}

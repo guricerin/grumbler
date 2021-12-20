@@ -18,6 +18,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
+
 	s := server.NewServer(cfg, db)
 
 	if err := s.Run(); err != nil {

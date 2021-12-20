@@ -85,6 +85,9 @@ component Header {
       UserStatus::SignIn(user) =>
         [
           <NavbarItem
+            route="/search"
+            title="Search"/>,
+          <NavbarItem
             route="/user/#{user.id}/signout"
             title="Sign Out"/>,
           <NavbarItem
@@ -105,7 +108,7 @@ component Header {
       UserStatus::SignIn(user) =>
         <NavbarUser
           route="/user/#{user.id}"
-          title="#{user.id}@#{user.name}"
+          title="#{user.name}@#{user.id}"
           icon="fas fa-user"/>
     }
   }

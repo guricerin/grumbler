@@ -49,7 +49,23 @@ func (s *Server) getUser() gin.HandlerFunc {
 	}
 }
 
-func (s *Server) postSignup() gin.HandlerFunc {
+// ページリソースのユーザと、それにアクセスしようとしているユーザは同一か
+func (s *Server) authorizationCheck(c *gin.Context) (bool, error) {
+	userId := c.Param("id")
+	rsrcUser, err := s.userStore.RetrieveById(userId)
+	if err != nil {
+		return false, err
+	}
+	curUser, err := s.fetchUserFromSession(c)
+	if err != nil {
+		return false, err
+	}
+
+	ok := rsrcUser.Pk == curUser.Pk
+	return ok, nil
+}
+
+func (s *Server) postSignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req signupUserReq
 		if err := c.BindJSON(&req); err != nil {
@@ -70,6 +86,7 @@ func (s *Server) postSignup() gin.HandlerFunc {
 				Id:       req.Id,
 				Name:     req.Name,
 				Password: hashedPassword,
+				Profile:  "", // 後から設定させる
 			}
 			err = s.userStore.Create(signupUser)
 			if err != nil {
@@ -168,6 +185,11 @@ func (s *Server) postSignIn() gin.HandlerFunc {
 
 func (s *Server) postSignOut() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		ok, err := s.authorizationCheck(c)
+		if err != nil || !ok {
+			c.JSON(http.StatusForbidden, errorRes(errors.New("forbidden")))
+			return
+		}
 		session := sessions.Default(c)
 		token, err := s.fetchSessToken(session)
 		if err != nil {
@@ -193,6 +215,11 @@ func (s *Server) postSignOut() gin.HandlerFunc {
 
 func (s *Server) postUnsubscribe() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		ok, err := s.authorizationCheck(c)
+		if err != nil || !ok {
+			c.JSON(http.StatusForbidden, errorRes(errors.New("forbidden")))
+			return
+		}
 		session := sessions.Default(c)
 		token, err := s.fetchSessToken(session)
 		if err != nil {

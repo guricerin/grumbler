@@ -38,6 +38,7 @@ component Content {
 
           Page::SignIn => <Pages.SignIn/>
 
+          Page::Search => <Pages.Search/>
           Page::SignOut => <Pages.SignOut/>
 
           Page::Unsubscribe => <Pages.Unsubscribe/>

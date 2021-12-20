@@ -48,7 +48,16 @@ component Pages.Unsubscribe {
     <div::content class="column">
       <div class="box form-box">
         <{ error }>
-        <p>"退会しますか？"</p>
+        <p>"以下のアカウントを削除し、本サービスからの退会手続きを行います。"</p>
+
+        <div class="content">
+          <ul>
+            <p>"アカウント名 : #{user.name}"</p>
+            <p>"アカウントID : #{user.id}"</p>
+          </ul>
+        </div>
+
+        <p>"退会しますか？（削除したアカウントは復旧できません）"</p>
         <br/>
 
         <button::button

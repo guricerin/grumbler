@@ -15,18 +15,34 @@ record GetUserReq {
 
 record User {
   id : String,
-  name : String
+  name : String,
+  profile : String
 }
 
 module User {
   fun empty : User {
     {
       id = "",
-      name = ""
+      name = "",
+      profile = ""
     }
   }
 
   fun decodes (obj : Object) : Result(Object.Error, User) {
     decode obj as User
+  }
+}
+
+record Users {
+  users : Array(User)
+}
+
+module Users {
+  fun empty : Users {
+    { users = [] }
+  }
+
+  fun decodes (obj : Object) : Result(Object.Error, Users) {
+    decode obj as Users
   }
 }

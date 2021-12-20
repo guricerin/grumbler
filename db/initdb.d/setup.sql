@@ -15,7 +15,8 @@ create table `users` (
     `pk` int unsigned auto_increment primary key not null,
     `id` varchar(255) unique not null,
     `name` varchar(255) not null,
-    `password` varchar(255) not null
+    `password` varchar(255) not null,
+    `profile` varchar(255) not null
 );
 
 create table `sessions` (

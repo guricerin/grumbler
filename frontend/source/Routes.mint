@@ -20,16 +20,27 @@ routes {
     }
   }
 
+  /search {
+    Application.setPageWithAuthentication(Page::Search)
+  }
+
+  /search?q=:q&k=:k (q : String, k : String) {
+    sequence {
+      Stores.Search.setSearchWord(q)
+      Application.setPageWithAuthentication(Page::Search)
+    }
+  }
+
   /user/:id/signout (id : String) {
-    Application.setPageWithAuthentication(id, Page::SignOut)
+    Application.setPageWithAuthorization(id, Page::SignOut)
   }
 
   /user/:id/unsubscribe (id : String) {
-    Application.setPageWithAuthentication(id, Page::Unsubscribe)
+    Application.setPageWithAuthorization(id, Page::Unsubscribe)
   }
 
   /user/:id/timeline (id : String) {
-    Application.setPageWithAuthentication(id, Page::Timeline)
+    Application.setPageWithAuthorization(id, Page::Timeline)
   }
 
   * {

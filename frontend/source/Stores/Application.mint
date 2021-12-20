@@ -5,6 +5,7 @@ enum Page {
   SignIn
   SignOut
   Unsubscribe
+  Search
   Timeline
   Error(Number)
 }
@@ -41,7 +42,18 @@ store Application {
     }
   }
 
-  fun setPageWithAuthentication (userId : String, page : Page) : Promise(Never, Void) {
+  fun setPageWithAuthentication (page : Page) : Promise(Never, Void) {
+    sequence {
+      case (userStatus) {
+        UserStatus::Guest => setPage(Page::Error(401))
+
+        UserStatus::SignIn(user) =>
+          setPage(page)
+      }
+    }
+  }
+
+  fun setPageWithAuthorization (userId : String, page : Page) : Promise(Never, Void) {
     sequence {
       dbgUser()
 

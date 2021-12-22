@@ -11,7 +11,7 @@ component Pages.Home {
         </h1>
 
         <hr/>
-        <p>"GrumblerはTwitterの二次劣化Webアプリです。"</p>
+        <p>"GrumblerはTwitterの劣化パクりWebアプリです。"</p>
         <p>"'Grumble' は「ぼやく」という意味らしいです。"</p>
       </div>
 

@@ -62,6 +62,7 @@ func (s *Server) setupRouter() {
 
 	router.POST("/api/signin", s.postSignIn())
 	router.POST("/api/signup", s.postSignUp())
+	router.GET("/api/signin-check", s.signinCheck())
 
 	auth := router.Group("/api/auth")
 	auth.Use(s.authenticationMiddleware())
@@ -129,6 +130,14 @@ func (s *Server) fetchUserFromSession(c *gin.Context) (user model.User, err erro
 	}
 	user, err = s.userStore.RetrieveByPk(sess.UserPk)
 	return
+}
+
+func userRes(user model.User) gin.H {
+	return gin.H{
+		"id":      user.Id,
+		"name":    user.Name,
+		"profile": user.Profile,
+	}
 }
 
 func errorRes(err error) gin.H {

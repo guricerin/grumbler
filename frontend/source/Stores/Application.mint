@@ -35,15 +35,34 @@ store Application {
     next { isNavMenuActive = false }
   }
 
+  fun signinCheck : Promise(Never, Void) {
+    sequence {
+      status =
+        Http.get("#{@ENDPOINT}/signin-check")
+        |> Api.send(User.decodes)
+
+      case (status) {
+        Api.Status::Ok(user) => next { userStatus = UserStatus::SignIn(user) }
+        => next { userStatus = UserStatus::Guest }
+      }
+    }
+  }
+
+  fun setPage (page : Page) : Promise(Never, Void) {
+    next { page = page }
+  }
+
   fun initializeWithPage (page : Page) : Promise(Never, Void) {
     sequence {
+      signinCheck()
       setPage(page)
-      Http.abortAll()
     }
   }
 
   fun setPageWithAuthentication (page : Page) : Promise(Never, Void) {
     sequence {
+      signinCheck()
+
       case (userStatus) {
         UserStatus::Guest => setPage(Page::Error(401))
 
@@ -55,7 +74,7 @@ store Application {
 
   fun setPageWithAuthorization (userId : String, page : Page) : Promise(Never, Void) {
     sequence {
-      dbgUser()
+      signinCheck()
 
       case (userStatus) {
         UserStatus::Guest => setPage(Page::Error(403))
@@ -68,10 +87,6 @@ store Application {
           }
       }
     }
-  }
-
-  fun setPage (page : Page) : Promise(Never, Void) {
-    next { page = page }
   }
 
   fun signin (user : User) : Promise(Never, Void) {

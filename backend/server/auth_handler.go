@@ -27,6 +27,19 @@ type signinUserReq struct {
 	Password string `json:"password" binding:"required,min=8,max=255"`
 }
 
+func (s *Server) signinCheck() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusUnauthorized, errorRes(err))
+			return
+		}
+
+		c.JSON(http.StatusOK, userRes(user))
+	}
+}
+
 func (s *Server) getUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req getUserReq
@@ -42,10 +55,7 @@ func (s *Server) getUser() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"id":   user.Id,
-			"name": user.Name,
-		})
+		c.JSON(http.StatusOK, userRes(user))
 	}
 }
 
@@ -112,8 +122,9 @@ func (s *Server) postSignUp() gin.HandlerFunc {
 			session.Save()
 
 			c.JSON(http.StatusOK, gin.H{
-				"id":   signupUser.Id,
-				"name": signupUser.Name,
+				"id":      signupUser.Id,
+				"name":    signupUser.Name,
+				"profile": "",
 			})
 		} else if err != nil && err != sql.ErrNoRows {
 			// todo: err msgをユーザ用に変更
@@ -172,22 +183,27 @@ func (s *Server) postSignIn() gin.HandlerFunc {
 			log.Printf("%s\n", err.Error())
 			return
 		}
+
 		session := sessions.Default(c)
 		session.Set(SESSION_TOKEN, token)
 		session.Save()
-
-		c.JSON(http.StatusOK, gin.H{
-			"id":   user.Id,
-			"name": user.Name,
-		})
+		c.JSON(http.StatusOK, userRes(user))
 	}
 }
 
 func (s *Server) postSignOut() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ok, err := s.authorizationCheck(c)
-		if err != nil || !ok {
-			c.JSON(http.StatusForbidden, errorRes(errors.New("forbidden")))
+		// if err != nil || !ok {
+		// 	c.JSON(http.StatusForbidden, errorRes(errors.New("forbidden")))
+		// 	return
+		// }
+		if err != nil {
+			c.JSON(http.StatusForbidden, errorRes(err))
+			return
+		}
+		if !ok {
+			c.JSON(http.StatusForbidden, errorRes(errors.New("wrong")))
 			return
 		}
 		session := sessions.Default(c)

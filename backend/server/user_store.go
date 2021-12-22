@@ -16,7 +16,7 @@ func NewUserStore(db *sql.DB) userStore {
 }
 
 func (s *userStore) Create(user model.User) error {
-	_, err := s.db.Exec("insert into users (id, name, password, profile) values (?, ?, ?)", user.Id, user.Name, user.Password, user.Profile)
+	_, err := s.db.Exec("insert into users (id, name, password, profile) values (?, ?, ?, ?)", user.Id, user.Name, user.Password, user.Profile)
 	return err
 }
 

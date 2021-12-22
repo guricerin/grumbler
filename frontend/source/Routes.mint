@@ -2,7 +2,7 @@ routes {
   / {
     sequence {
       Application.dbgUser()
-      Application.setPage(Page::Home)
+      Application.initializeWithPage(Page::Home)
     }
   }
 

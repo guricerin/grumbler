@@ -20,13 +20,16 @@ routes {
     }
   }
 
-  /search {
-    Application.setPageWithAuthentication(Page::Search)
+  /search?q=:query&k=:kind (query : String, kind : String) {
+    sequence {
+      Stores.Search.search(query, kind)
+      Application.setPageWithAuthentication(Page::Search)
+    }
   }
 
-  /search?q=:q&k=:k (q : String, k : String) {
+  /search {
     sequence {
-      Stores.Search.setSearchWord(q)
+      Stores.Search.resetApiStatus()
       Application.setPageWithAuthentication(Page::Search)
     }
   }

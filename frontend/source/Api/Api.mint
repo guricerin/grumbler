@@ -1,6 +1,5 @@
 enum Api.Status(a) {
   Initial
-  Processing
   Error(Map(String, Array(String)))
   Ok(a)
 }

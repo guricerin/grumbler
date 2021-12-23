@@ -19,6 +19,7 @@ component Pages.Error {
   get message : String {
     case (statusCode) {
       200 => "#{code} unreachable!"
+      400 => "#{code} bad request"
       401 => "#{code} unauthorized"
       403 => "#{code} forbidden"
       404 => "#{code} not found"

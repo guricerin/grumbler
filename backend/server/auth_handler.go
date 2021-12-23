@@ -207,22 +207,24 @@ func (s *Server) postSignOut() gin.HandlerFunc {
 			return
 		}
 		session := sessions.Default(c)
-		token, err := s.fetchSessToken(session)
+		user, err := s.fetchUserFromSession(c)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
-		if err := s.sessionStore.DeleteByToken(token); err != nil {
+		err = s.deleteCookie(session)
+		if err != nil {
 			// todo: err msgをユーザ用に変更
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
 
-		// セッション破棄
-		session.Clear()
-		// クッキー削除
-		session.Options(sessions.Options{MaxAge: -1})
-		session.Save()
+		if err := s.sessionStore.DeleteByUserPk(user.Pk); err != nil {
+			// todo: err msgをユーザ用に変更
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
 		c.JSON(http.StatusOK, gin.H{
 			"ok": true,
 		})
@@ -242,6 +244,13 @@ func (s *Server) postUnsubscribe() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
+		err = s.deleteCookie(session)
+		if err != nil {
+			// todo: err msgをユーザ用に変更
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
 		sess, err := s.sessionStore.RetrieveByToken(token)
 		if err != nil {
 			// todo: err msgをユーザ用に変更
@@ -255,11 +264,6 @@ func (s *Server) postUnsubscribe() gin.HandlerFunc {
 			return
 		}
 
-		// セッション破棄
-		session.Clear()
-		// クッキー削除
-		session.Options(sessions.Options{MaxAge: -1})
-		session.Save()
 		c.JSON(http.StatusOK, gin.H{
 			"ok": true,
 		})

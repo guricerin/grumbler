@@ -10,8 +10,8 @@ import (
 
 func (s *Server) getSearch() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		word := c.Query("q")
-		if word == "" {
+		query := c.Query("q")
+		if query == "" {
 			c.JSON(http.StatusBadRequest, errorRes(errors.New("検索対象のワードが指定されていません。")))
 			return
 		}
@@ -23,7 +23,7 @@ func (s *Server) getSearch() gin.HandlerFunc {
 
 		switch kind {
 		case "user_id":
-			users, err := s.userStore.SearchById(word)
+			users, err := s.userStore.SearchById(query)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, errorRes(err))
 				return

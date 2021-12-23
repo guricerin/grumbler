@@ -46,6 +46,7 @@ func (s *Server) setupRouter() {
 	// todo: 'secret'は設定ファイルで指定可能にすべき？
 	store := cookie.NewStore([]byte("secret"))
 	store.Options(sessions.Options{
+		Path:     "/api",
 		MaxAge:   60 * 60 * 24 * 7, // 寿命は一週間
 		HttpOnly: true,             // JSなどからのクッキーへのアクセスを禁止
 		SameSite: http.SameSiteLaxMode,
@@ -96,7 +97,14 @@ func (s *Server) authenticationMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		s.sessionStore.Update(oldToken, newToken)
+		err = s.sessionStore.Update(oldToken, newToken)
+		if err != nil {
+			// todo: err msgをユーザ用に変更
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.Abort()
+			return
+		}
+		session.Clear()
 		session.Set(SESSION_TOKEN, newToken)
 		session.Save()
 		c.Next()
@@ -115,6 +123,15 @@ func (s *Server) fetchSessToken(session sessions.Session) (string, error) {
 		return "", err
 	}
 	return token, nil
+}
+
+func (s *Server) deleteCookie(session sessions.Session) (err error) {
+	// セッション破棄
+	session.Clear()
+	// クッキー削除
+	session.Options(sessions.Options{MaxAge: -1})
+	err = session.Save()
+	return
 }
 
 func (s *Server) fetchUserFromSession(c *gin.Context) (user model.User, err error) {

@@ -52,8 +52,13 @@ component Pages.Unsubscribe {
 
         <div class="content">
           <ul>
-            <p>"アカウント名 : #{user.name}"</p>
-            <p>"アカウントID : #{user.id}"</p>
+            <li>
+              <p>"アカウント名 : #{user.name}"</p>
+            </li>
+
+            <li>
+              <p>"アカウントID : #{user.id}"</p>
+            </li>
           </ul>
         </div>
 

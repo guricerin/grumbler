@@ -1,16 +1,20 @@
 component Pages.Search {
   state searchWord : String = ""
-  state apiStatus : Api.Status(Users) = Api.Status::Initial
+
+  /* state apiStatus : Api.Status(Users) = Api.Status::Initial */
   state rsltUsers : Users = Users.empty()
+
+  connect Stores.Search exposing { apiStatus }
 
   fun setSearchWord (v : String) : Promise(Never, Void) {
     next { searchWord = v }
   }
 
+  /*
   fun setApiStatus (v : Api.Status(Users)) : Promise(Never, Void) {
-    next { apiStatus = v }
-  }
-
+     next { apiStatus = v }
+   }
+  */
   fun resetSearchResult : Promise(Never, Void) {
     next { rsltUsers = Users.empty() }
   }
@@ -24,20 +28,7 @@ component Pages.Search {
 
   fun searchWithUserId : Promise(Never, Void) {
     sequence {
-      status =
-        Http.get("#{@ENDPOINT}/auth/search?q=#{searchWord}&k=user_id")
-        |> Api.send(Users.decodes)
-
-      case (status) {
-        Api.Status::Ok(users) =>
-          sequence {
-            resetSearchResult()
-            next { rsltUsers = users }
-            Window.navigate("/search?q=#{searchWord}&k=user_id")
-          }
-
-        => setApiStatus(status)
-      }
+      Window.navigate("/search?q=#{searchWord}&k=user_id")
     }
   }
 
@@ -57,6 +48,24 @@ component Pages.Search {
 
   style button {
     margin-top: 20px;
+  }
+
+  fun showStatus (status : Api.Status(SearchResultKind)) : Html {
+    case (status) {
+      Api.Status::Initial => Html.empty()
+      Api.Status::Error(err) => <Errors errors={es}/>
+      Api.Status::Ok(res) => showResult(res)
+    }
+  } where {
+    es =
+      Api.errorsOf("error", apiStatus)
+  }
+
+  fun showResult (res : SearchResultKind) : Html {
+    case (res) {
+      SearchResultKind::Initial => Html.empty()
+      SearchResultKind::Users(users) => <UserList users={users}/>
+    }
   }
 
   fun render : Html {
@@ -85,7 +94,7 @@ component Pages.Search {
         </button>
       </div>
 
-      <UserList users={rsltUsers}/>
+      <{ showStatus(apiStatus) }>
     </div>
   }
 }

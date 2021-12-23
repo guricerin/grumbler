@@ -206,13 +206,13 @@ func (s *Server) postSignOut() gin.HandlerFunc {
 			c.JSON(http.StatusForbidden, errorRes(errors.New("wrong")))
 			return
 		}
-		session := sessions.Default(c)
+		// session := sessions.Default(c)
 		user, err := s.fetchUserFromSession(c)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
-		err = s.deleteCookie(session)
+		err = s.deleteCookie(c)
 		if err != nil {
 			// todo: err msgをユーザ用に変更
 			c.JSON(http.StatusInternalServerError, errorRes(err))
@@ -244,7 +244,7 @@ func (s *Server) postUnsubscribe() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
-		err = s.deleteCookie(session)
+		err = s.deleteCookie(c)
 		if err != nil {
 			// todo: err msgをユーザ用に変更
 			c.JSON(http.StatusInternalServerError, errorRes(err))

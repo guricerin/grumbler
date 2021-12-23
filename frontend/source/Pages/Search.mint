@@ -1,22 +1,10 @@
 component Pages.Search {
   state searchWord : String = ""
 
-  /* state apiStatus : Api.Status(Users) = Api.Status::Initial */
-  state rsltUsers : Users = Users.empty()
-
   connect Stores.Search exposing { apiStatus }
 
   fun setSearchWord (v : String) : Promise(Never, Void) {
     next { searchWord = v }
-  }
-
-  /*
-  fun setApiStatus (v : Api.Status(Users)) : Promise(Never, Void) {
-     next { apiStatus = v }
-   }
-  */
-  fun resetSearchResult : Promise(Never, Void) {
-    next { rsltUsers = Users.empty() }
   }
 
   fun handleInput (

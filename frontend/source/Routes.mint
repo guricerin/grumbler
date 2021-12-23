@@ -22,8 +22,17 @@ routes {
 
   /search?q=:query&k=:kind (query : String, kind : String) {
     sequence {
-      Stores.Search.search(query, kind)
-      Application.setPageWithAuthentication(Page::Search)
+      Application.signinCheck()
+
+      case (Application.userStatus) {
+        UserStatus::Guest => Application.setPage(Page::Error(401))
+
+        UserStatus::SignIn =>
+          sequence {
+            Stores.Search.search(query, kind)
+            Application.setPage(Page::Search)
+          }
+      }
     }
   }
 

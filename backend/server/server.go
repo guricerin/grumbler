@@ -125,12 +125,8 @@ func (s *Server) fetchSessToken(session sessions.Session) (string, error) {
 	return token, nil
 }
 
-func (s *Server) deleteCookie(session sessions.Session) (err error) {
-	// セッション破棄
-	session.Clear()
-	// クッキー削除
-	session.Options(sessions.Options{MaxAge: -1})
-	err = session.Save()
+func (s *Server) deleteCookie(c *gin.Context) (err error) {
+	c.SetCookie(SESSION_TOKEN, "dummy", -1, "/api", "localhost", false, true)
 	return
 }
 

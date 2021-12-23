@@ -9,7 +9,6 @@ type User struct {
 }
 
 type UserJson struct {
-	Pk      uint   `json:"pk,number"`
 	Id      string `json:"id,string"`
 	Name    string `json:"name,string"`
 	Profile string `json:"profile,string"`
@@ -17,7 +16,6 @@ type UserJson struct {
 
 func (u *User) ToJson() UserJson {
 	return UserJson{
-		Pk:      u.Pk,
 		Id:      u.Id,
 		Name:    u.Name,
 		Profile: u.Profile,

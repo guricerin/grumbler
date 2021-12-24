@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/guricerin/grumbler/backend/model"
 )
@@ -36,6 +35,11 @@ func (s *Server) signinCheck() gin.HandlerFunc {
 			return
 		}
 
+		err = s.resetSessToken(c)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
 		c.JSON(http.StatusOK, userRes(user))
 	}
 }
@@ -62,6 +66,7 @@ func (s *Server) getUser() gin.HandlerFunc {
 // ページリソースのユーザと、それにアクセスしようとしているユーザは同一か
 func (s *Server) authorizationCheck(c *gin.Context) (bool, error) {
 	userId := c.Param("id")
+	log.Printf("id: %s\n", userId)
 	rsrcUser, err := s.userStore.RetrieveById(userId)
 	if err != nil {
 		return false, err
@@ -98,7 +103,7 @@ func (s *Server) postSignUp() gin.HandlerFunc {
 				Password: hashedPassword,
 				Profile:  "", // 後から設定させる
 			}
-			err = s.userStore.Create(signupUser)
+			err = s.userStore.Create(&signupUser)
 			if err != nil {
 				// todo: err msgをユーザ用に変更
 				c.JSON(http.StatusInternalServerError, errorRes(err))
@@ -117,9 +122,7 @@ func (s *Server) postSignUp() gin.HandlerFunc {
 				c.JSON(http.StatusInternalServerError, errorRes(err))
 				return
 			}
-			session := sessions.Default(c)
-			session.Set(SESSION_TOKEN, token)
-			session.Save()
+			s.setCookie(c, token)
 
 			c.JSON(http.StatusOK, gin.H{
 				"id":      signupUser.Id,
@@ -184,9 +187,7 @@ func (s *Server) postSignIn() gin.HandlerFunc {
 			return
 		}
 
-		session := sessions.Default(c)
-		session.Set(SESSION_TOKEN, token)
-		session.Save()
+		s.setCookie(c, token)
 		c.JSON(http.StatusOK, userRes(user))
 	}
 }
@@ -194,10 +195,6 @@ func (s *Server) postSignIn() gin.HandlerFunc {
 func (s *Server) postSignOut() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ok, err := s.authorizationCheck(c)
-		// if err != nil || !ok {
-		// 	c.JSON(http.StatusForbidden, errorRes(errors.New("forbidden")))
-		// 	return
-		// }
 		if err != nil {
 			c.JSON(http.StatusForbidden, errorRes(err))
 			return
@@ -234,12 +231,15 @@ func (s *Server) postSignOut() gin.HandlerFunc {
 func (s *Server) postUnsubscribe() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ok, err := s.authorizationCheck(c)
-		if err != nil || !ok {
-			c.JSON(http.StatusForbidden, errorRes(errors.New("forbidden")))
+		if err != nil {
+			c.JSON(http.StatusForbidden, errorRes(err))
 			return
 		}
-		session := sessions.Default(c)
-		token, err := s.fetchSessToken(session)
+		if !ok {
+			c.JSON(http.StatusForbidden, errorRes(errors.New("wrong")))
+			return
+		}
+		token, err := s.fetchSessToken(c)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return

@@ -2,14 +2,12 @@ package server
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-contrib/cors"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/guricerin/grumbler/backend/model"
 	"github.com/guricerin/grumbler/backend/util"
@@ -43,15 +41,6 @@ func (s *Server) Run() error {
 
 func (s *Server) setupRouter() {
 	router := gin.Default()
-	// todo: 'secret'は設定ファイルで指定可能にすべき？
-	store := cookie.NewStore([]byte("secret"))
-	store.Options(sessions.Options{
-		Path:     "/api",
-		MaxAge:   60 * 60 * 24 * 7, // 寿命は一週間
-		HttpOnly: true,             // JSなどからのクッキーへのアクセスを禁止
-		SameSite: http.SameSiteLaxMode,
-	})
-	router.Use(sessions.Sessions(SESSION_TOKEN, store))
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost", "http://localhost:3000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "OPTION"},
@@ -61,9 +50,9 @@ func (s *Server) setupRouter() {
 		MaxAge: 24 * time.Hour,
 	}))
 
+	router.GET("/api/signin-check", s.signinCheck())
 	router.POST("/api/signin", s.postSignIn())
 	router.POST("/api/signup", s.postSignUp())
-	router.GET("/api/signin-check", s.signinCheck())
 
 	auth := router.Group("/api/auth")
 	auth.Use(s.authenticationMiddleware())
@@ -80,65 +69,74 @@ func (s *Server) setupRouter() {
 // 認証
 func (s *Server) authenticationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		session := sessions.Default(c)
-		oldToken, err := s.fetchSessToken(session)
+		token, err := s.fetchSessToken(c)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			c.Abort()
+			return
+		}
+		_, err = s.sessionStore.RetrieveByToken(token)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			c.Abort()
 			return
 		}
 
-		// セッション固定化攻撃対策 : 認証毎に新たなトークンを発行
-		newToken, err := createUuid()
-		if err != nil {
-			// todo: err msgをユーザ用に変更
-			c.JSON(http.StatusInternalServerError, errorRes(err))
-			c.Abort()
-			return
-		}
-
-		err = s.sessionStore.Update(oldToken, newToken)
-		if err != nil {
-			// todo: err msgをユーザ用に変更
-			c.JSON(http.StatusInternalServerError, errorRes(err))
-			c.Abort()
-			return
-		}
-		session.Clear()
-		session.Set(SESSION_TOKEN, newToken)
-		session.Save()
 		c.Next()
 	}
 }
 
-func (s *Server) fetchSessToken(session sessions.Session) (string, error) {
-	v := session.Get(SESSION_TOKEN)
-	if v == nil {
-		err := errors.New("unauthenticated")
-		return "", err
+// セッション固定化攻撃対策 : 認証毎に新たなトークンを発行
+func (s *Server) resetSessToken(c *gin.Context) error {
+	oldToken, err := s.fetchSessToken(c)
+	if err != nil {
+		return err
 	}
-	token, ok := v.(string)
-	if !ok {
-		err := errors.New("illegal token")
+
+	newToken, err := createUuid()
+	if err != nil {
+		return err
+	}
+
+	err = s.sessionStore.Update(oldToken, newToken)
+	if err != nil {
+		return err
+	}
+
+	s.setCookie(c, newToken)
+	return nil
+}
+
+func (s *Server) fetchSessToken(c *gin.Context) (string, error) {
+	token, err := c.Cookie(SESSION_TOKEN)
+	if err != nil {
 		return "", err
 	}
 	return token, nil
 }
 
+func (s *Server) setCookie(c *gin.Context, token string) {
+	week := 60 * 60 * 24 * 7
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(SESSION_TOKEN, token, week, "/api", "localhost", false, true)
+}
+
 func (s *Server) deleteCookie(c *gin.Context) (err error) {
+	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(SESSION_TOKEN, "dummy", -1, "/api", "localhost", false, true)
 	return
 }
 
 func (s *Server) fetchUserFromSession(c *gin.Context) (user model.User, err error) {
 	user = model.User{}
-	session := sessions.Default(c)
-	token, err := s.fetchSessToken(session)
+	token, err := s.fetchSessToken(c)
 	if err != nil {
 		return
 	}
+	log.Printf("fetchUserFromSession() token: %s\n", token)
 	sess, err := s.sessionStore.RetrieveByToken(token)
 	if err != nil {
+		log.Println("failed to RetrieveByToken")
 		return
 	}
 	user, err = s.userStore.RetrieveByPk(sess.UserPk)

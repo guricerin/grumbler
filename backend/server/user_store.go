@@ -15,8 +15,16 @@ func NewUserStore(db *sql.DB) userStore {
 	return userStore{db: db}
 }
 
-func (s *userStore) Create(user model.User) error {
-	_, err := s.db.Exec("insert into users (id, name, password, profile) values (?, ?, ?, ?)", user.Id, user.Name, user.Password, user.Profile)
+func (s *userStore) Create(user *model.User) error {
+	res, err := s.db.Exec("insert into users (id, name, password, profile) values (?, ?, ?, ?)", user.Id, user.Name, user.Password, user.Profile)
+	if err != nil {
+		return err
+	}
+	pk, err := res.LastInsertId()
+	if err != nil {
+		return err
+	}
+	user.Pk = uint(pk)
 	return err
 }
 

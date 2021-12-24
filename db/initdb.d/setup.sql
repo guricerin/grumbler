@@ -10,6 +10,7 @@ use `grumbler_db`;
 
 drop table if exists `users`;
 drop table if exists `sessions`;
+drop table if exists `grumbles`;
 
 create table `users` (
     `pk` int unsigned auto_increment primary key not null,
@@ -23,4 +24,11 @@ create table `sessions` (
     `pk` int unsigned auto_increment primary key not null,
     `token` text not null,
     `user_pk` int unsigned not null
+);
+
+create table `grumbles` (
+    `pk` varchar(26) primary key not null, -- ulid
+    `content` varchar(300) not null,
+    `user_id` varchar(255) not null,
+    `created_at` datetime not null -- timestampは2038年問題があるからボツ
 );

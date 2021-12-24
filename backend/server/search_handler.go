@@ -5,14 +5,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/guricerin/grumbler/backend/model"
 )
 
 func (s *Server) getSearch() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		query := c.Query("q")
 		if query == "" {
-			c.JSON(http.StatusBadRequest, errorRes(errors.New("検索対象のワードが指定されていません。")))
+			c.JSON(http.StatusBadRequest, errorRes(errors.New("検索対象の文字列が指定されていません。")))
 			return
 		}
 		kind := c.Query("k")
@@ -28,9 +27,9 @@ func (s *Server) getSearch() gin.HandlerFunc {
 				c.JSON(http.StatusBadRequest, errorRes(err))
 				return
 			}
-			usersJson := make([]model.UserJson, 0)
+			usersJson := make([]gin.H, 0)
 			for _, u := range users {
-				usersJson = append(usersJson, u.ToJson())
+				usersJson = append(usersJson, userRes(u))
 			}
 			c.JSON(http.StatusOK, gin.H{
 				"users": usersJson,

@@ -1,7 +1,7 @@
 package model
 
 type Session struct {
-	Pk     uint
+	Pk     uint64
 	Token  string
-	UserPk uint
+	UserPk uint64
 }

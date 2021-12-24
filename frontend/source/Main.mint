@@ -31,20 +31,14 @@ component Content {
       <section::section class="section sf-site-content">
         case (page) {
           Page::Initial => Html.empty()
-
           Page::Home => <Pages.Home/>
-
           Page::SignUp => <Pages.SignUp/>
-
           Page::SignIn => <Pages.SignIn/>
-
           Page::Search => <Pages.Search/>
           Page::SignOut => <Pages.SignOut/>
-
           Page::Unsubscribe => <Pages.Unsubscribe/>
-
           Page::Timeline => <Pages.Timeline/>
-
+          Page::Grumble => <Pages.Grumble/>
           Page::Error(statusCode) => <Pages.Error statusCode={statusCode}/>
         }
       </section>

@@ -43,6 +43,12 @@ routes {
     }
   }
 
+  /user/:id/grumble (id : String) {
+    sequence {
+      Application.setPageWithAuthorization(id, Page::Grumble)
+    }
+  }
+
   /user/:id/signout (id : String) {
     Application.setPageWithAuthorization(id, Page::SignOut)
   }

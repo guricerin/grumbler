@@ -38,7 +38,7 @@ func (s *sessionStore) DeleteByToken(token string) error {
 	return err
 }
 
-func (s *sessionStore) DeleteByUserPk(userPk uint) error {
+func (s *sessionStore) DeleteByUserPk(userPk uint64) error {
 	_, err := s.db.Exec("delete from sessions where user_pk = ?", userPk)
 	return err
 }

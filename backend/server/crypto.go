@@ -3,7 +3,9 @@ package server
 import (
 	"crypto/rand"
 	"fmt"
+	"time"
 
+	"github.com/oklog/ulid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -33,4 +35,13 @@ func encryptPassword(plain string) (string, error) {
 func verifyPasswordHash(hashed, plain string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashed), []byte(plain))
 	return err != bcrypt.ErrMismatchedHashAndPassword
+}
+
+func createUlid(t time.Time) (string, error) {
+	entropy := ulid.Monotonic(rand.Reader, 0)
+	id, err := ulid.New(ulid.Timestamp(t), entropy)
+	if err != nil {
+		return "", err
+	}
+	return id.String(), nil
 }

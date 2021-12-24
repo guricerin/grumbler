@@ -2,6 +2,7 @@ package server
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -22,6 +23,7 @@ type Server struct {
 	router       *gin.Engine
 	userStore    userStore
 	sessionStore sessionStore
+	grumbleStore grumbleStore
 }
 
 func NewServer(cfg util.Config, db *sql.DB) Server {
@@ -29,6 +31,7 @@ func NewServer(cfg util.Config, db *sql.DB) Server {
 		cfg:          cfg,
 		userStore:    NewUserStore(db),
 		sessionStore: NewSessionStore(db),
+		grumbleStore: NewGrumbleStore(db),
 	}
 	s.setupRouter()
 	return s
@@ -61,6 +64,7 @@ func (s *Server) setupRouter() {
 		auth.GET("/search", s.getSearch())
 		auth.POST("/user/:id/signout", s.postSignOut())
 		auth.POST("/user/:id/unsubscribe", s.postUnsubscribe())
+		auth.POST("/user/:id/grumble", s.postGrumble())
 	}
 
 	s.router = router
@@ -141,6 +145,27 @@ func (s *Server) fetchUserFromSession(c *gin.Context) (user model.User, err erro
 	}
 	user, err = s.userStore.RetrieveByPk(sess.UserPk)
 	return
+}
+
+// ページリソースのユーザと、それにアクセスしようとしているユーザは同一か
+func (s *Server) authorizationCheck(c *gin.Context) (model.User, error) {
+	userId := c.Param("id")
+	log.Printf("id: %s\n", userId)
+	dummy := model.User{}
+	rsrcUser, err := s.userStore.RetrieveById(userId)
+	if err != nil {
+		return dummy, err
+	}
+	curUser, err := s.fetchUserFromSession(c)
+	if err != nil {
+		return dummy, err
+	}
+
+	if rsrcUser.Pk == curUser.Pk {
+		return rsrcUser, nil
+	} else {
+		return dummy, errors.New("wrong user")
+	}
 }
 
 func userRes(user model.User) gin.H {

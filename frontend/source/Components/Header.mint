@@ -85,6 +85,9 @@ component Header {
       UserStatus::SignIn(user) =>
         [
           <NavbarItem
+            route="/user/#{user.id}/grumble"
+            title="グランブる"/>,
+          <NavbarItem
             route="/search"
             title="Search"/>,
           <NavbarItem

@@ -63,23 +63,6 @@ func (s *Server) getUser() gin.HandlerFunc {
 	}
 }
 
-// ページリソースのユーザと、それにアクセスしようとしているユーザは同一か
-func (s *Server) authorizationCheck(c *gin.Context) (bool, error) {
-	userId := c.Param("id")
-	log.Printf("id: %s\n", userId)
-	rsrcUser, err := s.userStore.RetrieveById(userId)
-	if err != nil {
-		return false, err
-	}
-	curUser, err := s.fetchUserFromSession(c)
-	if err != nil {
-		return false, err
-	}
-
-	ok := rsrcUser.Pk == curUser.Pk
-	return ok, nil
-}
-
 func (s *Server) postSignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req signupUserReq
@@ -194,19 +177,9 @@ func (s *Server) postSignIn() gin.HandlerFunc {
 
 func (s *Server) postSignOut() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ok, err := s.authorizationCheck(c)
+		user, err := s.authorizationCheck(c)
 		if err != nil {
 			c.JSON(http.StatusForbidden, errorRes(err))
-			return
-		}
-		if !ok {
-			c.JSON(http.StatusForbidden, errorRes(errors.New("wrong")))
-			return
-		}
-		// session := sessions.Default(c)
-		user, err := s.fetchUserFromSession(c)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
 		err = s.deleteCookie(c)
@@ -230,13 +203,9 @@ func (s *Server) postSignOut() gin.HandlerFunc {
 
 func (s *Server) postUnsubscribe() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ok, err := s.authorizationCheck(c)
+		_, err := s.authorizationCheck(c)
 		if err != nil {
 			c.JSON(http.StatusForbidden, errorRes(err))
-			return
-		}
-		if !ok {
-			c.JSON(http.StatusForbidden, errorRes(errors.New("wrong")))
 			return
 		}
 		token, err := s.fetchSessToken(c)

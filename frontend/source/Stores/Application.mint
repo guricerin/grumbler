@@ -7,6 +7,7 @@ enum Page {
   Unsubscribe
   Search
   Timeline
+  Grumble
   Error(Number)
 }
 

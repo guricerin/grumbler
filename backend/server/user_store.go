@@ -24,7 +24,7 @@ func (s *userStore) Create(user *model.User) error {
 	if err != nil {
 		return err
 	}
-	user.Pk = uint(pk)
+	user.Pk = uint64(pk)
 	return err
 }
 
@@ -37,7 +37,7 @@ func (s *userStore) RetrieveById(userId string) (model.User, error) {
 	return user, nil
 }
 
-func (s *userStore) RetrieveByPk(pk uint) (model.User, error) {
+func (s *userStore) RetrieveByPk(pk uint64) (model.User, error) {
 	user := model.User{}
 	err := s.db.QueryRow("select pk, id, name, password, profile from users where pk = ?", pk).Scan(&user.Pk, &user.Id, &user.Name, &user.Password, &user.Profile)
 	if err != nil {
@@ -47,7 +47,7 @@ func (s *userStore) RetrieveByPk(pk uint) (model.User, error) {
 }
 
 // 対象ユーザに対応する他のテーブルの行も削除する
-func (s *userStore) DeleteByPk(pk uint) error {
+func (s *userStore) DeleteByPk(pk uint64) error {
 	_, err := s.db.Exec("delete u, s from users as u left join sessions as s on u.pk = s.user_pk where u.pk = ?", pk)
 	return err
 }

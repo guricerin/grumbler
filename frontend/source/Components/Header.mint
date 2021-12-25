@@ -85,16 +85,16 @@ component Header {
       UserStatus::SignIn(user) =>
         [
           <NavbarItem
-            route="/user/#{user.id}/grumble"
+            route="/grumble"
             title="グランブる"/>,
           <NavbarItem
             route="/search"
             title="Search"/>,
           <NavbarItem
-            route="/user/#{user.id}/signout"
+            route="/signout"
             title="Sign Out"/>,
           <NavbarItem
-            route="/user/#{user.id}/unsubscribe"
+            route="/unsubscribe"
             title="Unsubscribe"/>
         ]
     }

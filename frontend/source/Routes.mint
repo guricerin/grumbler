@@ -8,15 +8,25 @@ routes {
 
   /signup {
     sequence {
-      Application.dbgUser()
-      Application.setPage(Page::SignUp)
+      Application.signinCheck()
+
+      case (Application.userStatus) {
+        UserStatus::Guest => Application.setPage(Page::SignUp)
+
+        UserStatus::SignIn => Window.navigate("/")
+      }
     }
   }
 
   /signin {
     sequence {
-      Application.dbgUser()
-      Application.setPage(Page::SignIn)
+      Application.signinCheck()
+
+      case (Application.userStatus) {
+        UserStatus::Guest => Application.setPage(Page::SignIn)
+
+        UserStatus::SignIn => Window.navigate("/")
+      }
     }
   }
 
@@ -43,18 +53,18 @@ routes {
     }
   }
 
-  /user/:id/grumble (id : String) {
+  /grumble {
     sequence {
-      Application.setPageWithAuthorization(id, Page::Grumble)
+      Application.setPageWithAuthentication(Page::Grumble)
     }
   }
 
-  /user/:id/signout (id : String) {
-    Application.setPageWithAuthorization(id, Page::SignOut)
+  /signout {
+    Application.setPageWithAuthentication(Page::SignOut)
   }
 
-  /user/:id/unsubscribe (id : String) {
-    Application.setPageWithAuthorization(id, Page::Unsubscribe)
+  /unsubscribe {
+    Application.setPageWithAuthentication(Page::Unsubscribe)
   }
 
   /user/:id/timeline (id : String) {

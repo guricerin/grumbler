@@ -3,19 +3,90 @@ component Pages.Grumble {
   state apiStatus : Api.Status(GrumbleRes) = Api.Status::Initial
 
   fun setGrumbleContent (v : String) : Promise(Never, Void) {
-    next { grumbleContent = v }
+    if (String.size(v) <= 300) {
+      next { grumbleContent = v }
+    } else {
+      Promise.never()
+    }
   }
 
   fun setApiStatus (v : Api.Status(GrumbleRes)) : Promise(Never, Void) {
     next { apiStatus = v }
   }
 
+  fun submit : Promise(Never, Void) {
+    sequence {
+      req =
+        { content = grumbleContent }
+
+      reqBody =
+        encode req
+
+      status =
+        Http.post("#{@ENDPOINT}/auth/grumble")
+        |> Http.jsonBody(reqBody)
+        |> Api.send(GrumbleRes.decodes)
+
+      case (status) {
+        Api.Status::Ok(res) => Window.navigate("/timeline")
+        => setApiStatus(status)
+      }
+    }
+  }
+
+  fun handleInput (
+    onChange : Function(String, Promise(Never, Void)),
+    event : Html.Event
+  ) : a {
+    onChange(Dom.getValue(event.target))
+  }
+
+  get disabled : Bool {
+    len <= 0 || 300 < len
+  } where {
+    len =
+      String.size(grumbleContent)
+  }
+
+  get error : Html {
+    case (apiStatus) {
+      Api.Status::Error => <Errors errors={es}/>
+      => Html.empty()
+    }
+  } where {
+    es =
+      Api.errorsOf("error", apiStatus)
+  }
+
+  style button {
+    margin-top: 20px;
+  }
+
   fun render : Html {
     <div>
       <div class="box form-box">
+        <{ error }>
+
         <form>
-          <p>"grumble"</p>
+          <div class="field">
+            <textarea
+              class="textarea"
+              maxlength="300"
+              onChange={handleInput(setGrumbleContent)}/>
+
+            <label>"1～300文字の範囲で入力可能です。"</label>
+          </div>
         </form>
+
+        <button::button
+          class="button is-primary"
+          type="submit"
+          onClick={submit}
+          disabled={disabled}>
+
+          <{ "ぼやく" }>
+
+        </button>
       </div>
     </div>
   }

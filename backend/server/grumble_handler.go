@@ -7,7 +7,6 @@ import (
 )
 
 type postGrumbleReq struct {
-	UserId  string `json:"user_id" binding:"required"`
 	Content string `json:"content" binding:"required,min=1,max=300"`
 }
 
@@ -19,11 +18,13 @@ func (s *Server) postGrumble() gin.HandlerFunc {
 			return
 		}
 
-		user, err := s.authorizationCheck(c)
+		user, err := s.fetchUserFromSession(c)
 		if err != nil {
-			c.JSON(http.StatusForbidden, errorRes(err))
+			// todo
+			c.JSON(http.StatusUnauthorized, errorRes(err))
 			return
 		}
+
 		err = s.grumbleStore.Create(req.Content, user)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errorRes(err))

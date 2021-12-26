@@ -1,3 +1,7 @@
+record GrumbleReq {
+  content : String
+}
+
 record GrumbleRes {
   ok : Bool
 }

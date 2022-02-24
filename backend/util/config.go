@@ -3,9 +3,10 @@ package util
 import "github.com/spf13/viper"
 
 type Config struct {
-	ServerHost string `mapstructure:"server_host"`
-	ServerPort string `mapstructure:"server_port"`
-	DbUrl      string `mapstructure:"db_url"`
+	ServerHost  string `mapstructure:"server_host"`
+	ServerPort  string `mapstructure:"server_port"`
+	DbUrl       string `mapstructure:"db_url"`
+	FrontOrigin string `mapstructure:"front_origin"`
 }
 
 func LoadConfig() (cfg Config, err error) {

@@ -16,9 +16,9 @@ type getUserReq struct {
 }
 
 type signupUserReq struct {
-	Id       string `json:"id" binding:"required,alphanum,min=1,max=255"`
+	Id       string `json:"id" binding:"required,alphanum,min=1,max=127"`
 	Name     string `json:"name" binding:"required,min=1"`
-	Password string `json:"password" binding:"required,min=8,max=255"`
+	Password string `json:"password" binding:"required,min=8,max=127"`
 }
 
 type signinUserReq struct {

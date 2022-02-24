@@ -71,26 +71,26 @@ component Pages.SignIn {
         <form>
           <div class="field">
             <label class="label">
-              "User ID"
+              "ユーザID"
             </label>
 
             <input
               class="input"
               type="text"
-              placeholder="User ID"
+              placeholder="ユーザID"
               value={userId}
               onChange={handleInput(setUserId)}/>
           </div>
 
           <div class="field">
             <label class="label">
-              "Password"
+              "パスワード"
             </label>
 
             <input
               class="input"
               type="password"
-              placeholder="Password"
+              placeholder="パスワード"
               value={password}
               onChange={handleInput(setPassword)}/>
           </div>

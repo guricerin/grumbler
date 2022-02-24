@@ -77,41 +77,59 @@ component Pages.SignUp {
 
           <div class="field">
             <label class="label">
-              "User ID"
+              "ユーザ名"
             </label>
 
             <input
               class="input"
               type="text"
-              placeholder="User ID"
-              value={userId}
-              onChange={handleInput(setUserId)}/>
-          </div>
-
-          <div class="field">
-            <label class="label">
-              "User Name"
-            </label>
-
-            <input
-              class="input"
-              type="text"
-              placeholder="User Name"
+              placeholder="ユーザ名"
               value={userName}
               onChange={handleInput(setUserName)}/>
+
+            <div>
+              <small>"＊1文字以上127文字以下の範囲で設定してください。"</small>
+              <br/>
+              <small>"＊使用可能な文字は、UTF-8文字です（半角英数字だけでなく日本語も使用可能です）。"</small>
+            </div>
           </div>
 
           <div class="field">
             <label class="label">
-              "Password"
+              "ユーザID"
+            </label>
+
+            <input
+              class="input"
+              type="text"
+              placeholder="ユーザID"
+              value={userId}
+              onChange={handleInput(setUserId)}/>
+
+            <div>
+              <small>"＊他ユーザアカウントと重複するIDは設定できません。"</small>
+              <br/>
+              <small>"＊1文字以上127文字以下の範囲で設定してください。"</small>
+              <br/>
+              <small>"＊使用可能な文字は、半角英数字とアンダーバー（_）です。"</small>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">
+              "パスワード"
             </label>
 
             <input
               class="input"
               type="password"
-              placeholder="Password"
+              placeholder="パスワード"
               value={password}
               onChange={handleInput(setPassword)}/>
+
+            <div>
+              <small>"＊8文字以上127文字以下の半角英数字で設定してください。"</small>
+            </div>
           </div>
         </form>
 

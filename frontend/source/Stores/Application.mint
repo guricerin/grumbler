@@ -6,6 +6,7 @@ enum Page {
   SignOut
   Unsubscribe
   Search
+  User
   Timeline
   Grumble
   Error(Number)

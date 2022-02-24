@@ -7,11 +7,14 @@ component UserList {
         <div class="media-content">
           <div class="content">
             <p>
-              <strong>
-                <{ user.name }>
-              </strong>
+              <a href="/user/#{user.id}">
+                <strong>
+                  <{ user.name }>
+                </strong>
 
-              <small>"@#{user.id}"</small>
+                <small>"@#{user.id}"</small>
+              </a>
+
               <br/>
               "#{user.profile}"
             </p>

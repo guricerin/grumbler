@@ -4,10 +4,24 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/guricerin/grumbler/backend/model"
 )
 
 type postGrumbleReq struct {
 	Content string `json:"content" binding:"required,min=1,max=300"`
+}
+
+type getGrumblesReq struct {
+	UserId string `json:"user_id" binding:"required"`
+}
+
+func grumbleRes(g model.Grumble) gin.H {
+	return gin.H{
+		"id":         g.Pk,
+		"content":    g.Content,
+		"user_id":    g.UserId,
+		"created_at": g.CreatedAt,
+	}
 }
 
 func (s *Server) postGrumble() gin.HandlerFunc {
@@ -27,6 +41,7 @@ func (s *Server) postGrumble() gin.HandlerFunc {
 
 		err = s.grumbleStore.Create(req.Content, user)
 		if err != nil {
+			// todo
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
@@ -35,5 +50,30 @@ func (s *Server) postGrumble() gin.HandlerFunc {
 			"ok": true,
 		})
 		return
+	}
+}
+
+func (s *Server) getGrumbles() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req getGrumblesReq
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+
+		grumbles, err := s.grumbleStore.RetrieveByUserId(req.UserId)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
+		grumblesJson := make([]gin.H, 0)
+		for _, g := range grumbles {
+			grumblesJson = append(grumblesJson, grumbleRes(g))
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"grumbles": grumblesJson,
+		})
 	}
 }

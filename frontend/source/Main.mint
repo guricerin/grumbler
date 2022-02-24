@@ -12,8 +12,6 @@ component Main {
       <Content
         page={page}
         userStatus={userStatus}/>
-
-      <Footer/>
     </div>
   }
 }
@@ -37,6 +35,7 @@ component Content {
           Page::Search => <Pages.Search/>
           Page::SignOut => <Pages.SignOut/>
           Page::Unsubscribe => <Pages.Unsubscribe/>
+          Page::User => <Pages.User/>
           Page::Timeline => <Pages.Timeline/>
           Page::Grumble => <Pages.Grumble/>
           Page::Error(statusCode) => <Pages.Error statusCode={statusCode}/>

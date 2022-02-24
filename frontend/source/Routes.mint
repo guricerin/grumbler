@@ -71,6 +71,10 @@ routes {
     Application.setPageWithAuthorization(id, Page::Timeline)
   }
 
+  /user/:id (id : String) {
+    Application.setPageWithAuthentication(Page::User)
+  }
+
   * {
     sequence {
       Application.dbgUser()

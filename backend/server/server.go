@@ -123,11 +123,13 @@ func (s *Server) fetchSessToken(c *gin.Context) (string, error) {
 func (s *Server) setCookie(c *gin.Context, token string) {
 	week := 60 * 60 * 24 * 7
 	c.SetSameSite(http.SameSiteLaxMode)
+	// todo: domain
 	c.SetCookie(SESSION_TOKEN, token, week, "/api", "localhost", false, true)
 }
 
 func (s *Server) deleteCookie(c *gin.Context) (err error) {
 	c.SetSameSite(http.SameSiteLaxMode)
+	// todo: domain
 	c.SetCookie(SESSION_TOKEN, "dummy", -1, "/api", "localhost", false, true)
 	return
 }

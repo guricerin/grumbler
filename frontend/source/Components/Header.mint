@@ -76,10 +76,10 @@ component Header {
         [
           <NavbarItem
             route="/signin"
-            title="Sign In"/>,
+            title="サインイン"/>,
           <NavbarItem
             route="/signup"
-            title="Sign Up"/>
+            title="新規登録"/>
         ]
 
       UserStatus::SignIn(user) =>
@@ -89,13 +89,13 @@ component Header {
             title="グランブる"/>,
           <NavbarItem
             route="/search"
-            title="Search"/>,
+            title="検索"/>,
           <NavbarItem
             route="/signout"
-            title="Sign Out"/>,
+            title="サインアウト"/>,
           <NavbarItem
             route="/unsubscribe"
-            title="Unsubscribe"/>
+            title="退会"/>
         ]
     }
   }

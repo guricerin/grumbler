@@ -129,6 +129,11 @@ component Pages.SignUp {
 
             <div>
               <small>"＊8文字以上127文字以下の半角英数字で設定してください。"</small>
+              <br/>
+
+              <small style="color: red;">
+                "＊他のWebサイトなどからのパスワードの使い回しはおすすめできません。"
+              </small>
             </div>
           </div>
         </form>

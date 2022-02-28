@@ -16,9 +16,9 @@ type getUserReq struct {
 }
 
 type signupUserReq struct {
-	Id       string `json:"id" binding:"required,alphanum,min=1,max=127"`
-	Name     string `json:"name" binding:"required,min=1"`
-	Password string `json:"password" binding:"required,min=8,max=127"`
+	Id       string `json:"id"`
+	Name     string `json:"name"`
+	Password string `json:"password"`
 }
 
 type signinUserReq struct {
@@ -67,6 +67,18 @@ func (s *Server) postSignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req signupUserReq
 		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+		if err := model.ValidateUserName(req.Name); err != nil {
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+		if err := model.ValidateUserId(req.Id); err != nil {
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+		if err := model.ValidateUserPassword(req.Password); err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}

@@ -75,7 +75,7 @@ component Pages.SignUp {
         <form>
           <{ error }>
 
-          <div class="field">
+          <div class="field form-group">
             <label class="label">
               "ユーザ名"
             </label>
@@ -85,7 +85,8 @@ component Pages.SignUp {
               type="text"
               placeholder="ユーザ名"
               value={userName}
-              onChange={handleInput(setUserName)}/>
+              onChange={handleInput(setUserName)}
+              required="required"/>
 
             <div>
               <small>"＊1文字以上127文字以下の範囲で設定してください。"</small>
@@ -104,7 +105,8 @@ component Pages.SignUp {
               type="text"
               placeholder="ユーザID"
               value={userId}
-              onChange={handleInput(setUserId)}/>
+              onChange={handleInput(setUserId)}
+              required="required"/>
 
             <div>
               <small>"＊他ユーザアカウントと重複するIDは設定できません。"</small>
@@ -125,7 +127,8 @@ component Pages.SignUp {
               type="password"
               placeholder="パスワード"
               value={password}
-              onChange={handleInput(setPassword)}/>
+              onChange={handleInput(setPassword)}
+              required="required"/>
 
             <div>
               <small>"＊8文字以上127文字以下の半角英数字で設定してください。"</small>
@@ -136,16 +139,16 @@ component Pages.SignUp {
               </small>
             </div>
           </div>
+
+          <button
+            class="button is-primary"
+            type="submit"
+            onClick={submit}>
+
+            <{ "新規登録" }>
+
+          </button>
         </form>
-
-        <button::button
-          class="button is-primary"
-          type="submit"
-          onClick={submit}>
-
-          <{ "新規登録" }>
-
-        </button>
       </div>
     </div>
   }

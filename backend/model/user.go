@@ -22,12 +22,9 @@ func ValidateUserName(name string) error {
 	}
 }
 
-const idPattern = `[a-zA-Z0-9\_]{1,127}`
-
-var idReg = regexp.MustCompile(idPattern)
+var idReg = regexp.MustCompile(`[a-zA-Z0-9\_]{1,127}`)
 
 func ValidateUserId(id string) error {
-	// reg := regexp.MustCompile(idPattern)
 	if idReg.MatchString(id) {
 		return nil
 	} else {
@@ -35,11 +32,10 @@ func ValidateUserId(id string) error {
 	}
 }
 
-const passwordPattern = `[a-zA-Z0-9]{8,127}`
+var passwordReg = regexp.MustCompile(`[a-zA-Z0-9]{8,127}`)
 
 func ValidateUserPassword(plain string) error {
-	reg := regexp.MustCompile(passwordPattern)
-	if reg.MatchString(plain) {
+	if passwordReg.MatchString(plain) {
 		return nil
 	} else {
 		return errors.New("パスワードは8文字以上127文字以下の半角英数字で設定してください。")

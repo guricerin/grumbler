@@ -129,7 +129,7 @@ func (s *Server) postSignUp() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 		} else {
 			// duplicate id
-			msg := fmt.Sprintf("ユーザID'%s'は既に使用されています。", req.Id)
+			msg := fmt.Sprintf("ユーザID '%s' は既に使用されています。", req.Id)
 			e := errors.New(msg)
 			c.JSON(http.StatusBadRequest, errorRes(e))
 		}

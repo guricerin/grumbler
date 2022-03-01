@@ -139,16 +139,16 @@ component Pages.SignUp {
               </small>
             </div>
           </div>
-
-          <button
-            class="button is-primary"
-            type="submit"
-            onClick={submit}>
-
-            <{ "新規登録" }>
-
-          </button>
         </form>
+
+        <button::button
+          class="button is-primary"
+          type="submit"
+          onClick={submit}>
+
+          <{ "新規登録" }>
+
+        </button>
       </div>
     </div>
   }

@@ -22,8 +22,8 @@ type signupUserReq struct {
 }
 
 type signinUserReq struct {
-	Id       string `json:"id" binding:"required,alphanum,min=1,max=255"`
-	Password string `json:"password" binding:"required,min=8,max=255"`
+	Id       string `json:"id"`
+	Password string `json:"password"`
 }
 
 func (s *Server) signinCheck() gin.HandlerFunc {
@@ -31,15 +31,19 @@ func (s *Server) signinCheck() gin.HandlerFunc {
 		user, err := s.fetchUserFromSession(c)
 		if err != nil {
 			// todo
+			log.Printf("signinCheck(): %s\n", err.Error())
 			c.JSON(http.StatusUnauthorized, errorRes(err))
 			return
 		}
 
 		err = s.resetSessToken(c)
 		if err != nil {
+			log.Printf("signinCheck(): %s\n", err.Error())
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
+
+		log.Printf("signinCheck(): ok\n")
 		c.JSON(http.StatusOK, userRes(user))
 	}
 }
@@ -85,11 +89,10 @@ func (s *Server) postSignUp() gin.HandlerFunc {
 
 		_, err := s.userStore.RetrieveById(req.Id)
 		if err != nil && err == sql.ErrNoRows {
-			// ok
+			// idがだぶってないのでok
 			hashedPassword, err := encryptPassword(req.Password)
 			if err != nil {
-				// todo: err msgをユーザ用に変更
-				c.JSON(http.StatusInternalServerError, errorRes(err))
+				c.JSON(http.StatusInternalServerError, errorRes(errors.New("サーバエラー")))
 				return
 			}
 			signupUser := model.User{
@@ -100,21 +103,18 @@ func (s *Server) postSignUp() gin.HandlerFunc {
 			}
 			err = s.userStore.Create(&signupUser)
 			if err != nil {
-				// todo: err msgをユーザ用に変更
-				c.JSON(http.StatusInternalServerError, errorRes(err))
+				c.JSON(http.StatusInternalServerError, errorRes(errors.New("サーバエラー")))
 				return
 			}
 
 			token, err := createUuid()
 			if err != nil {
-				// todo: err msgをユーザ用に変更
-				c.JSON(http.StatusInternalServerError, errorRes(err))
+				c.JSON(http.StatusInternalServerError, errorRes(errors.New("サーバエラー")))
 				return
 			}
 			err = s.sessionStore.Create(token, signupUser)
 			if err != nil {
-				// todo: err msgをユーザ用に変更
-				c.JSON(http.StatusInternalServerError, errorRes(err))
+				c.JSON(http.StatusInternalServerError, errorRes(errors.New("サーバエラー")))
 				return
 			}
 			s.setCookie(c, token)
@@ -129,7 +129,7 @@ func (s *Server) postSignUp() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 		} else {
 			// duplicate id
-			msg := fmt.Sprintf("the user id '%s' is already used.", req.Id)
+			msg := fmt.Sprintf("ユーザID'%s'は既に使用されています。", req.Id)
 			e := errors.New(msg)
 			c.JSON(http.StatusBadRequest, errorRes(e))
 		}
@@ -138,6 +138,7 @@ func (s *Server) postSignUp() gin.HandlerFunc {
 
 func (s *Server) postSignIn() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		log.Println("postSignin")
 		var req signinUserReq
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
@@ -148,7 +149,7 @@ func (s *Server) postSignIn() gin.HandlerFunc {
 		user, err := s.userStore.RetrieveById(req.Id)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				err := errors.New("id or password is wrong.")
+				err := errors.New("ユーザIDまたはパスワードが異なります。")
 				c.JSON(http.StatusBadRequest, errorRes(err))
 				log.Printf("%s\n", err.Error())
 				return
@@ -161,7 +162,7 @@ func (s *Server) postSignIn() gin.HandlerFunc {
 		}
 
 		if !verifyPasswordHash(user.Password, req.Password) {
-			err := errors.New("id or password is wrong.")
+			err := errors.New("ユーザIDまたはパスワードが異なります。")
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			log.Printf("%s\n", err.Error())
 			return
@@ -182,6 +183,7 @@ func (s *Server) postSignIn() gin.HandlerFunc {
 			return
 		}
 
+		log.Println("postSignin(): cookie set")
 		s.setCookie(c, token)
 		c.JSON(http.StatusOK, userRes(user))
 	}

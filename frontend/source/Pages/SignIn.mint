@@ -38,6 +38,8 @@ component Pages.SignIn {
 
   fun submit : Promise(Never, Void) {
     sequence {
+      Debug.log("id: #{userId}, pass: #{password}")
+
       signinUser =
         {
           id = userId,
@@ -79,7 +81,8 @@ component Pages.SignIn {
               type="text"
               placeholder="ユーザID"
               value={userId}
-              onChange={handleInput(setUserId)}/>
+              onChange={handleInput(setUserId)}
+              required="required"/>
           </div>
 
           <div class="field">
@@ -92,7 +95,8 @@ component Pages.SignIn {
               type="password"
               placeholder="パスワード"
               value={password}
-              onChange={handleInput(setPassword)}/>
+              onChange={handleInput(setPassword)}
+              required="required"/>
           </div>
         </form>
 

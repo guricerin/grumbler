@@ -28,7 +28,14 @@ component Pages.Grumble {
         |> Api.send(GrumbleRes.decodes)
 
       case (status) {
-        Api.Status::Ok(res) => Window.navigate("/timeline")
+        Api.Status::Ok(res) =>
+          case (Application.userStatus) {
+            UserStatus::SignIn(u) => Window.navigate("/user/#{u.id}/timeline")
+
+            // unreachable!
+            => Window.navigate("")
+          }
+
         => setApiStatus(status)
       }
     }
@@ -74,7 +81,7 @@ component Pages.Grumble {
               maxlength="300"
               onChange={handleInput(setGrumbleContent)}/>
 
-            <label>"1～300文字の範囲で入力可能です。"</label>
+            <small>"＊1～300文字の範囲で入力可能です。"</small>
           </div>
         </form>
 

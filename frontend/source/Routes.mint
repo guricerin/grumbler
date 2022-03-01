@@ -53,7 +53,7 @@ routes {
     }
   }
 
-  /grumble {
+  /user/:id/grumble (id : String) {
     sequence {
       Application.setPageWithAuthentication(Page::Grumble)
     }

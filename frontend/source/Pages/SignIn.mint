@@ -38,8 +38,6 @@ component Pages.SignIn {
 
   fun submit : Promise(Never, Void) {
     sequence {
-      Debug.log("id: #{userId}, pass: #{password}")
-
       signinUser =
         {
           id = userId,

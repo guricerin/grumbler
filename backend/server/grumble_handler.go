@@ -8,7 +8,7 @@ import (
 )
 
 type postGrumbleReq struct {
-	Content string `json:"content" binding:"required,min=1,max=300"`
+	Content string `json:"content"`
 }
 
 type getGrumblesReq struct {
@@ -28,6 +28,10 @@ func (s *Server) postGrumble() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req postGrumbleReq
 		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+		if err := model.ValidateGrumble(req.Content); err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}

@@ -24,7 +24,7 @@ component UserList {
     </div>
   }
 
-  fun userList (user : User) : Html {
+  fun userListItem (user : User) : Html {
     <li>
       <{ userBox(user) }>
     </li>
@@ -35,7 +35,7 @@ component UserList {
       <p>"検索結果 : #{Array.size(users.users)}件"</p>
 
       <ul>
-        <{ Array.map(userList, users.users) }>
+        <{ Array.map(userListItem, users.users) }>
       </ul>
     </div>
   }

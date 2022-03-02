@@ -86,7 +86,7 @@ component Header {
         [
           <NavbarItem
             route="/user/#{user.id}/grumble"
-            title="グランブる"/>,
+            title="ぼやく"/>,
           <NavbarItem
             route="/search"
             title="検索"/>,

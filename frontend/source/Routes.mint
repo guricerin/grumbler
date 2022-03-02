@@ -55,7 +55,7 @@ routes {
 
   /user/:id/grumble (id : String) {
     sequence {
-      Application.setPageWithAuthentication(Page::Grumble)
+      Application.setPageWithAuthentication(Page::PostGrumble)
     }
   }
 
@@ -68,7 +68,19 @@ routes {
   }
 
   /user/:id/timeline (id : String) {
-    Application.setPageWithAuthorization(id, Page::Timeline)
+    sequence {
+      Application.signinCheck()
+
+      case (Application.userStatus) {
+        UserStatus::Guest => Application.setPage(Page::Error(401))
+
+        UserStatus::SignIn =>
+          sequence {
+            Stores.Timeline.getTimeline(id)
+            Application.setPage(Page::Timeline)
+          }
+      }
+    }
   }
 
   /user/:id (id : String) {

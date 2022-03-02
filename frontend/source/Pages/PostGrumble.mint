@@ -1,4 +1,4 @@
-component Pages.Grumble {
+component Pages.PostGrumble {
   state grumbleContent : String = ""
   state apiStatus : Api.Status(GrumbleRes) = Api.Status::Initial
 

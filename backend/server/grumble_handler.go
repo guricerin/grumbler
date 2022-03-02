@@ -17,10 +17,36 @@ type getGrumblesReq struct {
 
 func grumbleRes(g model.Grumble) gin.H {
 	return gin.H{
-		"id":         g.Pk,
-		"content":    g.Content,
-		"user_id":    g.UserId,
-		"created_at": g.CreatedAt,
+		"pk":        g.Pk,
+		"content":   g.Content,
+		"userId":    g.UserId,
+		"createdAt": g.CreatedAt,
+	}
+}
+
+func (s *Server) getTimeline() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusUnauthorized, errorRes(err))
+			return
+		}
+
+		grumbles, err := s.grumbleStore.RetrieveByUserId(user.Id)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
+		grumblesJson := make([]gin.H, 0)
+		for _, g := range grumbles {
+			grumblesJson = append(grumblesJson, grumbleRes(g))
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"grumbles": grumblesJson,
+		})
 	}
 }
 

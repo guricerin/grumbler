@@ -64,6 +64,7 @@ func (s *Server) setupRouter() {
 		auth.GET("/search", s.getSearch())
 		auth.POST("/user/:id/signout", s.postSignOut())
 		auth.POST("/user/:id/unsubscribe", s.postUnsubscribe())
+		auth.GET("/user/:id/timeline", s.getTimeline())
 		auth.POST("/grumble", s.postGrumble())
 		auth.GET("/grumbles", s.getGrumbles())
 	}

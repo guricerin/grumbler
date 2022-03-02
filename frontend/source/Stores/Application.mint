@@ -8,7 +8,7 @@ enum Page {
   Search
   User
   Timeline
-  Grumble
+  PostGrumble
   Error(Number)
 }
 

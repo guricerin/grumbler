@@ -37,7 +37,7 @@ component Content {
           Page::Unsubscribe => <Pages.Unsubscribe/>
           Page::User => <Pages.User/>
           Page::Timeline => <Pages.Timeline/>
-          Page::Grumble => <Pages.Grumble/>
+          Page::PostGrumble => <Pages.PostGrumble/>
           Page::Error(statusCode) => <Pages.Error statusCode={statusCode}/>
         }
       </section>

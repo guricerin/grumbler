@@ -21,7 +21,7 @@ func grumbleRes(g model.Grumble) gin.H {
 		"pk":        g.Pk,
 		"content":   g.Content,
 		"userId":    g.UserId,
-		"createdAt": g.CreatedAt,
+		"createdAt": g.CreatedAt.Format("2006/01/02 15:04:05"),
 	}
 }
 

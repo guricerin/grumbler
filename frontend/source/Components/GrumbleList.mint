@@ -24,7 +24,7 @@ component GrumbleList {
                 <small>"@#{grumble.userId}"</small>
               </a>
 
-              <small::date>"#{Time.format("yyyy/mm/dd - hh:mm:ss", grumble.createdAt)}"</small>
+              <small::date>"#{grumble.createdAt}"</small>
 
               <br/>
               "#{grumble.content}"

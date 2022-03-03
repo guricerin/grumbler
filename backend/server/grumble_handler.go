@@ -16,11 +16,12 @@ type getGrumblesReq struct {
 	UserId string `json:"user_id" binding:"required"`
 }
 
-func grumbleRes(g model.Grumble) gin.H {
+func grumbleRes(g model.GrumbleRes) gin.H {
 	return gin.H{
 		"pk":        g.Pk,
 		"content":   g.Content,
 		"userId":    g.UserId,
+		"userName":  g.UserName,
 		"createdAt": g.CreatedAt.Format("2006/01/02 15:04:05"),
 	}
 }

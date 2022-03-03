@@ -32,17 +32,21 @@ func (s *grumbleStore) Create(content string, user model.User) error {
 	return err
 }
 
-func (s *grumbleStore) RetrieveByUserId(userId string) ([]model.Grumble, error) {
-	res := make([]model.Grumble, 0)
-	rows, err := s.db.Query("select pk, content, user_id, created_at from grumbles where user_id = ?", userId)
+func (s *grumbleStore) RetrieveByUserId(userId string) ([]model.GrumbleRes, error) {
+	res := make([]model.GrumbleRes, 0)
+	query := `select g.pk, g.content, g.user_id, g.created_at, u.name
+    from grumbles as g left join users as u
+    on g.user_id = u.id
+    where u.id = ?`
+	rows, err := s.db.Query(query, userId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		g := model.Grumble{}
-		err = rows.Scan(&g.Pk, &g.Content, &g.UserId, &g.CreatedAt)
+		g := model.GrumbleRes{}
+		err = rows.Scan(&g.Pk, &g.Content, &g.UserId, &g.CreatedAt, &g.UserName)
 		if err != nil {
 			return nil, err
 		}

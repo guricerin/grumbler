@@ -2,6 +2,7 @@ record Grumble {
   pk : String,
   content : String,
   userId : String,
+  userName : String,
   createdAt : String
 }
 
@@ -11,6 +12,7 @@ module Grumble {
       pk = "",
       content = "",
       userId = "",
+      userName = "",
       createdAt = ""
     }
   }

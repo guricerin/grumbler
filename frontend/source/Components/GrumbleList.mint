@@ -16,11 +16,7 @@ component GrumbleList {
           <div class="content">
             <p>
               <a href="/user/#{grumble.userId}">
-                // <strong>
-
-                // <{ user.name }>
-
-                // </strong>
+                <strong>"#{grumble.userName}"</strong>
                 <small>"@#{grumble.userId}"</small>
               </a>
 

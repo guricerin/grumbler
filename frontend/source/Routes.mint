@@ -72,12 +72,16 @@ routes {
       Application.signinCheck()
 
       case (Application.userStatus) {
-        UserStatus::Guest => Application.setPage(Page::Error(401))
+        UserStatus::Guest => Application.setPage(Page::Error(403))
 
-        UserStatus::SignIn =>
-          sequence {
-            Stores.Timeline.getTimeline(id)
-            Application.setPage(Page::Timeline)
+        UserStatus::SignIn(user) =>
+          if (user.id == id) {
+            parallel {
+              Application.setPage(Page::Timeline)
+              Stores.Timeline.getTimeline(id)
+            }
+          } else {
+            Application.setPage(Page::Error(403))
           }
       }
     }

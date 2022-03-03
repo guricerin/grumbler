@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"sort"
 
 	"github.com/gin-gonic/gin"
 	"github.com/guricerin/grumbler/backend/model"
@@ -39,6 +40,10 @@ func (s *Server) getTimeline() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
+		// 最新日時順
+		sort.Slice(grumbles, func(i, j int) bool {
+			return grumbles[i].CreatedAt.After(grumbles[j].CreatedAt)
+		})
 
 		grumblesJson := make([]gin.H, 0)
 		for _, g := range grumbles {

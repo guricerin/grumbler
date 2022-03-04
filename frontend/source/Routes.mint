@@ -53,7 +53,7 @@ routes {
     }
   }
 
-  /user/:id/grumble (id : String) {
+  /user/:id/post-grumble (id : String) {
     sequence {
       Application.setPageWithAuthentication(Page::PostGrumble)
     }
@@ -84,6 +84,13 @@ routes {
             Application.setPage(Page::Error(403))
           }
       }
+    }
+  }
+
+  /user/:id/grumble (id : String) {
+    sequence {
+      Stores.User.getRsrcUser(id)
+      Application.setPageWithAuthentication(Page::User)
     }
   }
 

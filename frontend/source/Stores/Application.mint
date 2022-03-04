@@ -9,6 +9,7 @@ enum Page {
   User
   Timeline
   PostGrumble
+  UserGrumbles
   Error(Number)
 }
 

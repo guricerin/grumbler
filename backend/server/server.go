@@ -65,8 +65,8 @@ func (s *Server) setupRouter() {
 		auth.POST("/user/:id/signout", s.postSignOut())
 		auth.POST("/user/:id/unsubscribe", s.postUnsubscribe())
 		auth.GET("/user/:id/timeline", s.getTimeline())
+		auth.GET("/user/:id/grumbles", s.getUserGrumbles())
 		auth.POST("/grumble", s.postGrumble())
-		auth.GET("/grumbles", s.getGrumbles())
 	}
 
 	s.router = router

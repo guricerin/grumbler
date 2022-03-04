@@ -87,16 +87,25 @@ routes {
     }
   }
 
-  /user/:id/grumble (id : String) {
+  /user/:id/grumbles (id : String) {
     sequence {
-      Stores.User.getRsrcUser(id)
-      Application.setPageWithAuthentication(Page::User)
+      Application.signinCheck()
+
+      case (Application.userStatus) {
+        UserStatus::Guest => Application.setPage(Page::Error(403))
+
+        UserStatus::SignIn(user) =>
+          parallel {
+            Stores.PageUser.getGrumbles(id)
+            Application.setPage(Page::UserGrumbles)
+          }
+      }
     }
   }
 
   /user/:id (id : String) {
     sequence {
-      Stores.User.getRsrcUser(id)
+      Stores.PageUser.getUser(id)
       Application.setPageWithAuthentication(Page::User)
     }
   }

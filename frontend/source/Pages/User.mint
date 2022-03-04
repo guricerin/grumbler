@@ -1,6 +1,6 @@
 component Pages.User {
   connect Application exposing { userStatus }
-  connect Stores.User exposing { rsrcUser }
+  connect Stores.PageUser exposing { rsrcUser }
 
   style profileItem {
     margin-left: 5px;
@@ -12,7 +12,11 @@ component Pages.User {
       <small>"@#{user.id}"</small>
       <p>"#{user.profile}"</p>
       <hr/>
-      <a::profileItem>"ぼやき"</a>
+
+      <a::profileItem href="/user/#{user.id}/grumbles">
+        "ぼやき"
+      </a>
+
       <a::profileItem>"フォロー"</a>
       <a::profileItem>"フォロワー"</a>
     </div>

@@ -12,7 +12,7 @@ import (
 )
 
 type getUserReq struct {
-	Id string `json:"id" binding:"required,alphanum,min=1,max=255"`
+	Id string `json:"id"`
 }
 
 type signupUserReq struct {
@@ -50,15 +50,11 @@ func (s *Server) signinCheck() gin.HandlerFunc {
 
 func (s *Server) getUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req getUserReq
-		if err := c.BindJSON(&req); err != nil {
-			c.JSON(http.StatusBadRequest, errorRes(err))
-			return
-		}
-
-		user, err := s.userStore.RetrieveById(req.Id)
+		userId := c.Param("id")
+		user, err := s.userStore.RetrieveById(userId)
 		if err != nil {
 			// todo
+			log.Printf("getUser(): %s\n", err.Error())
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}

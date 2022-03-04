@@ -88,7 +88,10 @@ routes {
   }
 
   /user/:id (id : String) {
-    Application.setPageWithAuthentication(Page::User)
+    sequence {
+      Stores.User.getRsrcUser(id)
+      Application.setPageWithAuthentication(Page::User)
+    }
   }
 
   * {

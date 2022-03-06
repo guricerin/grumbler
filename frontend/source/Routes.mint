@@ -106,6 +106,7 @@ routes {
   /user/:id (id : String) {
     parallel {
       Stores.PageUser.getUserDetail(id)
+      Stores.PageUser.setShowKind(UserDetailShowKind::Grumbles)
       Application.setPageWithAuthentication(Page::UserDetail)
     }
   }

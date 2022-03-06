@@ -35,10 +35,12 @@ func userDetailRes(user model.User, grumbles []model.GrumbleRes, follows []model
 	}
 
 	return gin.H{
-		"user":      userRes(user),
-		"grumbles":  grumblesJson,
-		"follows":   followsJson,
-		"followers": followersJson,
+		"user":       userRes(user),
+		"grumbles":   grumblesJson,
+		"follows":    followsJson,
+		"followers":  followersJson,
+		"isFollow":   false,
+		"isFollower": false,
 	}
 }
 

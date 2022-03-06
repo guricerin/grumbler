@@ -1,6 +1,17 @@
+enum UserDetailShowKind {
+  Grumbles
+  Follows
+  Followers
+}
+
 store Stores.PageUser {
-  state rsrcUser : UserDetail = UserDetail.empty()
+  state userDetail : UserDetail = UserDetail.empty()
+  state showKind : UserDetailShowKind = UserDetailShowKind::Grumbles
   state grumblesStatus : Api.Status(Grumbles) = Api.Status::Initial
+
+  fun setShowKind (sk : UserDetailShowKind) : Promise(Never, Void) {
+    next { showKind = sk }
+  }
 
   fun getUserDetail (userId : String) : Promise(Never, Void) {
     sequence {
@@ -9,8 +20,8 @@ store Stores.PageUser {
         |> Api.send(UserDetail.decodes)
 
       case (status) {
-        Api.Status::Ok(user) => next { rsrcUser = user }
-        => next { rsrcUser = UserDetail.empty() }
+        Api.Status::Ok(ud) => next { userDetail = ud }
+        => next { userDetail = UserDetail.empty() }
       }
     }
   }

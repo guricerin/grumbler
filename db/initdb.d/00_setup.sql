@@ -36,6 +36,6 @@ create table `grumbles` (
 
 create table `follows` (
     `pk` int unsigned auto_increment primary key not null,
-    `src_user_id` varchar(255) unique not null,
-    `dst_user_id` varchar(255) unique not null
+    `src_user_id` varchar(255) not null,
+    `dst_user_id` varchar(255) not null
 );

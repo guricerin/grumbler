@@ -1,6 +1,6 @@
 component Pages.UserDetail {
   connect Application exposing { userStatus }
-  connect Stores.PageUser exposing { rsrcUser }
+  connect Stores.PageUser exposing { userDetail, showKind }
   state isFollow : Bool = false
   state followApiStatus : Api.Status(FollowRes) = Api.Status::Initial
 
@@ -8,12 +8,12 @@ component Pages.UserDetail {
     margin-left: 5px;
   }
 
-  fun doFollow (ud : UserDetail, event : Html.Event) : Promise(Never, Void) {
+  fun doFollow (signinuser : User, event : Html.Event) : Promise(Never, Void) {
     sequence {
       follow =
         {
-          srcUserId = ud.user.id,
-          dstUserId = rsrcUser.user.id
+          srcUserId = signinuser.id,
+          dstUserId = userDetail.user.id
         }
 
       status =
@@ -31,10 +31,10 @@ component Pages.UserDetail {
   fun followButton : Html {
     case (userStatus) {
       UserStatus::SignIn(signinUser) =>
-        if (signinUser.id != rsrcUser.user.id) {
+        if (signinUser.id != userDetail.user.id) {
           <a
             class="button is-outlined is-info"
-            onClick={doFollow(rsrcUser)}>
+            onClick={doFollow(signinUser)}>
 
             "フォロー"
 
@@ -47,13 +47,33 @@ component Pages.UserDetail {
     }
   }
 
-  fun rsrcUserProfile (ud : UserDetail) : Html {
+  fun arraySize (ls : Array(a)) : String {
+    ls
+    |> Array.size
+    |> Number.toString
+  }
+
+  fun showUserDetail (ud : UserDetail) : Html {
     <div>
       <strong>"#{ud.user.name}"</strong>
       <small>"@#{ud.user.id}"</small>
       <p>"#{ud.user.profile}"</p>
       <{ followButton() }>
       <hr/>
+
+      <nav class="level is-mobile">
+        <div class="level-item ">
+          <a>"ぼやき"</a>
+        </div>
+
+        <div class="level-item">
+          <a>"#{arraySize(userDetail.follows)} フォロー"</a>
+        </div>
+
+        <div class="level-item">
+          <a>"#{arraySize(userDetail.followers)} フォロワー"</a>
+        </div>
+      </nav>
 
       <a::profileItem href="/user/#{ud.user.id}/grumbles">
         "ぼやき"
@@ -64,9 +84,21 @@ component Pages.UserDetail {
     </div>
   }
 
+  fun showSub : Html {
+    case (showKind) {
+      UserDetailShowKind::Grumbles => <GrumbleList grumbles={gs}/>
+      => Html.empty()
+    }
+  } where {
+    gs =
+      Grumbles(userDetail.grumbles)
+  }
+
   fun render : Html {
     <div>
-      <{ rsrcUserProfile(rsrcUser) }>
+      <{ showUserDetail(userDetail) }>
+      <hr/>
+      <{ showSub() }>
     </div>
   }
 }

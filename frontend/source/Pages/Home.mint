@@ -1,6 +1,50 @@
 component Pages.Home {
+  connect Application exposing { userStatus }
+
   style content {
     margin-bottom: 50px;
+  }
+
+  fun showGuide : Html {
+    case (userStatus) {
+      UserStatus::Guest =>
+        <div>
+          <li>
+            "サインインは"
+
+            <a href="/signin">
+              "こちら。"
+            </a>
+          </li>
+
+          <li>
+            "アカウント新規登録は"
+
+            <a href="/signup">
+              "こちら。"
+            </a>
+          </li>
+        </div>
+
+      UserStatus::SignIn(user) =>
+        <div>
+          <li>
+            "サインアウトは"
+
+            <a href="/signout">
+              "こちら。"
+            </a>
+          </li>
+
+          <li>
+            "退会は"
+
+            <a href="/unsubscribe">
+              "こちら。"
+            </a>
+          </li>
+        </div>
+    }
   }
 
   fun render : Html {
@@ -40,22 +84,7 @@ component Pages.Home {
 
         <div class="content">
           <ul>
-            <li>
-              "サインインは"
-
-              <a href="/sign-in">
-                "こちら。"
-              </a>
-            </li>
-
-            <li>
-              "アカウント新規登録は"
-
-              <a href="/sign-up">
-                "こちら。"
-              </a>
-            </li>
-
+            <{ showGuide() }>
             <li>"サインイン後、一週間以内に再アクセスしなかった場合、セッションが切れてサインアウト状態になります。"</li>
             <li>"本サービスは予告なく終了する場合があります。"</li>
           </ul>

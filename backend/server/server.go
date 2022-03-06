@@ -62,16 +62,17 @@ func (s *Server) setupRouter() {
 	auth := router.Group("/api/auth")
 	auth.Use(s.authenticationMiddleware())
 	{
-		auth.GET("/user/:id", s.getUser())
-		auth.GET("/user/:id/detail", s.getUserDetail())
 		auth.GET("/search", s.getSearch())
-		auth.POST("/user/:id/signout", s.postSignOut())
-		auth.POST("/user/:id/unsubscribe", s.postUnsubscribe())
-		auth.GET("/user/:id/timeline", s.getTimeline())
-		auth.GET("/user/:id/grumbles", s.getUserGrumbles())
+		auth.POST("/signout", s.postSignOut())
+		auth.POST("/unsubscribe", s.postUnsubscribe())
 		auth.POST("/grumble", s.postGrumble())
 		auth.POST("/follow", s.postFollow())
 		auth.POST("/unfollow", s.postUnFollow())
+
+		auth.GET("/user/:id", s.getUser())
+		auth.GET("/user/:id/detail", s.getUserDetail())
+		auth.GET("/user/:id/timeline", s.getTimeline())
+		auth.GET("/user/:id/grumbles", s.getUserGrumbles())
 	}
 
 	s.router = router

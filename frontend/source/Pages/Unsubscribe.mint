@@ -26,7 +26,7 @@ component Pages.Unsubscribe {
   fun doUnsubscribe (user : User, event : Html.Event) : Promise(Never, Void) {
     sequence {
       status =
-        Http.post("#{@ENDPOINT}/auth/user/#{user.id}/unsubscribe")
+        Http.post("#{@ENDPOINT}/auth/unsubscribe")
         |> Api.send(SignOutRes.decodes)
 
       case (status) {

@@ -187,7 +187,7 @@ func (s *Server) postSignIn() gin.HandlerFunc {
 
 func (s *Server) postSignOut() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		user, err := s.authorizationCheck(c)
+		user, err := s.fetchUserFromSession(c)
 		if err != nil {
 			c.JSON(http.StatusForbidden, errorRes(err))
 			return
@@ -213,14 +213,9 @@ func (s *Server) postSignOut() gin.HandlerFunc {
 
 func (s *Server) postUnsubscribe() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		_, err := s.authorizationCheck(c)
+		user, err := s.fetchUserFromSession(c)
 		if err != nil {
 			c.JSON(http.StatusForbidden, errorRes(err))
-			return
-		}
-		token, err := s.fetchSessToken(c)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
 		err = s.deleteCookie(c)
@@ -230,13 +225,7 @@ func (s *Server) postUnsubscribe() gin.HandlerFunc {
 			return
 		}
 
-		sess, err := s.sessionStore.RetrieveByToken(token)
-		if err != nil {
-			// todo: err msgをユーザ用に変更
-			c.JSON(http.StatusInternalServerError, errorRes(err))
-			return
-		}
-		err = s.userStore.DeleteByPk(sess.UserPk)
+		err = s.userStore.DeleteByPk(user.Pk)
 		if err != nil {
 			// todo: err msgをユーザ用に変更
 			c.JSON(http.StatusInternalServerError, errorRes(err))

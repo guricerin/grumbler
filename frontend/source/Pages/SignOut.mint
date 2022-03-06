@@ -26,7 +26,7 @@ component Pages.SignOut {
   fun doSignOut (user : User, event : Html.Event) : Promise(Never, Void) {
     sequence {
       status =
-        Http.post("#{@ENDPOINT}/auth/user/#{user.id}/signout")
+        Http.post("#{@ENDPOINT}/auth/signout")
         |> Api.send(SignOutRes.decodes)
 
       case (status) {

@@ -35,7 +35,7 @@ component Content {
           Page::Search => <Pages.Search/>
           Page::SignOut => <Pages.SignOut/>
           Page::Unsubscribe => <Pages.Unsubscribe/>
-          Page::User => <Pages.User/>
+          Page::UserDetail => <Pages.UserDetail/>
           Page::Timeline => <Pages.Timeline/>
           Page::PostGrumble => <Pages.PostGrumble/>
           Page::UserGrumbles => <Pages.UserGrumbles/>

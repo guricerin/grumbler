@@ -11,6 +11,7 @@ use `grumbler_db`;
 drop table if exists `users`;
 drop table if exists `sessions`;
 drop table if exists `grumbles`;
+drop table if exists `follows`;
 
 create table `users` (
     `pk` int unsigned auto_increment primary key not null,
@@ -31,4 +32,10 @@ create table `grumbles` (
     `content` varchar(300) not null,
     `user_id` varchar(255) not null,
     `created_at` datetime not null -- timestampは2038年問題があるからボツ
+);
+
+create table `follows` (
+    `pk` int unsigned auto_increment primary key not null,
+    `src_user_id` varchar(255) unique not null,
+    `dst_user_id` varchar(255) unique not null
 );

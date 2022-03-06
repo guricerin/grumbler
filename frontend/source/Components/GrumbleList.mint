@@ -10,7 +10,7 @@ component GrumbleList {
   }
 
   style date {
-    margin: 7px;
+    margin-left: 7px;
   }
 
   fun grumbleBox (grumble : Grumble) : Html {
@@ -27,7 +27,7 @@ component GrumbleList {
               <small::date>"#{grumble.createdAt}"</small>
 
               <br/>
-              "#{grumble.content}"
+              <p>"#{grumble.content}"</p>
             </p>
           </div>
 

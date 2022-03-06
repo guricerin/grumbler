@@ -104,9 +104,9 @@ routes {
   }
 
   /user/:id (id : String) {
-    sequence {
-      Stores.PageUser.getUser(id)
-      Application.setPageWithAuthentication(Page::User)
+    parallel {
+      Stores.PageUser.getUserDetail(id)
+      Application.setPageWithAuthentication(Page::UserDetail)
     }
   }
 

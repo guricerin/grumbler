@@ -6,7 +6,7 @@ enum Page {
   SignOut
   Unsubscribe
   Search
-  User
+  UserDetail
   Timeline
   PostGrumble
   UserGrumbles

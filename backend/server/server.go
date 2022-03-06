@@ -24,6 +24,7 @@ type Server struct {
 	userStore    userStore
 	sessionStore sessionStore
 	grumbleStore grumbleStore
+	followStore  followStore
 }
 
 func NewServer(cfg util.Config, db *sql.DB) Server {
@@ -32,6 +33,7 @@ func NewServer(cfg util.Config, db *sql.DB) Server {
 		userStore:    NewUserStore(db),
 		sessionStore: NewSessionStore(db),
 		grumbleStore: NewGrumbleStore(db),
+		followStore:  NewFollowStore(db),
 	}
 	s.setupRouter()
 	return s
@@ -61,12 +63,15 @@ func (s *Server) setupRouter() {
 	auth.Use(s.authenticationMiddleware())
 	{
 		auth.GET("/user/:id", s.getUser())
+		auth.GET("/user/:id/detail", s.getUserDetail())
 		auth.GET("/search", s.getSearch())
 		auth.POST("/user/:id/signout", s.postSignOut())
 		auth.POST("/user/:id/unsubscribe", s.postUnsubscribe())
 		auth.GET("/user/:id/timeline", s.getTimeline())
 		auth.GET("/user/:id/grumbles", s.getUserGrumbles())
 		auth.POST("/grumble", s.postGrumble())
+		auth.POST("/follow", s.postFollow())
+		auth.POST("/unfollow", s.postUnFollow())
 	}
 
 	s.router = router

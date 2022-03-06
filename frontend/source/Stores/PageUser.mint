@@ -1,15 +1,16 @@
 store Stores.PageUser {
-  state rsrcUser : User = User.empty()
+  state rsrcUser : UserDetail = UserDetail.empty()
   state grumblesStatus : Api.Status(Grumbles) = Api.Status::Initial
 
-  fun getUser (userId : String) : Promise(Never, Void) {
+  fun getUserDetail (userId : String) : Promise(Never, Void) {
     sequence {
-      res =
-        Api.getUser(userId)
+      status =
+        Http.get("#{@ENDPOINT}/auth/user/#{userId}/detail")
+        |> Api.send(UserDetail.decodes)
 
-      case (res) {
+      case (status) {
         Api.Status::Ok(user) => next { rsrcUser = user }
-        => next { rsrcUser = User.empty() }
+        => next { rsrcUser = UserDetail.empty() }
       }
     }
   }

@@ -3,6 +3,7 @@ package server
 import (
 	"log"
 	"net/http"
+	"sort"
 
 	"github.com/gin-gonic/gin"
 	"github.com/guricerin/grumbler/backend/model"
@@ -62,6 +63,10 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
+		// 最新日時順
+		sort.Slice(grumbles, func(i, j int) bool {
+			return grumbles[i].CreatedAt.After(grumbles[j].CreatedAt)
+		})
 
 		follows, err := s.followStore.RetrieveFollows(user.Id)
 		if err != nil {

@@ -52,7 +52,12 @@ component Pages.Search {
   fun showResult (res : SearchResultKind) : Html {
     case (res) {
       SearchResultKind::Initial => Html.empty()
-      SearchResultKind::Users(users) => <UserList users={users}/>
+
+      SearchResultKind::Users(users) =>
+        <div>
+          <p>"検索結果 : #{Array.size(users.users)}件"</p>
+          <UserList users={users}/>
+        </div>
     }
   }
 

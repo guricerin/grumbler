@@ -32,8 +32,6 @@ component UserList {
 
   fun render : Html {
     <div>
-      <p>"検索結果 : #{Array.size(users.users)}件"</p>
-
       <ul>
         <{ Array.map(userListItem, users.users) }>
       </ul>

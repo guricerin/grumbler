@@ -39,6 +39,7 @@ component Pages.UserDetail {
           Html.empty()
         }
 
+      /* unreachable! */
       => Html.empty()
     }
   }
@@ -55,45 +56,46 @@ component Pages.UserDetail {
       <small>"@#{ud.user.id}"</small>
       <p>"#{ud.user.profile}"</p>
       <{ followButton() }>
-      <hr/>
+    </div>
+  }
 
-      <nav class="level is-mobile">
-        <div class="level-item ">
+  fun showTabs (ud : UserDetail) : Html {
+    <div class="tabs is-centered">
+      <ul>
+        <li>
           <a href="/user/#{ud.user.id}">
             <span>"ぼやき"</span>
           </a>
-        </div>
+        </li>
 
-        <div class="level-item">
+        <li>
           <a href="/user/#{ud.user.id}/follows">
             <span>"#{arraySize(userDetail.follows)} フォロー"</span>
           </a>
-        </div>
+        </li>
 
-        <div class="level-item">
+        <li>
           <a href="/user/#{ud.user.id}/followers">
             <span>"#{arraySize(userDetail.followers)} フォロワー"</span>
           </a>
-        </div>
-      </nav>
+        </li>
+      </ul>
     </div>
   }
 
   fun showSub : Html {
     case (showKind) {
-      UserDetailShowKind::Grumbles => <GrumbleList grumbles={gs}/>
+      UserDetailShowKind::Grumbles => <GrumbleList grumbles={Grumbles(userDetail.grumbles)}/>
       UserDetailShowKind::Follows => <UserList users={Users(userDetail.follows)}/>
       UserDetailShowKind::Followers => <UserList users={Users(userDetail.followers)}/>
     }
-  } where {
-    gs =
-      Grumbles(userDetail.grumbles)
   }
 
   fun render : Html {
     <div>
       <{ showUserDetail(userDetail) }>
-      <hr/>
+      <br/>
+      <{ showTabs(userDetail) }>
       <{ showSub() }>
     </div>
   }

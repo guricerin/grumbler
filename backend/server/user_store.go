@@ -37,6 +37,27 @@ func (s *userStore) RetrieveById(userId string) (model.User, error) {
 	return user, nil
 }
 
+func (s *userStore) RetrieveAllById(userId string) ([]model.User, error) {
+	query := `select pk, id, name, password, profile from users
+    where id = ?`
+	rows, err := s.db.Query(query, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	res := make([]model.User, 0)
+	for rows.Next() {
+		u := model.User{}
+		err := rows.Scan(&u.Pk, &u.Id, &u.Name, &u.Password, &u.Profile)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, u)
+	}
+	return res, nil
+}
+
 func (s *userStore) RetrieveByPk(pk uint64) (model.User, error) {
 	user := model.User{}
 	err := s.db.QueryRow("select pk, id, name, password, profile from users where pk = ?", pk).Scan(&user.Pk, &user.Id, &user.Name, &user.Password, &user.Profile)

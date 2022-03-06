@@ -4,10 +4,6 @@ component Pages.UserDetail {
   state isFollow : Bool = false
   state followApiStatus : Api.Status(FollowRes) = Api.Status::Initial
 
-  style profileItem {
-    margin-left: 5px;
-  }
-
   fun doFollow (signinuser : User, event : Html.Event) : Promise(Never, Void) {
     sequence {
       follow =
@@ -63,31 +59,31 @@ component Pages.UserDetail {
 
       <nav class="level is-mobile">
         <div class="level-item ">
-          <a>"ぼやき"</a>
+          <a href="/user/#{ud.user.id}">
+            <span>"ぼやき"</span>
+          </a>
         </div>
 
         <div class="level-item">
-          <a>"#{arraySize(userDetail.follows)} フォロー"</a>
+          <a href="/user/#{ud.user.id}/follows">
+            <span>"#{arraySize(userDetail.follows)} フォロー"</span>
+          </a>
         </div>
 
         <div class="level-item">
-          <a>"#{arraySize(userDetail.followers)} フォロワー"</a>
+          <a href="/user/#{ud.user.id}/followers">
+            <span>"#{arraySize(userDetail.followers)} フォロワー"</span>
+          </a>
         </div>
       </nav>
-
-      <a::profileItem href="/user/#{ud.user.id}/grumbles">
-        "ぼやき"
-      </a>
-
-      <a::profileItem>"フォロー"</a>
-      <a::profileItem>"フォロワー"</a>
     </div>
   }
 
   fun showSub : Html {
     case (showKind) {
       UserDetailShowKind::Grumbles => <GrumbleList grumbles={gs}/>
-      => Html.empty()
+      UserDetailShowKind::Follows => <UserList users={Users(userDetail.follows)}/>
+      UserDetailShowKind::Followers => <UserList users={Users(userDetail.followers)}/>
     }
   } where {
     gs =

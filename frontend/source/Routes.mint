@@ -103,6 +103,22 @@ routes {
     }
   }
 
+  /user/:id/follows (id : String) {
+    parallel {
+      Stores.PageUser.getUserDetail(id)
+      Stores.PageUser.setShowKind(UserDetailShowKind::Follows)
+      Application.setPageWithAuthentication(Page::UserDetail)
+    }
+  }
+
+  /user/:id/followers (id : String) {
+    parallel {
+      Stores.PageUser.getUserDetail(id)
+      Stores.PageUser.setShowKind(UserDetailShowKind::Followers)
+      Application.setPageWithAuthentication(Page::UserDetail)
+    }
+  }
+
   /user/:id (id : String) {
     parallel {
       Stores.PageUser.getUserDetail(id)

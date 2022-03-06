@@ -1,8 +1,8 @@
 record UserDetail {
   user : User,
   grumbles : Array(Grumble),
-  follows : Array(Follow),
-  followers : Array(Follow),
+  follows : Array(User),
+  followers : Array(User),
   isFollow : Bool,
   isFollower : Bool
 }

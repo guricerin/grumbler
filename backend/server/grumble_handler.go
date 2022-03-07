@@ -37,6 +37,22 @@ func (s *Server) getTimeline() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
+
+		follows, err := s.followStore.RetrieveFollows(user.Id)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+		for _, f := range follows {
+			gs, err := s.grumbleStore.RetrieveByUserId(f.DstUserId)
+			if err != nil {
+				// todo
+				c.JSON(http.StatusInternalServerError, errorRes(err))
+				return
+			}
+			grumbles = append(grumbles, gs...)
+		}
 		// 最新日時順
 		sort.Slice(grumbles, func(i, j int) bool {
 			return grumbles[i].CreatedAt.After(grumbles[j].CreatedAt)

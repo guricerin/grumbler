@@ -35,8 +35,9 @@ func (s *grumbleStore) Create(content string, user model.User) error {
 func (s *grumbleStore) RetrieveByUserId(userId string) ([]model.GrumbleRes, error) {
 	res := make([]model.GrumbleRes, 0)
 	query := `select g.pk, g.content, g.user_id, g.created_at, u.name
-    from grumbles as g left join users as u
-    on g.user_id = u.id
+    from grumbles as g
+    left join users as u
+        on g.user_id = u.id
     where u.id = ?`
 	rows, err := s.db.Query(query, userId)
 	if err != nil {

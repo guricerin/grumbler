@@ -1,7 +1,6 @@
 component Pages.UserDetail {
   connect Application exposing { userStatus }
   connect Stores.PageUser exposing { userDetail, showKind }
-  state isFollow : Bool = false
   state followApiStatus : Api.Status(FollowRes) = Api.Status::Initial
 
   fun doFollow (signinuser : User, event : Html.Event) : Promise(Never, Void) {
@@ -18,8 +17,14 @@ component Pages.UserDetail {
         |> Api.send(FollowRes.decodes)
 
       case (status) {
-        Api.Status::Ok(res) => next { isFollow = true }
-        => next { followApiStatus = status }
+        Api.Status::Ok(res) =>
+          sequence {
+            next { followApiStatus = status }
+            Stores.PageUser.getUserDetail(userDetail.user.id)
+          }
+
+        Api.Status::Initial => next { followApiStatus = status }
+        Api.Status::Error(e) => next { followApiStatus = status }
       }
     }
   }
@@ -38,8 +43,14 @@ component Pages.UserDetail {
         |> Api.send(FollowRes.decodes)
 
       case (status) {
-        Api.Status::Ok(res) => next { isFollow = true }
-        => next { followApiStatus = status }
+        Api.Status::Ok(res) =>
+          sequence {
+            next { followApiStatus = status }
+            Stores.PageUser.getUserDetail(userDetail.user.id)
+          }
+
+        Api.Status::Initial => next { followApiStatus = status }
+        Api.Status::Error(e) => next { followApiStatus = status }
       }
     }
   }

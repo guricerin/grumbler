@@ -21,7 +21,7 @@ func followRes(follow model.Follow) gin.H {
 	}
 }
 
-func userDetailRes(user model.User, grumbles []model.GrumbleRes, follows []model.User, followers []model.User) gin.H {
+func userDetailRes(user model.User, grumbles []model.GrumbleRes, follows []model.User, followers []model.User, isFollow bool, isFollower bool) gin.H {
 	grumblesJson := make([]gin.H, 0)
 	for _, g := range grumbles {
 		grumblesJson = append(grumblesJson, grumbleRes(g))
@@ -40,13 +40,21 @@ func userDetailRes(user model.User, grumbles []model.GrumbleRes, follows []model
 		"grumbles":   grumblesJson,
 		"follows":    followsJson,
 		"followers":  followersJson,
-		"isFollow":   false,
-		"isFollower": false,
+		"isFollow":   isFollow,
+		"isFollower": isFollower,
 	}
 }
 
 func (s *Server) getUserDetail() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		signinUser, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			log.Printf("getUserDetail() 0: %s\n", err.Error())
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+
 		userId := c.Param("id")
 		user, err := s.userStore.RetrieveById(userId)
 		if err != nil {
@@ -76,14 +84,15 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 			return
 		}
 		followUsers := make([]model.User, 0)
-		if len(follows) > 0 {
-			followUsers, err = s.userStore.RetrieveAllById(follows[0].DstUserId)
+		for _, f := range follows {
+			u, err := s.userStore.RetrieveById(f.DstUserId)
 			if err != nil {
 				// todo
 				log.Printf("getUserDetail() 4: %s\n", err.Error())
 				c.JSON(http.StatusInternalServerError, errorRes(err))
 				return
 			}
+			followUsers = append(followUsers, u)
 		}
 
 		followers, err := s.followStore.RetrieveFollowers(user.Id)
@@ -94,17 +103,26 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 			return
 		}
 		followerUsers := make([]model.User, 0)
-		if len(followers) > 0 {
-			followerUsers, err = s.userStore.RetrieveAllById(followers[0].SrcUserId)
+		for _, f := range followers {
+			u, err := s.userStore.RetrieveById(f.SrcUserId)
 			if err != nil {
 				// todo
 				log.Printf("getUserDetail() 6: %s\n", err.Error())
 				c.JSON(http.StatusInternalServerError, errorRes(err))
 				return
 			}
+			followerUsers = append(followerUsers, u)
 		}
 
-		c.JSON(http.StatusOK, userDetailRes(user, grumbles, followUsers, followerUsers))
+		isFollow, isFollower, err := s.followStore.RetrieveFollowRelation(signinUser.Id, userId)
+		if err != nil {
+			// todo
+			log.Printf("getUserDetail() 7: %s\n", err.Error())
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
+		c.JSON(http.StatusOK, userDetailRes(user, grumbles, followUsers, followerUsers, isFollow, isFollower))
 	}
 }
 

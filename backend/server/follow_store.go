@@ -71,3 +71,31 @@ func (s *followStore) RetrieveFollowers(dstUserId string) ([]model.Follow, error
 	}
 	return res, nil
 }
+
+// userId1からみて、userId2はフォローなのかフォロワーなのか
+func (s *followStore) RetrieveFollowRelation(userId1 string, userId2 string) (bool, bool, error) {
+	var count int
+	query := `select count(*) from follows
+    where src_user_id = ? and dst_user_id = ?`
+	row := s.db.QueryRow(query, userId1, userId2)
+	err := row.Scan(&count)
+	if err != nil {
+		return false, false, err
+	}
+	isFollow := false
+	if count > 0 {
+		isFollow = true
+	}
+
+	row = s.db.QueryRow(query, userId2, userId1)
+	err = row.Scan(&count)
+	if err != nil {
+		return false, false, err
+	}
+	isFollower := false
+	if count > 0 {
+		isFollower = true
+	}
+
+	return isFollow, isFollower, nil
+}

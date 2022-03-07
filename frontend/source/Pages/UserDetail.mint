@@ -24,17 +24,47 @@ component Pages.UserDetail {
     }
   }
 
+  fun doUnfollow (signinuser : User, event : Html.Event) : Promise(Never, Void) {
+    sequence {
+      follow =
+        {
+          srcUserId = signinuser.id,
+          dstUserId = userDetail.user.id
+        }
+
+      status =
+        Http.post("#{@ENDPOINT}/auth/unfollow")
+        |> Http.jsonBody(encode follow)
+        |> Api.send(FollowRes.decodes)
+
+      case (status) {
+        Api.Status::Ok(res) => next { isFollow = true }
+        => next { followApiStatus = status }
+      }
+    }
+  }
+
   fun followButton : Html {
     case (userStatus) {
       UserStatus::SignIn(signinUser) =>
         if (signinUser.id != userDetail.user.id) {
-          <a
-            class="button is-outlined is-info"
-            onClick={doFollow(signinUser)}>
+          if (userDetail.isFollow) {
+            <a
+              class="button is-outlined is-info"
+              onClick={doUnfollow(signinUser)}>
 
-            "フォロー"
+              "フォロー解除"
 
-          </a>
+            </a>
+          } else {
+            <a
+              class="button is-outlined is-info"
+              onClick={doFollow(signinUser)}>
+
+              "フォロー"
+
+            </a>
+          }
         } else {
           Html.empty()
         }
@@ -50,32 +80,32 @@ component Pages.UserDetail {
     |> Number.toString
   }
 
-  fun showUserDetail (ud : UserDetail) : Html {
+  fun showUserDetail : Html {
     <div>
-      <strong>"#{ud.user.name}"</strong>
-      <small>"@#{ud.user.id}"</small>
-      <p>"#{ud.user.profile}"</p>
+      <strong>"#{userDetail.user.name}"</strong>
+      <small>"@#{userDetail.user.id}"</small>
+      <p>"#{userDetail.user.profile}"</p>
       <{ followButton() }>
     </div>
   }
 
-  fun showTabs (ud : UserDetail) : Html {
+  fun showTabs : Html {
     <div class="tabs is-centered">
       <ul>
         <li>
-          <a href="/user/#{ud.user.id}">
+          <a href="/user/#{userDetail.user.id}">
             <span>"ぼやき"</span>
           </a>
         </li>
 
         <li>
-          <a href="/user/#{ud.user.id}/follows">
+          <a href="/user/#{userDetail.user.id}/follows">
             <span>"#{arraySize(userDetail.follows)} フォロー"</span>
           </a>
         </li>
 
         <li>
-          <a href="/user/#{ud.user.id}/followers">
+          <a href="/user/#{userDetail.user.id}/followers">
             <span>"#{arraySize(userDetail.followers)} フォロワー"</span>
           </a>
         </li>
@@ -93,9 +123,9 @@ component Pages.UserDetail {
 
   fun render : Html {
     <div>
-      <{ showUserDetail(userDetail) }>
+      <{ showUserDetail() }>
       <br/>
-      <{ showTabs(userDetail) }>
+      <{ showTabs() }>
       <{ showSub() }>
     </div>
   }

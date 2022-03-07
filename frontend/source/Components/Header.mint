@@ -85,10 +85,10 @@ component Header {
       UserStatus::SignIn(user) =>
         [
           <NavbarItem
-            route="/user/#{user.id}/timeline"
+            route="/timeline"
             title="タイムライン"/>,
           <NavbarItem
-            route="/user/#{user.id}/post-grumble"
+            route="/post-grumble"
             title="ぼやく"/>,
           <NavbarItem
             route="/search"

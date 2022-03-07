@@ -53,7 +53,7 @@ routes {
     }
   }
 
-  /user/:id/post-grumble (id : String) {
+  /post-grumble {
     sequence {
       Application.setPageWithAuthentication(Page::PostGrumble)
     }
@@ -67,7 +67,7 @@ routes {
     Application.setPageWithAuthentication(Page::Unsubscribe)
   }
 
-  /user/:id/timeline (id : String) {
+  /timeline {
     sequence {
       Application.signinCheck()
 
@@ -75,13 +75,9 @@ routes {
         UserStatus::Guest => Application.setPage(Page::Error(403))
 
         UserStatus::SignIn(user) =>
-          if (user.id == id) {
-            sequence {
-              Stores.Timeline.getTimeline(id)
-              Application.setPage(Page::Timeline)
-            }
-          } else {
-            Application.setPage(Page::Error(403))
+          sequence {
+            Stores.Timeline.getTimeline(user.id)
+            Application.setPage(Page::Timeline)
           }
       }
     }

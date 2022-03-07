@@ -3,42 +3,16 @@ component Pages.UserDetail {
   connect Stores.PageUser exposing { userDetail, showKind }
   state followApiStatus : Api.Status(FollowRes) = Api.Status::Initial
 
-  fun doFollow (signinuser : User, event : Html.Event) : Promise(Never, Void) {
+  fun doFollow (signinUser : User, apiUrl : String, event : Html.Event) : Promise(Never, Void) {
     sequence {
       follow =
         {
-          srcUserId = signinuser.id,
+          srcUserId = signinUser.id,
           dstUserId = userDetail.user.id
         }
 
       status =
-        Http.post("#{@ENDPOINT}/auth/follow")
-        |> Http.jsonBody(encode follow)
-        |> Api.send(FollowRes.decodes)
-
-      case (status) {
-        Api.Status::Ok(res) =>
-          sequence {
-            next { followApiStatus = status }
-            Stores.PageUser.getUserDetail(userDetail.user.id)
-          }
-
-        Api.Status::Initial => next { followApiStatus = status }
-        Api.Status::Error(e) => next { followApiStatus = status }
-      }
-    }
-  }
-
-  fun doUnfollow (signinuser : User, event : Html.Event) : Promise(Never, Void) {
-    sequence {
-      follow =
-        {
-          srcUserId = signinuser.id,
-          dstUserId = userDetail.user.id
-        }
-
-      status =
-        Http.post("#{@ENDPOINT}/auth/unfollow")
+        Http.post("#{apiUrl}")
         |> Http.jsonBody(encode follow)
         |> Api.send(FollowRes.decodes)
 
@@ -62,7 +36,7 @@ component Pages.UserDetail {
           if (userDetail.isFollow) {
             <a
               class="button is-outlined is-info"
-              onClick={doUnfollow(signinUser)}>
+              onClick={doFollow(signinUser, "#{@ENDPOINT}/auth/unfollow")}>
 
               "フォロー解除"
 
@@ -70,7 +44,7 @@ component Pages.UserDetail {
           } else {
             <a
               class="button is-outlined is-info"
-              onClick={doFollow(signinUser)}>
+              onClick={doFollow(signinUser, "#{@ENDPOINT}/auth/follow")}>
 
               "フォロー"
 

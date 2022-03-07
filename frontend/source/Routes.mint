@@ -83,22 +83,6 @@ routes {
     }
   }
 
-  /user/:id/grumbles (id : String) {
-    sequence {
-      Application.signinCheck()
-
-      case (Application.userStatus) {
-        UserStatus::Guest => Application.setPage(Page::Error(403))
-
-        UserStatus::SignIn(user) =>
-          parallel {
-            Stores.PageUser.getGrumbles(id)
-            Application.setPage(Page::UserGrumbles)
-          }
-      }
-    }
-  }
-
   /user/:id/follows (id : String) {
     sequence {
       Stores.PageUser.getUserDetail(id)

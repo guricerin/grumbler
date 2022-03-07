@@ -9,7 +9,6 @@ enum Page {
   UserDetail
   Timeline
   PostGrumble
-  UserGrumbles
   Error(Number)
 }
 

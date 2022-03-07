@@ -76,9 +76,9 @@ routes {
 
         UserStatus::SignIn(user) =>
           if (user.id == id) {
-            parallel {
-              Application.setPage(Page::Timeline)
+            sequence {
               Stores.Timeline.getTimeline(id)
+              Application.setPage(Page::Timeline)
             }
           } else {
             Application.setPage(Page::Error(403))
@@ -104,7 +104,7 @@ routes {
   }
 
   /user/:id/follows (id : String) {
-    parallel {
+    sequence {
       Stores.PageUser.getUserDetail(id)
       Stores.PageUser.setShowKind(UserDetailShowKind::Follows)
       Application.setPageWithAuthentication(Page::UserDetail)
@@ -112,7 +112,7 @@ routes {
   }
 
   /user/:id/followers (id : String) {
-    parallel {
+    sequence {
       Stores.PageUser.getUserDetail(id)
       Stores.PageUser.setShowKind(UserDetailShowKind::Followers)
       Application.setPageWithAuthentication(Page::UserDetail)
@@ -120,7 +120,7 @@ routes {
   }
 
   /user/:id (id : String) {
-    parallel {
+    sequence {
       Stores.PageUser.getUserDetail(id)
       Stores.PageUser.setShowKind(UserDetailShowKind::Grumbles)
       Application.setPageWithAuthentication(Page::UserDetail)

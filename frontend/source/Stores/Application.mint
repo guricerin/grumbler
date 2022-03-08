@@ -95,7 +95,7 @@ store Application {
     sequence {
       next { userStatus = UserStatus::SignIn(user) }
 
-      Window.navigate("/user/#{user.id}/timeline")
+      Window.navigate("/timeline")
     }
   }
 

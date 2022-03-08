@@ -83,13 +83,14 @@ component Pages.SignUp {
             <input
               class="input"
               type="text"
+              maxlength="32"
               placeholder="ユーザ名"
               value={userName}
               onChange={handleInput(setUserName)}
               required="required"/>
 
             <div>
-              <small>"＊1文字以上127文字以下の範囲で設定してください。"</small>
+              <small>"＊1文字以上32文字以下の範囲で設定してください。"</small>
               <br/>
               <small>"＊使用可能な文字は、UTF-8文字です（半角英数字だけでなく日本語も使用可能です）。"</small>
             </div>
@@ -103,6 +104,7 @@ component Pages.SignUp {
             <input
               class="input"
               type="text"
+              maxlength="32"
               placeholder="ユーザID"
               value={userId}
               onChange={handleInput(setUserId)}
@@ -111,7 +113,7 @@ component Pages.SignUp {
             <div>
               <small>"＊他ユーザアカウントと重複するIDは設定できません。"</small>
               <br/>
-              <small>"＊1文字以上127文字以下の範囲で設定してください。"</small>
+              <small>"＊1文字以上32文字以下の範囲で設定してください。"</small>
               <br/>
               <small>"＊使用可能な文字は、半角英数字とアンダーバー（_）です。"</small>
             </div>
@@ -125,6 +127,7 @@ component Pages.SignUp {
             <input
               class="input"
               type="password"
+              maxlength="127"
               placeholder="パスワード"
               value={password}
               onChange={handleInput(setPassword)}

@@ -53,11 +53,11 @@ func TestValidateUserId(t *testing.T) {
 	res := ValidateUserId(plain)
 	require.Error(t, res)
 
-	plain = randomeString(userIdTokens, 128)
+	plain = randomeString(userIdTokens, 33)
 	res = ValidateUserId(plain)
 	require.Error(t, res)
 
-	for i := 1; i <= 127; i++ {
+	for i := 1; i <= 32; i++ {
 		plain := randomeString(userIdTokens, i)
 		res := ValidateUserId(plain)
 		require.NoError(t, res)
@@ -69,11 +69,11 @@ func TestValidateUserName(t *testing.T) {
 	res := ValidateUserName(name)
 	require.Error(t, res)
 
-	name = randomeString(userIdTokens, 128)
+	name = randomeString(userIdTokens, 33)
 	res = ValidateUserName(name)
 	require.Error(t, res)
 
-	for i := 1; i <= 127; i++ {
+	for i := 1; i <= 32; i++ {
 		name := randomeString(userIdTokens, i)
 		res = ValidateUserName(name)
 		require.NoError(t, res)

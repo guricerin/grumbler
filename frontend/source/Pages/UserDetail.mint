@@ -59,18 +59,47 @@ component Pages.UserDetail {
     }
   }
 
+  fun moveToSettingsPage (event : Html.Event) : Promise(Never, Void) {
+    Window.navigate("/settings")
+  }
+
+  fun settingsButton : Html {
+    case (userStatus) {
+      UserStatus::SignIn(signinUser) =>
+        if (signinUser.id == userDetail.user.id) {
+          <a
+            class="button is-outlined is-info"
+            onClick={moveToSettingsPage}>
+
+            "設定"
+
+          </a>
+        } else {
+          Html.empty()
+        }
+
+      /* unreachable! */
+      => Html.empty()
+    }
+  }
+
   fun arraySize (ls : Array(a)) : String {
     ls
     |> Array.size
     |> Number.toString
   }
 
+  style text {
+    white-space: pre-wrap;
+  }
+
   fun showUserDetail : Html {
     <div>
       <strong>"#{userDetail.user.name}"</strong>
       <small>"@#{userDetail.user.id}"</small>
-      <p>"#{userDetail.user.profile}"</p>
+      <p::text>"#{userDetail.user.profile}"</p>
       <{ followButton() }>
+      <{ settingsButton() }>
     </div>
   }
 

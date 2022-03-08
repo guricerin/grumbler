@@ -4,7 +4,15 @@ component Pages.Timeline {
   fun showResult (res : TimelineResultKind) : Html {
     case (res) {
       TimelineResultKind::Initial => Html.empty()
-      TimelineResultKind::Grumbles(grumbles) => <GrumbleList grumbles={grumbles}/>
+
+      TimelineResultKind::Grumbles(grumbles) =>
+        if (Array.size(grumbles.grumbles) < 1) {
+          <div>
+            <p>"最初のぼやきを投稿してみましょう。"</p>
+          </div>
+        } else {
+          <GrumbleList grumbles={grumbles}/>
+        }
     }
   }
 

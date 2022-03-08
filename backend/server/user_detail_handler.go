@@ -21,6 +21,11 @@ func followRes(follow model.Follow) gin.H {
 	}
 }
 
+type userSettingsReq struct {
+	Name    string `json:"name"`
+	Profile string `json:"profile"`
+}
+
 func userDetailRes(user model.User, grumbles []model.GrumbleRes, follows []model.User, followers []model.User, isFollow bool, isFollower bool) gin.H {
 	grumblesJson := make([]gin.H, 0)
 	for _, g := range grumbles {
@@ -159,6 +164,48 @@ func (s *Server) postUnFollow() gin.HandlerFunc {
 		if err := s.followStore.Delete(req.SrcUserId, req.DstUserId); err != nil {
 			log.Printf("postUnFollow(): %s\n", err.Error())
 			// todo
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"ok": true,
+		})
+		return
+	}
+}
+
+func (s *Server) postUserSettings() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		signinUser, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			log.Printf("postUserSettings() 0: %s\n", err.Error())
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+		var req userSettingsReq
+		if err := c.BindJSON(&req); err != nil {
+			log.Printf("postUserSettings() 1: %s\n", err.Error())
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+
+		if err := model.ValidateUserName(req.Name); err != nil {
+			log.Printf("postUserSettings() 2: %s\n", err.Error())
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+		if err := model.ValidateUserProfile(req.Profile); err != nil {
+			log.Printf("postUserSettings() 3: %s\n", err.Error())
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+
+		signinUser.Name = req.Name
+		signinUser.Profile = req.Profile
+		if err := s.userStore.Update(&signinUser); err != nil {
+			log.Printf("postUserSettings() 4: %s\n", err.Error())
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}

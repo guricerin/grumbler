@@ -1,6 +1,10 @@
 component UserList {
   property users : Users = Users.empty()
 
+  style text {
+    white-space: pre-wrap;
+  }
+
   fun userBox (user : User) : Html {
     <div class="box">
       <article class="media">
@@ -16,7 +20,7 @@ component UserList {
               </a>
 
               <br/>
-              "#{user.profile}"
+              <div::text>"#{user.profile}"</div>
             </p>
           </div>
         </div>

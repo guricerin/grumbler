@@ -83,6 +83,10 @@ routes {
     }
   }
 
+  /settings {
+    Application.setPageWithAuthentication(Page::UserSettings)
+  }
+
   /user/:id/follows (id : String) {
     sequence {
       Stores.PageUser.getUserDetail(id)

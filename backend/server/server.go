@@ -68,11 +68,13 @@ func (s *Server) setupRouter() {
 		auth.POST("/grumble", s.postGrumble())
 		auth.POST("/follow", s.postFollow())
 		auth.POST("/unfollow", s.postUnFollow())
+		auth.POST("/settings", s.postUserSettings())
 
 		auth.GET("/user/:id", s.getUser())
 		auth.GET("/user/:id/detail", s.getUserDetail())
 		auth.GET("/user/:id/timeline", s.getTimeline())
 		auth.GET("/user/:id/grumbles", s.getUserGrumbles())
+		auth.POST("/user/:id/settings", s.postUserSettings())
 	}
 
 	s.router = router

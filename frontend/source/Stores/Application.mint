@@ -9,6 +9,7 @@ enum Page {
   UserDetail
   Timeline
   PostGrumble
+  UserSettings
   Error(Number)
 }
 
@@ -104,6 +105,23 @@ store Application {
       next { userStatus = UserStatus::Guest }
 
       Window.navigate("/")
+    }
+  }
+
+  fun updateUser (name : String, profile : String) : Promise(Never, Void) {
+    case (userStatus) {
+      UserStatus::Guest => next { }
+
+      UserStatus::SignIn(user) =>
+        sequence {
+          updatedUser =
+            { user |
+              name = name,
+              profile = profile
+            }
+
+          next { userStatus = UserStatus::SignIn(updatedUser) }
+        }
     }
   }
 }

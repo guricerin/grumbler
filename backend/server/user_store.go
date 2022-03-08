@@ -94,3 +94,11 @@ func (s *userStore) SearchById(id string) ([]model.User, error) {
 
 	return users, nil
 }
+
+func (s *userStore) Update(user *model.User) error {
+	query := `update users
+    set name = ?, profile = ?
+    where id = ?`
+	_, err := s.db.Exec(query, user.Name, user.Profile, user.Id)
+	return err
+}

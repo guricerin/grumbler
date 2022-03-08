@@ -77,6 +77,7 @@ component Pages.SignIn {
             <input
               class="input"
               type="text"
+              maxlength="32"
               placeholder="ユーザID"
               value={userId}
               onChange={handleInput(setUserId)}
@@ -91,6 +92,7 @@ component Pages.SignIn {
             <input
               class="input"
               type="password"
+              maxlength="127"
               placeholder="パスワード"
               value={password}
               onChange={handleInput(setPassword)}

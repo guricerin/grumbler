@@ -95,6 +95,29 @@ func (s *userStore) SearchById(id string) ([]model.User, error) {
 	return users, nil
 }
 
+func (s *userStore) SearchByName(name string) ([]model.User, error) {
+	users := make([]model.User, 0)
+	pattern := "%" + name + "%"
+	query := `select pk, id, name, password, profile from users
+    where name like ?`
+	rows, err := s.db.Query(query, pattern)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		user := model.User{}
+		err = rows.Scan(&user.Pk, &user.Id, &user.Name, &user.Password, &user.Profile)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
 func (s *userStore) Update(user *model.User) error {
 	query := `update users
     set name = ?, profile = ?

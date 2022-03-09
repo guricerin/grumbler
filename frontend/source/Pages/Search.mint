@@ -20,6 +20,12 @@ component Pages.Search {
     }
   }
 
+  fun searchWithUserName : Promise(Never, Void) {
+    sequence {
+      Window.navigate("/search?q=#{searchWord}&k=user_name")
+    }
+  }
+
   get error : Html {
     case (apiStatus) {
       Api.Status::Error => <Errors errors={es}/>
@@ -71,20 +77,38 @@ component Pages.Search {
             <input
               class="input"
               type="text"
+              maxlength="32"
               placeholder="検索ワード"
               value={searchWord}
               onChange={handleInput(setSearchWord)}/>
           </div>
         </form>
 
-        <button::button
-          class="button is-primary"
-          type="submit"
-          onClick={searchWithUserId}>
+        <nav class="level is-mobile">
+          <div class="level-left">
+            <div class="level-item">
+              <button::button
+                class="button is-primary"
+                type="submit"
+                onClick={searchWithUserName}>
 
-          <{ "ID検索" }>
+                <{ "名前検索" }>
 
-        </button>
+              </button>
+            </div>
+
+            <div class="level-item">
+              <button::button
+                class="button is-primary"
+                type="submit"
+                onClick={searchWithUserId}>
+
+                <{ "ID検索" }>
+
+              </button>
+            </div>
+          </div>
+        </nav>
       </div>
 
       <{ showStatus(apiStatus) }>

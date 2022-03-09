@@ -36,7 +36,18 @@ func (s *Server) getSearch() gin.HandlerFunc {
 			})
 			return
 		case "user_name":
-			// todo
+			users, err := s.userStore.SearchByName(query)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, errorRes(err))
+				return
+			}
+			usersJson := make([]gin.H, 0)
+			for _, u := range users {
+				usersJson = append(usersJson, userRes(u))
+			}
+			c.JSON(http.StatusOK, gin.H{
+				"users": usersJson,
+			})
 			return
 		case "grumble":
 			// todo

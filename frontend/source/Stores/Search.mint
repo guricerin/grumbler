@@ -20,17 +20,18 @@ store Stores.Search {
 
   fun search (query : String, kind : String) : Promise(Never, Void) {
     case (kind) {
-      "user_id" => searchByUserId(query)
+      "user_id" => searchUser(query, kind)
+      "user_name" => searchUser(query, kind)
 
       =>
         Application.setPage(Page::Error(400))
     }
   }
 
-  fun searchByUserId (userId : String) : Promise(Never, Void) {
+  fun searchUser (query : String, kind : String) : Promise(Never, Void) {
     sequence {
       status =
-        Http.get("#{@ENDPOINT}/auth/search?q=#{userId}&k=user_id")
+        Http.get("#{@ENDPOINT}/auth/search?q=#{query}&k=#{kind}")
         |> Api.send(Users.decodes)
 
       case (status) {

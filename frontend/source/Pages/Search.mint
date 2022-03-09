@@ -26,6 +26,12 @@ component Pages.Search {
     }
   }
 
+  fun searchWithGrumble : Promise(Never, Void) {
+    sequence {
+      Window.navigate("/search?q=#{searchWord}&k=grumble")
+    }
+  }
+
   get error : Html {
     case (apiStatus) {
       Api.Status::Error => <Errors errors={es}/>
@@ -64,14 +70,18 @@ component Pages.Search {
           <p>"検索結果 : #{Array.size(users.users)}件"</p>
           <UserList users={users}/>
         </div>
+
+      SearchResultKind::Grumbles(grumbles) =>
+        <div>
+          <p>"検索結果 : #{Array.size(grumbles.grumbles)}件"</p>
+          <GrumbleList grumbles={grumbles}/>
+        </div>
     }
   }
 
   fun render : Html {
     <div::content class="column">
       <div class="box form-box">
-        <{ error }>
-
         <form>
           <div class="field">
             <input
@@ -104,6 +114,17 @@ component Pages.Search {
                 onClick={searchWithUserId}>
 
                 <{ "ID検索" }>
+
+              </button>
+            </div>
+
+            <div class="level-item">
+              <button::button
+                class="button is-primary"
+                type="submit"
+                onClick={searchWithGrumble}>
+
+                <{ "ぼやき検索" }>
 
               </button>
             </div>

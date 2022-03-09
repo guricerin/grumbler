@@ -75,6 +75,33 @@ func (s *grumbleStore) RetrieveByUserId(signinUserId string, userId string) ([]m
 	return res, nil
 }
 
+func (s *grumbleStore) Search(signinUserId string, searchWord string) ([]model.GrumbleRes, error) {
+	res := make([]model.GrumbleRes, 0)
+	pattern := "%" + searchWord + "%"
+	query := `select g.pk, g.content, g.user_id, g.created_at, u.name
+    from grumbles as g
+    left join users as u
+        on g.user_id = u.id
+    where g.content like ?`
+	rows, err := s.db.Query(query, pattern)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		g := model.GrumbleRes{}
+		err = rows.Scan(&g.Pk, &g.Content, &g.UserId, &g.CreatedAt, &g.UserName)
+		if err != nil {
+			return nil, err
+		}
+		s.retrieveBookmarkedCountAndBySigninUser(&g, signinUserId)
+		res = append(res, g)
+	}
+
+	return res, nil
+}
+
 func (s *grumbleStore) DeleteByPk(pk string) error {
 	_, err := s.db.Exec("delete grumbles where pk = ?", pk)
 	return err

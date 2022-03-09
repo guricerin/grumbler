@@ -68,7 +68,7 @@ module Api {
 
             Api.Status::Ok(data)
           } catch {
-            errorStatus("error", "someting went wrong.")
+            errorStatus("error", "something went wrong.")
           }
 
         =>

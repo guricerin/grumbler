@@ -14,11 +14,13 @@ type postGrumbleReq struct {
 
 func grumbleRes(g model.GrumbleRes) gin.H {
 	return gin.H{
-		"pk":        g.Pk,
-		"content":   g.Content,
-		"userId":    g.UserId,
-		"userName":  g.UserName,
-		"createdAt": g.CreatedAt.Format("2006/01/02 15:04:05"),
+		"pk":                       g.Pk,
+		"content":                  g.Content,
+		"userId":                   g.UserId,
+		"userName":                 g.UserName,
+		"createdAt":                g.CreatedAt.Format("2006/01/02 15:04:05"),
+		"bookmarkedCount":          g.BookmarkedCount,
+		"isBookmarkedBySigninUser": g.IsBookmarkedBySigninUser,
 	}
 }
 
@@ -36,7 +38,7 @@ func (s *Server) getTimeline() gin.HandlerFunc {
 			return
 		}
 
-		grumbles, err := s.grumbleStore.RetrieveByUserId(user.Id)
+		grumbles, err := s.grumbleStore.RetrieveByUserId(user.Id, user.Id)
 		if err != nil {
 			// todo
 			c.JSON(http.StatusInternalServerError, errorRes(err))
@@ -50,37 +52,13 @@ func (s *Server) getTimeline() gin.HandlerFunc {
 			return
 		}
 		for _, f := range follows {
-			gs, err := s.grumbleStore.RetrieveByUserId(f.DstUserId)
+			gs, err := s.grumbleStore.RetrieveByUserId(user.Id, f.DstUserId)
 			if err != nil {
 				// todo
 				c.JSON(http.StatusInternalServerError, errorRes(err))
 				return
 			}
 			grumbles = append(grumbles, gs...)
-		}
-		// 最新日時順
-		sort.Slice(grumbles, func(i, j int) bool {
-			return grumbles[i].CreatedAt.After(grumbles[j].CreatedAt)
-		})
-
-		grumblesJson := make([]gin.H, 0)
-		for _, g := range grumbles {
-			grumblesJson = append(grumblesJson, grumbleRes(g))
-		}
-		c.JSON(http.StatusOK, gin.H{
-			"grumbles": grumblesJson,
-		})
-	}
-}
-
-func (s *Server) getUserGrumbles() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		userId := c.Param("id")
-		grumbles, err := s.grumbleStore.RetrieveByUserId(userId)
-		if err != nil {
-			// todo
-			c.JSON(http.StatusInternalServerError, errorRes(err))
-			return
 		}
 		// 最新日時順
 		sort.Slice(grumbles, func(i, j int) bool {
@@ -139,6 +117,27 @@ func (s *Server) postBookmark() gin.HandlerFunc {
 		}
 
 		if _, err := s.grumbleStore.CreateBookmark(req.GrumbleOk, req.ByUserId); err != nil {
+			// todo
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"ok": true,
+		})
+		return
+	}
+}
+
+func (s *Server) postDeleteBookmark() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req bookmarkReq
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+
+		if err := s.grumbleStore.DeleteBookmark(req.GrumbleOk, req.ByUserId); err != nil {
 			// todo
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return

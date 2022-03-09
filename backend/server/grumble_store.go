@@ -2,6 +2,7 @@ package server
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/guricerin/grumbler/backend/model"
@@ -32,7 +33,23 @@ func (s *grumbleStore) Create(content string, user model.User) error {
 	return err
 }
 
-func (s *grumbleStore) RetrieveByUserId(userId string) ([]model.GrumbleRes, error) {
+func (s *grumbleStore) retrieveBookmarkedCountAndBySigninUser(g *model.GrumbleRes, signinUserId string) {
+	query := `select count(*) from bookmarks
+    where grumble_pk = ?`
+	row := s.db.QueryRow(query, g.Pk)
+	row.Scan(&g.BookmarkedCount)
+
+	query = `select count(*) from bookmarks
+    where grumble_pk = ? and by_user_id = ?`
+	row = s.db.QueryRow(query, g.Pk, signinUserId)
+	count := 0
+	row.Scan(&count)
+	if count > 0 {
+		g.IsBookmarkedBySigninUser = true
+	}
+}
+
+func (s *grumbleStore) RetrieveByUserId(signinUserId string, userId string) ([]model.GrumbleRes, error) {
 	res := make([]model.GrumbleRes, 0)
 	query := `select g.pk, g.content, g.user_id, g.created_at, u.name
     from grumbles as g
@@ -51,8 +68,10 @@ func (s *grumbleStore) RetrieveByUserId(userId string) ([]model.GrumbleRes, erro
 		if err != nil {
 			return nil, err
 		}
+		s.retrieveBookmarkedCountAndBySigninUser(&g, signinUserId)
 		res = append(res, g)
 	}
+
 	return res, nil
 }
 
@@ -62,7 +81,16 @@ func (s *grumbleStore) DeleteByPk(pk string) error {
 }
 
 func (s *grumbleStore) CreateBookmark(grumblePk string, byUserId string) (model.Bookmark, error) {
-	query := `insert into bookmarks
+	query := `select count(*) from bookmarks
+    where grumble_pk = ? and by_user_id = ?`
+	row := s.db.QueryRow(query, grumblePk, byUserId)
+	count := 0
+	row.Scan(&count)
+	if count > 0 {
+		return model.Bookmark{}, errors.New("すでにブックマークしています。")
+	}
+
+	query = `insert into bookmarks
     (grumble_pk, by_user_id)
     values (?, ?)`
 	_, err := s.db.Exec(query, grumblePk, byUserId)
@@ -76,6 +104,13 @@ func (s *grumbleStore) CreateBookmark(grumblePk string, byUserId string) (model.
 	}
 
 	return res, nil
+}
+
+func (s *grumbleStore) DeleteBookmark(grumblePk string, byUserId string) error {
+	query := `delete from bookmarks
+    where grumble_pk = ? and by_user_id = ?`
+	_, err := s.db.Exec(query, grumblePk, byUserId)
+	return err
 }
 
 func (s *grumbleStore) retrieveBookmarksByUserId(userId string) ([]model.Bookmark, error) {
@@ -99,7 +134,7 @@ func (s *grumbleStore) retrieveBookmarksByUserId(userId string) ([]model.Bookmar
 	return res, nil
 }
 
-func (s *grumbleStore) RetrieveBookmarkedGrumblesByUserId(userId string) ([]model.GrumbleRes, error) {
+func (s *grumbleStore) RetrieveBookmarkedGrumblesByUserId(signinUserId string, userId string) ([]model.GrumbleRes, error) {
 	bookmarks, err := s.retrieveBookmarksByUserId(userId)
 	if err != nil {
 		return nil, err
@@ -122,6 +157,10 @@ func (s *grumbleStore) RetrieveBookmarkedGrumblesByUserId(userId string) ([]mode
 		for rows.Next() {
 			g := model.GrumbleRes{}
 			err = rows.Scan(&g.Pk, &g.Content, &g.UserId, &g.CreatedAt, &g.UserName)
+			if err != nil {
+				return nil, err
+			}
+			s.retrieveBookmarkedCountAndBySigninUser(&g, signinUserId)
 			res = append(res, g)
 		}
 	}

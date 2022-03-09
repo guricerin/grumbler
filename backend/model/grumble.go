@@ -22,9 +22,11 @@ func ValidateGrumble(text string) error {
 }
 
 type GrumbleRes struct {
-	Pk        string
-	Content   string
-	UserId    string
-	CreatedAt time.Time
-	UserName  string
+	Pk                       string
+	Content                  string
+	UserId                   string
+	CreatedAt                time.Time
+	UserName                 string
+	BookmarkedCount          int
+	IsBookmarkedBySigninUser bool
 }

@@ -74,7 +74,7 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 			return
 		}
 
-		grumbles, err := s.grumbleStore.RetrieveByUserId(user.Id)
+		grumbles, err := s.grumbleStore.RetrieveByUserId(signinUser.Id, user.Id)
 		if err != nil {
 			// todo
 			log.Printf("getUserDetail() 2: %s\n", err.Error())
@@ -124,7 +124,7 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 			followerUsers = append(followerUsers, u)
 		}
 
-		bookmarks, err := s.grumbleStore.RetrieveBookmarkedGrumblesByUserId(user.Id)
+		bookmarks, err := s.grumbleStore.RetrieveBookmarkedGrumblesByUserId(signinUser.Id, user.Id)
 		if err != nil {
 			// todo
 			log.Printf("getUserDetail() 7: %s\n", err.Error())

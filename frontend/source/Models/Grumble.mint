@@ -3,7 +3,9 @@ record Grumble {
   content : String,
   userId : String,
   userName : String,
-  createdAt : String
+  createdAt : String,
+  bookmarkedCount : Number,
+  isBookmarkedBySigninUser : Bool
 }
 
 module Grumble {
@@ -13,7 +15,9 @@ module Grumble {
       content = "",
       userId = "",
       userName = "",
-      createdAt = ""
+      createdAt = "",
+      bookmarkedCount = 0,
+      isBookmarkedBySigninUser = false
     }
   }
 

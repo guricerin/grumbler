@@ -2,7 +2,7 @@ component GrumbleList {
   connect Application exposing { userStatus }
   property grumbles : Grumbles = Grumbles.empty()
 
-  fun doBookmark (grumble : Grumble, event : Html.Event) : Promise(Never, Void) {
+  fun doBookmark (grumble : Grumble, apiUrl : String, event : Html.Event) : Promise(Never, Void) {
     case (userStatus) {
       UserStatus::Guest => next { }
 
@@ -15,16 +15,54 @@ component GrumbleList {
             }
 
           status =
-            Http.post("#{@ENDPOINT}/auth/bookmark")
+            Http.post(apiUrl)
             |> Http.jsonBody(encode bookmarkReq)
             |> Api.send(BookmarkRes.decodes)
 
           case (status) {
             Api.Status::Initial => next { }
-            Api.Status::Ok(res) => Window.navigate("/settings")
+            Api.Status::Ok(res) => `location.reload()`
             Api.Status::Error(err) => Window.navigate("/")
           }
         }
+    }
+  }
+
+  fun bookmarkIcon (grumble : Grumble) : Html {
+    if (grumble.isBookmarkedBySigninUser) {
+      <a
+        class="level-item"
+        aria-label="like"
+        onClick={doBookmark(grumble, "#{@ENDPOINT}/auth/delete-bookmark")}>
+
+        <span class="icon is-small">
+          <i
+            class="fas fa-bookmark"
+            aria-hidden="true"/>
+        </span>
+
+        <span>
+          <{ Number.toString(grumble.bookmarkedCount) }>
+        </span>
+
+      </a>
+    } else {
+      <a
+        class="level-item"
+        aria-label="like"
+        onClick={doBookmark(grumble, "#{@ENDPOINT}/auth/bookmark")}>
+
+        <span class="icon is-small">
+          <i
+            class="far fa-bookmark"
+            aria-hidden="true"/>
+        </span>
+
+        <span>
+          <{ Number.toString(grumble.bookmarkedCount) }>
+        </span>
+
+      </a>
     }
   }
 
@@ -89,18 +127,7 @@ component GrumbleList {
 
             </a>
 
-            <a
-              class="level-item"
-              aria-label="like"
-              onClick={doBookmark(grumble)}>
-
-              <span class="icon is-small">
-                <i
-                  class="fas fa-bookmark"
-                  aria-hidden="true"/>
-              </span>
-
-            </a>
+            <{ bookmarkIcon(grumble) }>
           </nav>
         </div>
       </article>

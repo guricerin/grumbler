@@ -3,6 +3,7 @@ record UserDetail {
   grumbles : Array(Grumble),
   follows : Array(User),
   followers : Array(User),
+  bookmarks : Array(Grumble),
   isFollow : Bool,
   isFollower : Bool
 }
@@ -14,6 +15,7 @@ module UserDetail {
       grumbles = [],
       follows = [],
       followers = [],
+      bookmarks = [],
       isFollow = false,
       isFollower = false
     }

@@ -69,6 +69,7 @@ func (s *Server) setupRouter() {
 		auth.POST("/follow", s.postFollow())
 		auth.POST("/unfollow", s.postUnFollow())
 		auth.POST("/settings", s.postUserSettings())
+		auth.POST("/bookmark", s.postBookmark())
 
 		auth.GET("/user/:id", s.getUser())
 		auth.GET("/user/:id/detail", s.getUserDetail())

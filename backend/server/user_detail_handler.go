@@ -26,7 +26,7 @@ type userSettingsReq struct {
 	Profile string `json:"profile"`
 }
 
-func userDetailRes(user model.User, grumbles []model.GrumbleRes, follows []model.User, followers []model.User, isFollow bool, isFollower bool) gin.H {
+func userDetailRes(user model.User, grumbles []model.GrumbleRes, follows []model.User, followers []model.User, bookmarks []model.GrumbleRes, isFollow bool, isFollower bool) gin.H {
 	grumblesJson := make([]gin.H, 0)
 	for _, g := range grumbles {
 		grumblesJson = append(grumblesJson, grumbleRes(g))
@@ -39,12 +39,17 @@ func userDetailRes(user model.User, grumbles []model.GrumbleRes, follows []model
 	for _, f := range followers {
 		followersJson = append(followersJson, userRes(f))
 	}
+	bookmarksJson := make([]gin.H, 0)
+	for _, g := range bookmarks {
+		bookmarksJson = append(bookmarksJson, grumbleRes(g))
+	}
 
 	return gin.H{
 		"user":       userRes(user),
 		"grumbles":   grumblesJson,
 		"follows":    followsJson,
 		"followers":  followersJson,
+		"bookmarks":  bookmarksJson,
 		"isFollow":   isFollow,
 		"isFollower": isFollower,
 	}
@@ -119,15 +124,27 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 			followerUsers = append(followerUsers, u)
 		}
 
-		isFollow, isFollower, err := s.followStore.RetrieveFollowRelation(signinUser.Id, userId)
+		bookmarks, err := s.grumbleStore.RetrieveBookmarkedGrumblesByUserId(user.Id)
 		if err != nil {
 			// todo
 			log.Printf("getUserDetail() 7: %s\n", err.Error())
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
+		// 最新日時順
+		sort.Slice(bookmarks, func(i, j int) bool {
+			return bookmarks[i].CreatedAt.After(bookmarks[j].CreatedAt)
+		})
 
-		c.JSON(http.StatusOK, userDetailRes(user, grumbles, followUsers, followerUsers, isFollow, isFollower))
+		isFollow, isFollower, err := s.followStore.RetrieveFollowRelation(signinUser.Id, userId)
+		if err != nil {
+			// todo
+			log.Printf("getUserDetail() 8: %s\n", err.Error())
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
+		c.JSON(http.StatusOK, userDetailRes(user, grumbles, followUsers, followerUsers, bookmarks, isFollow, isFollower))
 	}
 }
 

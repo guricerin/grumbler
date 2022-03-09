@@ -2,6 +2,7 @@ enum UserDetailShowKind {
   Grumbles
   Follows
   Followers
+  Bookmarks
 }
 
 store Stores.PageUser {

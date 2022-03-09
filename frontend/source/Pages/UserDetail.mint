@@ -123,6 +123,12 @@ component Pages.UserDetail {
             <span>"#{arraySize(userDetail.followers)} フォロワー"</span>
           </a>
         </li>
+
+        <li>
+          <a href="/user/#{userDetail.user.id}/bookmarks">
+            <span>"#{arraySize(userDetail.bookmarks)} ブックマーク"</span>
+          </a>
+        </li>
       </ul>
     </div>
   }
@@ -132,6 +138,7 @@ component Pages.UserDetail {
       UserDetailShowKind::Grumbles => <GrumbleList grumbles={Grumbles(userDetail.grumbles)}/>
       UserDetailShowKind::Follows => <UserList users={Users(userDetail.follows)}/>
       UserDetailShowKind::Followers => <UserList users={Users(userDetail.followers)}/>
+      UserDetailShowKind::Bookmarks => <GrumbleList grumbles={Grumbles(userDetail.bookmarks)}/>
     }
   }
 

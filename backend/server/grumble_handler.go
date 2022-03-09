@@ -22,6 +22,11 @@ func grumbleRes(g model.GrumbleRes) gin.H {
 	}
 }
 
+type bookmarkReq struct {
+	GrumbleOk string `json:"grumblePk"`
+	ByUserId  string `json:"byUserId"`
+}
+
 func (s *Server) getTimeline() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, err := s.fetchUserFromSession(c)
@@ -113,6 +118,27 @@ func (s *Server) postGrumble() gin.HandlerFunc {
 
 		err = s.grumbleStore.Create(req.Content, user)
 		if err != nil {
+			// todo
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"ok": true,
+		})
+		return
+	}
+}
+
+func (s *Server) postBookmark() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req bookmarkReq
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+
+		if _, err := s.grumbleStore.CreateBookmark(req.GrumbleOk, req.ByUserId); err != nil {
 			// todo
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return

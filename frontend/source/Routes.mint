@@ -103,6 +103,14 @@ routes {
     }
   }
 
+  /user/:id/bookmarks (id : String) {
+    sequence {
+      Stores.PageUser.getUserDetail(id)
+      Stores.PageUser.setShowKind(UserDetailShowKind::Bookmarks)
+      Application.setPageWithAuthentication(Page::UserDetail)
+    }
+  }
+
   /user/:id (id : String) {
     sequence {
       Stores.PageUser.getUserDetail(id)

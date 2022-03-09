@@ -39,3 +39,9 @@ create table `follows` (
     `src_user_id` varchar(63) not null,
     `dst_user_id` varchar(63) not null
 );
+
+create table `bookmarks` (
+    `pk` int unsigned auto_increment primary key not null,
+    `grumble_pk` varchar(26) not null,
+    `by_user_id` varchar(63) not null
+);

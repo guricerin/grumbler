@@ -44,9 +44,9 @@ func ValidateUserPassword(plain string) error {
 
 func ValidateUserProfile(profile string) error {
 	l := len(profile)
-	if 0 < l && l < 200 {
+	if 0 <= l && l < 200 {
 		return nil
 	} else {
-		return errors.New("プロフィールは1文字以上200文字以下の範囲で設定してください。")
+		return errors.New("プロフィールは0文字以上200文字以下の範囲で設定してください。")
 	}
 }

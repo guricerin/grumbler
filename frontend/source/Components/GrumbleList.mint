@@ -28,42 +28,74 @@ component GrumbleList {
     }
   }
 
+  style iconNumber {
+    margin-left: 5px;
+  }
+
   fun bookmarkIcon (grumble : Grumble) : Html {
     if (grumble.isBookmarkedBySigninUser) {
-      <a
-        class="level-item"
-        aria-label="like"
-        onClick={doBookmark(grumble, "#{@ENDPOINT}/auth/delete-bookmark")}>
+      <div class="level-item">
+        <a
+          aria-label="bookmark"
+          onClick={doBookmark(grumble, "#{@ENDPOINT}/auth/delete-bookmark")}>
 
-        <span class="icon is-small">
-          <i
-            class="fas fa-bookmark"
-            aria-hidden="true"/>
-        </span>
+          <span class="icon is-small">
+            <i
+              class="fas fa-bookmark"
+              aria-hidden="true"/>
+          </span>
 
-        <span>
-          <{ Number.toString(grumble.bookmarkedCount) }>
-        </span>
+          <span::iconNumber>
+            <{ Number.toString(grumble.bookmarkedCount) }>
+          </span>
 
-      </a>
+        </a>
+      </div>
     } else {
-      <a
-        class="level-item"
-        aria-label="like"
-        onClick={doBookmark(grumble, "#{@ENDPOINT}/auth/bookmark")}>
+      <div class="level-item">
+        <a
+          aria-label="like"
+          onClick={doBookmark(grumble, "#{@ENDPOINT}/auth/bookmark")}>
 
-        <span class="icon is-small">
-          <i
-            class="far fa-bookmark"
-            aria-hidden="true"/>
-        </span>
+          <span class="icon is-small">
+            <i
+              class="far fa-bookmark"
+              aria-hidden="true"/>
+          </span>
 
-        <span>
-          <{ Number.toString(grumble.bookmarkedCount) }>
-        </span>
+          <span::iconNumber>
+            <{ Number.toString(grumble.bookmarkedCount) }>
+          </span>
 
-      </a>
+        </a>
+      </div>
     }
+  }
+
+  fun icons (grumble : Grumble) : Html {
+    <nav class="level is-mobile">
+      <div class="level-item">
+        <a aria-label="reply">
+          <span class="icon s-small">
+            <i
+              class="fas fa-reply"
+              aria-hidden="true"/>
+          </span>
+        </a>
+      </div>
+
+      <div class="level-item">
+        <a aria-label="retweet">
+          <span class="icon is-small">
+            <i
+              class="fas fa-retweet"
+              aria-hidden="true"/>
+          </span>
+        </a>
+      </div>
+
+      <{ bookmarkIcon(grumble) }>
+    </nav>
   }
 
   /* --> テキストを親要素内で折り返し */
@@ -102,33 +134,7 @@ component GrumbleList {
             </p>
           </div>
 
-          <nav class="level is-mobile">
-            <a
-              class="level-item"
-              aria-label="reply">
-
-              <span class="icon is-small">
-                <i
-                  class="fas fa-reply"
-                  aria-hidden="true"/>
-              </span>
-
-            </a>
-
-            <a
-              class="level-item"
-              aria-label="retweet">
-
-              <span class="icon is-small">
-                <i
-                  class="fas fa-retweet"
-                  aria-hidden="true"/>
-              </span>
-
-            </a>
-
-            <{ bookmarkIcon(grumble) }>
-          </nav>
+          <{ icons(grumble) }>
         </div>
       </article>
     </div>

@@ -113,7 +113,8 @@ routes {
 
   /user/:userId/grumble/:grumblePk (userId : String, grumblePk : String) {
     sequence {
-      Application.setPageWithAuthentication(Page::Home)
+      Stores.GrumbleDetail.getGrumbleDetail(grumblePk)
+      Application.setPageWithAuthentication(Page::GrumbleDetail)
     }
   }
 

@@ -29,6 +29,39 @@ type bookmarkReq struct {
 	ByUserId  string `json:"byUserId"`
 }
 
+func grumbleDetailRes(mainGrumble model.GrumbleRes, replies []model.GrumbleRes) gin.H {
+	repliesJson := make([]gin.H, 0)
+	for _, r := range replies {
+		repliesJson = append(repliesJson, grumbleRes(r))
+	}
+	return gin.H{
+		"root":    grumbleRes(mainGrumble),
+		"replies": repliesJson,
+	}
+}
+
+func (s *Server) getGrumbleDetail() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		grumblePk := c.Param("grumble_pk")
+		user, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusUnauthorized, errorRes(err))
+			return
+		}
+
+		mainGrumble, err := s.grumbleStore.RetrieveByPk(grumblePk, user.Id)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+		replies := make([]model.GrumbleRes, 0)
+		c.JSON(http.StatusOK, grumbleDetailRes(mainGrumble, replies))
+		return
+	}
+}
+
 func (s *Server) getTimeline() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, err := s.fetchUserFromSession(c)

@@ -9,7 +9,7 @@ component GrumbleList {
 
       UserStatus::SignIn(user) =>
         <div>
-          <GrumbleBox
+          <Components.GrumbleBox
             signinUser={user}
             grumble={grumble}/>
         </div>

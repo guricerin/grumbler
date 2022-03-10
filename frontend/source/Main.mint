@@ -39,6 +39,7 @@ component Content {
           Page::Timeline => <Pages.Timeline/>
           Page::PostGrumble => <Pages.PostGrumble/>
           Page::UserSettings => <Pages.UserSettings/>
+          Page::GrumbleDetail => <Pages.GrumbleDetail/>
           Page::Error(statusCode) => <Pages.Error statusCode={statusCode}/>
         }
       </section>

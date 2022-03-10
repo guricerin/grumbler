@@ -16,6 +16,30 @@ func NewGrumbleStore(db *sql.DB) grumbleStore {
 	return grumbleStore{db: db}
 }
 
+func (s *grumbleStore) RetrieveByPk(grumblePk string, signinUserId string) (model.GrumbleRes, error) {
+	res := model.GrumbleRes{}
+	tx, err := s.db.Begin()
+	if err != nil {
+		return res, err
+	}
+	query := `select g.pk, g.content, g.user_id, g.created_at, u.name
+    from grumbles as g
+    left join users as u
+        on g.user_id = u.id
+    where g.pk = ?`
+	row := tx.QueryRow(query, grumblePk)
+	err = row.Scan(&res.Pk, &res.Content, &res.UserId, &res.CreatedAt, &res.UserName)
+	if err != nil {
+		return res, err
+	}
+	err = s.retrieveBookmarkedCountAndBySigninUser(tx, &res, signinUserId)
+	if err != nil {
+		tx.Rollback()
+		return res, err
+	}
+	return res, tx.Commit()
+}
+
 func (s *grumbleStore) Create(content string, user model.User) error {
 	t := time.Now()
 	id, err := createUlid(t)

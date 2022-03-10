@@ -1,4 +1,4 @@
-component GrumbleBox {
+component Components.GrumbleBox {
   property signinUser : User
   property grumble : Grumble
 

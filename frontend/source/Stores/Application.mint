@@ -10,6 +10,7 @@ enum Page {
   Timeline
   PostGrumble
   UserSettings
+  GrumbleDetail
   Error(Number)
 }
 

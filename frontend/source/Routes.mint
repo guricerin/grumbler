@@ -111,6 +111,12 @@ routes {
     }
   }
 
+  /user/:userId/grumble/:grumblePk (userId : String, grumblePk : String) {
+    sequence {
+      Application.setPageWithAuthentication(Page::Home)
+    }
+  }
+
   /user/:id (id : String) {
     sequence {
       Stores.PageUser.getUserDetail(id)

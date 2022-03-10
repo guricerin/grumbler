@@ -111,6 +111,10 @@ component GrumbleBox {
     margin-left: 7px;
   }
 
+  style content {
+    color: black;
+  }
+
   fun render : Html {
     <div::wrap class="box">
       <article class="media">
@@ -125,7 +129,10 @@ component GrumbleBox {
               <small::date>"#{grumble.createdAt}"</small>
 
               <br/>
-              <p>"#{grumble.content}"</p>
+
+              <a::content href="/user/#{grumble.userId}/grumble/#{grumble.pk}">
+                <div>"#{grumble.content}"</div>
+              </a>
             </p>
           </div>
 

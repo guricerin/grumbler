@@ -23,41 +23,58 @@ func (s *grumbleStore) Create(content string, user model.User) error {
 		return err
 	}
 
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
 	g := model.Grumble{
 		Pk:        id,
 		Content:   content,
 		UserId:    user.Id,
 		CreatedAt: t,
 	}
-	_, err = s.db.Exec("insert into grumbles (pk, content, user_id, created_at) values (?, ?, ?, ?)", g.Pk, g.Content, g.UserId, g.CreatedAt)
+	_, err = tx.Exec("insert into grumbles (pk, content, user_id, created_at) values (?, ?, ?, ?)", g.Pk, g.Content, g.UserId, g.CreatedAt)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = tx.Commit()
 	return err
 }
 
-func (s *grumbleStore) retrieveBookmarkedCountAndBySigninUser(g *model.GrumbleRes, signinUserId string) {
+func (s *grumbleStore) retrieveBookmarkedCountAndBySigninUser(tx *sql.Tx, g *model.GrumbleRes, signinUserId string) error {
 	query := `select count(*) from bookmarks
     where grumble_pk = ?`
+	// ここでtxを使うとなぜか "sql: transaction has already been committed or rolled back"
 	row := s.db.QueryRow(query, g.Pk)
 	row.Scan(&g.BookmarkedCount)
 
 	query = `select count(*) from bookmarks
     where grumble_pk = ? and by_user_id = ?`
+	// ここでtxを使うとなぜか "sql: transaction has already been committed or rolled back"
 	row = s.db.QueryRow(query, g.Pk, signinUserId)
 	count := 0
 	row.Scan(&count)
 	if count > 0 {
 		g.IsBookmarkedBySigninUser = true
 	}
+	return nil
 }
 
 func (s *grumbleStore) RetrieveByUserId(signinUserId string, userId string) ([]model.GrumbleRes, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
 	res := make([]model.GrumbleRes, 0)
 	query := `select g.pk, g.content, g.user_id, g.created_at, u.name
     from grumbles as g
     left join users as u
         on g.user_id = u.id
     where u.id = ?`
-	rows, err := s.db.Query(query, userId)
+	rows, err := tx.Query(query, userId)
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 	defer rows.Close()
@@ -66,16 +83,26 @@ func (s *grumbleStore) RetrieveByUserId(signinUserId string, userId string) ([]m
 		g := model.GrumbleRes{}
 		err = rows.Scan(&g.Pk, &g.Content, &g.UserId, &g.CreatedAt, &g.UserName)
 		if err != nil {
+			tx.Rollback()
 			return nil, err
 		}
-		s.retrieveBookmarkedCountAndBySigninUser(&g, signinUserId)
+		err = s.retrieveBookmarkedCountAndBySigninUser(tx, &g, signinUserId)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 		res = append(res, g)
 	}
 
-	return res, nil
+	err = tx.Commit()
+	return res, err
 }
 
 func (s *grumbleStore) Search(signinUserId string, searchWord string) ([]model.GrumbleRes, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
 	res := make([]model.GrumbleRes, 0)
 	pattern := "%" + searchWord + "%"
 	query := `select g.pk, g.content, g.user_id, g.created_at, u.name
@@ -83,8 +110,9 @@ func (s *grumbleStore) Search(signinUserId string, searchWord string) ([]model.G
     left join users as u
         on g.user_id = u.id
     where g.content like ?`
-	rows, err := s.db.Query(query, pattern)
+	rows, err := tx.Query(query, pattern)
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 	defer rows.Close()
@@ -93,58 +121,86 @@ func (s *grumbleStore) Search(signinUserId string, searchWord string) ([]model.G
 		g := model.GrumbleRes{}
 		err = rows.Scan(&g.Pk, &g.Content, &g.UserId, &g.CreatedAt, &g.UserName)
 		if err != nil {
+			tx.Rollback()
 			return nil, err
 		}
-		s.retrieveBookmarkedCountAndBySigninUser(&g, signinUserId)
+		err = s.retrieveBookmarkedCountAndBySigninUser(tx, &g, signinUserId)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 		res = append(res, g)
 	}
 
-	return res, nil
+	err = tx.Commit()
+	return res, err
 }
 
 func (s *grumbleStore) DeleteByPk(pk string) error {
-	_, err := s.db.Exec("delete grumbles where pk = ?", pk)
-	return err
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec("delete grumbles where pk = ?", pk)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit()
 }
 
 func (s *grumbleStore) CreateBookmark(grumblePk string, byUserId string) (model.Bookmark, error) {
+	res := model.Bookmark{
+		GrumblePk: grumblePk,
+		ByUserId:  byUserId,
+	}
+	tx, err := s.db.Begin()
+	if err != nil {
+		return res, err
+	}
 	query := `select count(*) from bookmarks
     where grumble_pk = ? and by_user_id = ?`
-	row := s.db.QueryRow(query, grumblePk, byUserId)
+	row := tx.QueryRow(query, grumblePk, byUserId)
 	count := 0
 	row.Scan(&count)
 	if count > 0 {
-		return model.Bookmark{}, errors.New("すでにブックマークしています。")
+		tx.Rollback()
+		return res, errors.New("すでにブックマークしています。")
 	}
 
 	query = `insert into bookmarks
     (grumble_pk, by_user_id)
     values (?, ?)`
-	_, err := s.db.Exec(query, grumblePk, byUserId)
-
-	res := model.Bookmark{
-		GrumblePk: grumblePk,
-		ByUserId:  byUserId,
-	}
+	_, err = tx.Exec(query, grumblePk, byUserId)
 	if err != nil {
+		tx.Rollback()
 		return res, err
 	}
 
-	return res, nil
+	return res, tx.Commit()
 }
 
 func (s *grumbleStore) DeleteBookmark(grumblePk string, byUserId string) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
 	query := `delete from bookmarks
     where grumble_pk = ? and by_user_id = ?`
-	_, err := s.db.Exec(query, grumblePk, byUserId)
-	return err
+	_, err = tx.Exec(query, grumblePk, byUserId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit()
 }
 
-func (s *grumbleStore) retrieveBookmarksByUserId(userId string) ([]model.Bookmark, error) {
+// トランザクションは呼び出し元でRollBack or Commitさせる
+func (s *grumbleStore) retrieveBookmarksByUserId(tx *sql.Tx, userId string) ([]model.Bookmark, error) {
 	res := make([]model.Bookmark, 0)
 	query := `select pk, grumble_pk, by_user_id from bookmarks
     where by_user_id = ?`
-	rows, err := s.db.Query(query, userId)
+	rows, err := tx.Query(query, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -162,8 +218,13 @@ func (s *grumbleStore) retrieveBookmarksByUserId(userId string) ([]model.Bookmar
 }
 
 func (s *grumbleStore) RetrieveBookmarkedGrumblesByUserId(signinUserId string, userId string) ([]model.GrumbleRes, error) {
-	bookmarks, err := s.retrieveBookmarksByUserId(userId)
+	tx, err := s.db.Begin()
 	if err != nil {
+		return nil, err
+	}
+	bookmarks, err := s.retrieveBookmarksByUserId(tx, userId)
+	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
@@ -174,8 +235,9 @@ func (s *grumbleStore) RetrieveBookmarkedGrumblesByUserId(signinUserId string, u
         on g.user_id = u.id
     where g.pk = ?`
 	for _, b := range bookmarks {
-		rows, err := s.db.Query(query, b.GrumblePk)
+		rows, err := tx.Query(query, b.GrumblePk)
 		if err != nil {
+			tx.Rollback()
 			return nil, err
 		}
 		defer rows.Close()
@@ -185,12 +247,17 @@ func (s *grumbleStore) RetrieveBookmarkedGrumblesByUserId(signinUserId string, u
 			g := model.GrumbleRes{}
 			err = rows.Scan(&g.Pk, &g.Content, &g.UserId, &g.CreatedAt, &g.UserName)
 			if err != nil {
+				tx.Rollback()
 				return nil, err
 			}
-			s.retrieveBookmarkedCountAndBySigninUser(&g, signinUserId)
+			err = s.retrieveBookmarkedCountAndBySigninUser(tx, &g, signinUserId)
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
 			res = append(res, g)
 		}
 	}
 
-	return res, nil
+	return res, tx.Commit()
 }

@@ -30,7 +30,7 @@ component Pages.PostGrumble {
       case (status) {
         Api.Status::Ok(res) =>
           case (Application.userStatus) {
-            UserStatus::SignIn(u) => Window.navigate("/user/#{u.id}/timeline")
+            UserStatus::SignIn(u) => Window.navigate("/timeline")
 
             // unreachable!
             => Window.navigate("")

@@ -15,21 +15,45 @@ func NewSessionStore(db *sql.DB) sessionStore {
 }
 
 func (s *sessionStore) Create(token string, user model.User) error {
-	_, err := s.db.Exec("insert into sessions (token, user_pk) values (?, ?)", token, user.Pk)
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec("insert into sessions (token, user_pk) values (?, ?)", token, user.Pk)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = tx.Commit()
 	return err
 }
 
 func (s *sessionStore) RetrieveByToken(token string) (model.Session, error) {
 	sess := model.Session{}
-	err := s.db.QueryRow("select pk, token, user_pk from sessions where token = ?", token).Scan(&sess.Pk, &sess.Token, &sess.UserPk)
+	tx, err := s.db.Begin()
 	if err != nil {
 		return sess, err
 	}
-	return sess, nil
+	err = tx.QueryRow("select pk, token, user_pk from sessions where token = ?", token).Scan(&sess.Pk, &sess.Token, &sess.UserPk)
+	if err != nil {
+		tx.Rollback()
+		return sess, err
+	}
+	err = tx.Commit()
+	return sess, err
 }
 
 func (s *sessionStore) Update(oldToken string, newToken string) error {
-	_, err := s.db.Exec("update sessions set token = ? where token = ?", newToken, oldToken)
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec("update sessions set token = ? where token = ?", newToken, oldToken)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = tx.Commit()
 	return err
 }
 
@@ -39,6 +63,15 @@ func (s *sessionStore) DeleteByToken(token string) error {
 }
 
 func (s *sessionStore) DeleteByUserPk(userPk uint64) error {
-	_, err := s.db.Exec("delete from sessions where user_pk = ?", userPk)
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec("delete from sessions where user_pk = ?", userPk)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = tx.Commit()
 	return err
 }

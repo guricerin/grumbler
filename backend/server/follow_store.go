@@ -16,25 +16,46 @@ func NewFollowStore(db *sql.DB) followStore {
 }
 
 func (s *followStore) Create(src string, dst string) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
 	query := `insert into follows
     (src_user_id, dst_user_id)
     values (?, ?)`
-	_, err := s.db.Exec(query, src, dst)
-	return err
+	_, err = tx.Exec(query, src, dst)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit()
 }
 
 func (s *followStore) Delete(src string, dst string) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
 	query := `delete from follows
     where src_user_id = ? and dst_user_id = ?`
-	_, err := s.db.Exec(query, src, dst)
-	return err
+	_, err = tx.Exec(query, src, dst)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit()
 }
 
 func (s *followStore) RetrieveFollows(srcUserId string) ([]model.Follow, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
 	query := `select pk, src_user_id, dst_user_id from follows
     where src_user_id = ?`
-	rows, err := s.db.Query(query, srcUserId)
+	rows, err := tx.Query(query, srcUserId)
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 	defer rows.Close()
@@ -44,18 +65,24 @@ func (s *followStore) RetrieveFollows(srcUserId string) ([]model.Follow, error) 
 		f := model.Follow{}
 		err := rows.Scan(&f.Pk, &f.SrcUserId, &f.DstUserId)
 		if err != nil {
+			tx.Rollback()
 			return nil, err
 		}
 		res = append(res, f)
 	}
-	return res, nil
+	return res, tx.Commit()
 }
 
 func (s *followStore) RetrieveFollowers(dstUserId string) ([]model.Follow, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
 	query := `select pk, src_user_id, dst_user_id from follows
     where dst_user_id = ?`
-	rows, err := s.db.Query(query, dstUserId)
+	rows, err := tx.Query(query, dstUserId)
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 	defer rows.Close()
@@ -65,21 +92,27 @@ func (s *followStore) RetrieveFollowers(dstUserId string) ([]model.Follow, error
 		f := model.Follow{}
 		err := rows.Scan(&f.Pk, &f.SrcUserId, &f.DstUserId)
 		if err != nil {
+			tx.Rollback()
 			return nil, err
 		}
 		res = append(res, f)
 	}
-	return res, nil
+	return res, tx.Commit()
 }
 
 // userId1からみて、userId2はフォローなのかフォロワーなのか
 func (s *followStore) RetrieveFollowRelation(userId1 string, userId2 string) (bool, bool, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return false, false, err
+	}
 	var count int
 	query := `select count(*) from follows
     where src_user_id = ? and dst_user_id = ?`
-	row := s.db.QueryRow(query, userId1, userId2)
-	err := row.Scan(&count)
+	row := tx.QueryRow(query, userId1, userId2)
+	err = row.Scan(&count)
 	if err != nil {
+		tx.Rollback()
 		return false, false, err
 	}
 	isFollow := false
@@ -87,9 +120,10 @@ func (s *followStore) RetrieveFollowRelation(userId1 string, userId2 string) (bo
 		isFollow = true
 	}
 
-	row = s.db.QueryRow(query, userId2, userId1)
+	row = tx.QueryRow(query, userId2, userId1)
 	err = row.Scan(&count)
 	if err != nil {
+		tx.Rollback()
 		return false, false, err
 	}
 	isFollower := false
@@ -97,5 +131,5 @@ func (s *followStore) RetrieveFollowRelation(userId1 string, userId2 string) (bo
 		isFollower = true
 	}
 
-	return isFollow, isFollower, nil
+	return isFollow, isFollower, tx.Commit()
 }

@@ -78,18 +78,7 @@ component Pages.PostGrumble {
       <div class="box form-box">
         <{ error }>
 
-        <form>
-          <div class="field">
-            <textarea
-              class="textarea"
-              maxlength="300"
-              onChange={handleInput(setGrumbleContent)}/>
-
-            <small>"＊1～300文字の範囲で入力可能です。"</small>
-            <br/>
-            <small::warning>"＊なにをぼやいても自由ですが、誹謗中傷や犯罪予告などを書き込まないようにしましょう。大いなる自由には大いなる責任が伴います。"</small>
-          </div>
-        </form>
+        <Components.GrumbleForm setGrumbleContent={setGrumbleContent}/>
 
         <button::button
           class="button is-primary"

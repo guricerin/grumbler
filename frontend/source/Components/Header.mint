@@ -1,4 +1,4 @@
-component Header {
+component Components.Header {
   connect Application exposing { isNavMenuActive }
   property userStatus : UserStatus
 

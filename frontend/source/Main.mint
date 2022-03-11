@@ -7,7 +7,7 @@ component Main {
 
   fun render : Html {
     <div::app>
-      <Header userStatus={userStatus}/>
+      <Components.Header userStatus={userStatus}/>
 
       <Content
         page={page}

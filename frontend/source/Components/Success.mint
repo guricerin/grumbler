@@ -1,4 +1,4 @@
-component Success {
+component Components.Success {
   property message : String = ""
 
   fun render : Html {

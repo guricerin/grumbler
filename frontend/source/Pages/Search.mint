@@ -68,13 +68,13 @@ component Pages.Search {
       SearchResultKind::Users(users) =>
         <div>
           <p>"検索結果 : #{Array.size(users.users)}件"</p>
-          <UserList users={users}/>
+          <Components.UserList users={users}/>
         </div>
 
       SearchResultKind::Grumbles(grumbles) =>
         <div>
           <p>"検索結果 : #{Array.size(grumbles.grumbles)}件"</p>
-          <GrumbleList grumbles={grumbles}/>
+          <Components.GrumbleList grumbles={grumbles}/>
         </div>
     }
   }

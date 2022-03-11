@@ -20,7 +20,7 @@ component Pages.UserSettings {
     case (apiStatus) {
       Api.Status::Error => <Errors errors={es}/>
       Api.Status::Initial => Html.empty()
-      Api.Status::Ok(res) => <Success message="変更を保存しました。"/>
+      Api.Status::Ok(res) => <Components.Success message="変更を保存しました。"/>
     }
   } where {
     es =

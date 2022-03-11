@@ -1,4 +1,4 @@
-component UserList {
+component Components.UserList {
   property users : Users = Users.empty()
 
   style text {

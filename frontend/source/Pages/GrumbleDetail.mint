@@ -26,7 +26,7 @@ component Pages.GrumbleDetail {
             grumble={grumbleDetail.root}/>
 
           <hr/>
-          <GrumbleList grumbles={gs}/>
+          <Components.GrumbleList grumbles={gs}/>
         </div>
     }
   } where {

@@ -135,10 +135,10 @@ component Pages.UserDetail {
 
   fun showSub : Html {
     case (showKind) {
-      UserDetailShowKind::Grumbles => <GrumbleList grumbles={Grumbles(userDetail.grumbles)}/>
-      UserDetailShowKind::Follows => <UserList users={Users(userDetail.follows)}/>
-      UserDetailShowKind::Followers => <UserList users={Users(userDetail.followers)}/>
-      UserDetailShowKind::Bookmarks => <GrumbleList grumbles={Grumbles(userDetail.bookmarks)}/>
+      UserDetailShowKind::Grumbles => <Components.GrumbleList grumbles={Grumbles(userDetail.grumbles)}/>
+      UserDetailShowKind::Follows => <Components.UserList users={Users(userDetail.follows)}/>
+      UserDetailShowKind::Followers => <Components.UserList users={Users(userDetail.followers)}/>
+      UserDetailShowKind::Bookmarks => <Components.GrumbleList grumbles={Grumbles(userDetail.bookmarks)}/>
     }
   }
 

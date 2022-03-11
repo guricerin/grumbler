@@ -11,7 +11,7 @@ component Pages.Timeline {
             <p>"最初のぼやきを投稿してみましょう。"</p>
           </div>
         } else {
-          <GrumbleList grumbles={grumbles}/>
+          <Components.GrumbleList grumbles={grumbles}/>
         }
     }
   }

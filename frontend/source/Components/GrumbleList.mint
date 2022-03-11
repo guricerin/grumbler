@@ -1,4 +1,4 @@
-component GrumbleList {
+component Components.GrumbleList {
   connect Application exposing { userStatus }
   property grumbles : Grumbles = Grumbles.empty()
 

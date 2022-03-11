@@ -80,7 +80,7 @@ component Components.GrumbleBox {
 
           <span class="icon s-small">
             <i
-              class="fas fa-reply"
+              class="far fa-comment"
               aria-hidden="true"/>
           </span>
 

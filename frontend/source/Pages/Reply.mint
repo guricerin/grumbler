@@ -1,11 +1,11 @@
 component Pages.Reply {
   connect Application exposing { userStatus }
   connect Stores.GrumbleDetail exposing { apiStatus }
-  state grumbleContent : String = ""
+  state replyContent : String = ""
 
   fun setGrumbleContent (v : String) : Promise(Never, Void) {
     if (String.size(v) <= 300) {
-      next { grumbleContent = v }
+      next { replyContent = v }
     } else {
       Promise.never()
     }
@@ -35,17 +35,17 @@ component Pages.Reply {
             grumble={grumble}/>
 
           <hr/>
-          <{ replyForm() }>
+          <{ replyForm(grumble) }>
         </div>
     }
   }
 
-  fun submit (event : Html.Event) : Promise(Never, Void) {
+  fun submit (replyDst : Grumble, event : Html.Event) : Promise(Never, Void) {
     sequence {
       replyReq =
         {
-          content = grumbleContent,
-          dstGrumblePk = grumble.pk
+          content = replyContent,
+          dstGrumblePk = replyDst.pk
         }
 
       status =
@@ -55,7 +55,7 @@ component Pages.Reply {
 
       case (status) {
         Api.Status::Initial => next { }
-        Api.Status::Ok(res) => `location.reload()`
+        Api.Status::Ok(res) => `history.back()`
         Api.Status::Error(err) => Window.navigate("/")
       }
     }
@@ -65,14 +65,14 @@ component Pages.Reply {
     len <= 0 || 300 < len
   } where {
     len =
-      String.size(grumbleContent)
+      String.size(replyContent)
   }
 
   style button {
     margin-top: 20px;
   }
 
-  fun replyForm : Html {
+  fun replyForm (replyDst : Grumble) : Html {
     <div>
       <div class="box form-box">
         <Components.GrumbleForm setGrumbleContent={setGrumbleContent}/>
@@ -80,7 +80,7 @@ component Pages.Reply {
         <button::button
           class="button is-primary"
           type="submit"
-          onClick={submit}
+          onClick={submit(replyDst)}
           disabled={disabled}>
 
           <{ "リプライ" }>

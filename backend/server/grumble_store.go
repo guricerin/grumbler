@@ -193,9 +193,9 @@ func (s *grumbleStore) CreateBookmark(grumblePk string, byUserId string) (model.
 	}
 
 	query = `insert into bookmarks
-    (grumble_pk, by_user_id)
-    values (?, ?)`
-	_, err = tx.Exec(query, grumblePk, byUserId)
+    (grumble_pk, by_user_id, created_at)
+    values (?, ?, ?)`
+	_, err = tx.Exec(query, grumblePk, byUserId, time.Now())
 	if err != nil {
 		tx.Rollback()
 		return res, err

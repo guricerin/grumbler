@@ -2,6 +2,7 @@ package server
 
 import (
 	"database/sql"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/guricerin/grumbler/backend/model"
@@ -21,9 +22,9 @@ func (s *followStore) Create(src string, dst string) error {
 		return err
 	}
 	query := `insert into follows
-    (src_user_id, dst_user_id)
-    values (?, ?)`
-	_, err = tx.Exec(query, src, dst)
+    (src_user_id, dst_user_id, created_at)
+    values (?, ?, ?)`
+	_, err = tx.Exec(query, src, dst, time.Now())
 	if err != nil {
 		tx.Rollback()
 		return err

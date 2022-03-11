@@ -2,6 +2,7 @@ package server
 
 import (
 	"database/sql"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/guricerin/grumbler/backend/model"
@@ -20,7 +21,7 @@ func (s *userStore) Create(user *model.User) error {
 	if err != nil {
 		return err
 	}
-	res, err := tx.Exec("insert into users (id, name, password, profile) values (?, ?, ?, ?)", user.Id, user.Name, user.Password, user.Profile)
+	res, err := tx.Exec("insert into users (id, created_at, name, password, profile) values (?, ?, ?, ?, ?)", user.Id, time.Now(), user.Name, user.Password, user.Profile)
 	if err != nil {
 		tx.Rollback()
 		return err

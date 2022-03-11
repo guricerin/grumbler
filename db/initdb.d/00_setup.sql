@@ -15,6 +15,7 @@ drop table if exists `follows`;
 
 create table `users` (
     `pk` int unsigned auto_increment primary key not null,
+    `created_at` datetime not null,
     `id` varchar(63) unique not null,
     `name` varchar(63) not null,
     `password` varchar(255) not null,
@@ -36,12 +37,14 @@ create table `grumbles` (
 
 create table `follows` (
     `pk` int unsigned auto_increment primary key not null,
+    `created_at` datetime not null,
     `src_user_id` varchar(63) not null,
     `dst_user_id` varchar(63) not null
 );
 
 create table `bookmarks` (
     `pk` int unsigned auto_increment primary key not null,
+    `created_at` datetime not null,
     `grumble_pk` varchar(26) not null,
     `by_user_id` varchar(63) not null
 );

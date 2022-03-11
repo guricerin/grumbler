@@ -59,6 +59,13 @@ routes {
     }
   }
 
+  /reply/:grumblePk (grumblePk : String) {
+    sequence {
+      Stores.GrumbleDetail.getGrumbleDetail(grumblePk)
+      Application.setPageWithAuthentication(Page::Reply)
+    }
+  }
+
   /signout {
     Application.setPageWithAuthentication(Page::SignOut)
   }

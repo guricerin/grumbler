@@ -1,5 +1,4 @@
 store Stores.GrumbleDetail {
-  state grumbleDetail : GrumbleDetail = GrumbleDetail.empty()
   state apiStatus : Api.Status(GrumbleDetail) = Api.Status::Initial
 
   fun getGrumbleDetail (grumblePk : String) : Promise(Never, Void) {

@@ -48,3 +48,10 @@ create table `bookmarks` (
     `grumble_pk` varchar(26) not null,
     `by_user_id` varchar(63) not null
 );
+
+create table `replies` (
+    `pk` int unsigned auto_increment primary key not null,
+    `created_at` datetime not null,
+    `src_grumble_pk` varchar(26) not null,
+    `dst_grumble_pk` varchar(26) not null
+);

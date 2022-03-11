@@ -11,6 +11,7 @@ enum Page {
   PostGrumble
   UserSettings
   GrumbleDetail
+  Reply
   Error(Number)
 }
 

@@ -32,7 +32,7 @@ component Pages.PostGrumble {
           case (Application.userStatus) {
             UserStatus::SignIn(u) => Window.navigate("/timeline")
 
-            // unreachable!
+            /* unreachable! */
             => Window.navigate("")
           }
 

@@ -25,7 +25,7 @@ func grumbleRes(g model.GrumbleRes) gin.H {
 }
 
 type bookmarkReq struct {
-	GrumbleOk string `json:"grumblePk"`
+	GrumblePk string `json:"grumblePk"`
 	ByUserId  string `json:"byUserId"`
 }
 
@@ -38,6 +38,11 @@ func grumbleDetailRes(mainGrumble model.GrumbleRes, replies []model.GrumbleRes) 
 		"root":    grumbleRes(mainGrumble),
 		"replies": repliesJson,
 	}
+}
+
+type postReplyReq struct {
+	Content      string `json:"content"`
+	DstGrumblePk string `json:"dstGrumblePk"`
 }
 
 func (s *Server) getGrumbleDetail() gin.HandlerFunc {
@@ -127,7 +132,7 @@ func (s *Server) postGrumble() gin.HandlerFunc {
 			return
 		}
 
-		err = s.grumbleStore.Create(req.Content, user)
+		_, err = s.grumbleStore.Create(req.Content, user)
 		if err != nil {
 			// todo
 			c.JSON(http.StatusInternalServerError, errorRes(err))
@@ -149,7 +154,7 @@ func (s *Server) postBookmark() gin.HandlerFunc {
 			return
 		}
 
-		if _, err := s.grumbleStore.CreateBookmark(req.GrumbleOk, req.ByUserId); err != nil {
+		if _, err := s.grumbleStore.CreateBookmark(req.GrumblePk, req.ByUserId); err != nil {
 			// todo
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
@@ -170,7 +175,46 @@ func (s *Server) postDeleteBookmark() gin.HandlerFunc {
 			return
 		}
 
-		if err := s.grumbleStore.DeleteBookmark(req.GrumbleOk, req.ByUserId); err != nil {
+		if err := s.grumbleStore.DeleteBookmark(req.GrumblePk, req.ByUserId); err != nil {
+			// todo
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"ok": true,
+		})
+		return
+	}
+}
+
+func (s *Server) postReply() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req postReplyReq
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+		if err := model.ValidateGrumble(req.Content); err != nil {
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+
+		user, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusUnauthorized, errorRes(err))
+			return
+		}
+
+		grumble, err := s.grumbleStore.Create(req.Content, user)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+		_, err = s.grumbleStore.CreateReply(grumble.Pk, req.DstGrumblePk)
+		if err != nil {
 			// todo
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return

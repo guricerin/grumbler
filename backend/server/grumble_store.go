@@ -40,30 +40,31 @@ func (s *grumbleStore) RetrieveByPk(grumblePk string, signinUserId string) (mode
 	return res, tx.Commit()
 }
 
-func (s *grumbleStore) Create(content string, user model.User) error {
+func (s *grumbleStore) Create(content string, user model.User) (model.Grumble, error) {
+	res := model.Grumble{}
 	t := time.Now()
 	id, err := createUlid(t)
 	if err != nil {
-		return err
+		return res, err
 	}
 
 	tx, err := s.db.Begin()
 	if err != nil {
-		return err
+		return res, err
 	}
-	g := model.Grumble{
+	res = model.Grumble{
 		Pk:        id,
 		Content:   content,
 		UserId:    user.Id,
 		CreatedAt: t,
 	}
-	_, err = tx.Exec("insert into grumbles (pk, content, user_id, created_at) values (?, ?, ?, ?)", g.Pk, g.Content, g.UserId, g.CreatedAt)
+	_, err = tx.Exec("insert into grumbles (pk, content, user_id, created_at) values (?, ?, ?, ?)", res.Pk, res.Content, res.UserId, res.CreatedAt)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return res, err
 	}
 	err = tx.Commit()
-	return err
+	return res, err
 }
 
 func (s *grumbleStore) retrieveBookmarkedCountAndBySigninUser(tx *sql.Tx, g *model.GrumbleRes, signinUserId string) error {
@@ -281,6 +282,24 @@ func (s *grumbleStore) RetrieveBookmarkedGrumblesByUserId(signinUserId string, u
 			}
 			res = append(res, g)
 		}
+	}
+
+	return res, tx.Commit()
+}
+
+func (s *grumbleStore) CreateReply(srcGrumblePk string, dstGrumblePk string) (model.Reply, error) {
+	res := model.Reply{}
+	tx, err := s.db.Begin()
+	if err != nil {
+		return res, err
+	}
+	query := `insert into replies
+    (created_at, src_grumble_pk, dst_grumble_pk)
+    values (?, ?, ?)`
+	_, err = tx.Exec(query, time.Now(), srcGrumblePk, dstGrumblePk)
+	if err != nil {
+		tx.Rollback()
+		return res, err
 	}
 
 	return res, tx.Commit()

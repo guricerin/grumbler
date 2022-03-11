@@ -40,6 +40,7 @@ component Content {
           Page::PostGrumble => <Pages.PostGrumble/>
           Page::UserSettings => <Pages.UserSettings/>
           Page::GrumbleDetail => <Pages.GrumbleDetail/>
+          Page::Reply => <Pages.Reply/>
           Page::Error(statusCode) => <Pages.Error statusCode={statusCode}/>
         }
       </section>

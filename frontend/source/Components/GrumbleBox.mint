@@ -2,6 +2,31 @@ component Components.GrumbleBox {
   property signinUser : User
   property grumble : Grumble
 
+  fun doReply (content : String, event : Html.Event) : Promise(Never, Void) {
+    sequence {
+      replyReq =
+        {
+          content = content,
+          dstGrumblePk = grumble.pk
+        }
+
+      status =
+        Http.post("#{@ENDPOINT}/auth/reply")
+        |> Http.jsonBody(encode replyReq)
+        |> Api.send(ReplyRes.decodes)
+
+      case (status) {
+        Api.Status::Initial => next { }
+        Api.Status::Ok(res) => `location.reload()`
+        Api.Status::Error(err) => Window.navigate("/")
+      }
+    }
+  }
+
+  fun navigateToReplyPage (event : Html.Event) : Promise(Never, Void) {
+    Window.navigate("/reply/#{grumble.pk}")
+  }
+
   fun doBookmark (apiUrl : String, event : Html.Event) : Promise(Never, Void) {
     sequence {
       bookmarkReq =
@@ -70,12 +95,16 @@ component Components.GrumbleBox {
   fun icons : Html {
     <nav class="level is-mobile">
       <div class="level-item">
-        <a aria-label="reply">
+        <a
+          aria-label="reply"
+          onClick={navigateToReplyPage}>
+
           <span class="icon s-small">
             <i
               class="fas fa-reply"
               aria-hidden="true"/>
           </span>
+
         </a>
       </div>
 

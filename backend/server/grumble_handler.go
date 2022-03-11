@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"net/http"
 	"sort"
 
@@ -192,10 +193,14 @@ func (s *Server) postReply() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req postReplyReq
 		if err := c.BindJSON(&req); err != nil {
+			// todo
+			log.Printf("postReply() 0: %s\n", err.Error())
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
 		if err := model.ValidateGrumble(req.Content); err != nil {
+			// todo
+			log.Printf("postReply() 1: %s\n", err.Error())
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
@@ -203,6 +208,7 @@ func (s *Server) postReply() gin.HandlerFunc {
 		user, err := s.fetchUserFromSession(c)
 		if err != nil {
 			// todo
+			log.Printf("postReply() 2: %s\n", err.Error())
 			c.JSON(http.StatusUnauthorized, errorRes(err))
 			return
 		}
@@ -210,12 +216,14 @@ func (s *Server) postReply() gin.HandlerFunc {
 		grumble, err := s.grumbleStore.Create(req.Content, user)
 		if err != nil {
 			// todo
+			log.Printf("postReply() 3: %s\n", err.Error())
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
 		_, err = s.grumbleStore.CreateReply(grumble.Pk, req.DstGrumblePk)
 		if err != nil {
 			// todo
+			log.Printf("postReply() 4: %s\n", err.Error())
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}

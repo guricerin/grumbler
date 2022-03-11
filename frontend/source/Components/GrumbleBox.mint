@@ -2,27 +2,6 @@ component Components.GrumbleBox {
   property signinUser : User
   property grumble : Grumble
 
-  fun doReply (content : String, event : Html.Event) : Promise(Never, Void) {
-    sequence {
-      replyReq =
-        {
-          content = content,
-          dstGrumblePk = grumble.pk
-        }
-
-      status =
-        Http.post("#{@ENDPOINT}/auth/reply")
-        |> Http.jsonBody(encode replyReq)
-        |> Api.send(ReplyRes.decodes)
-
-      case (status) {
-        Api.Status::Initial => next { }
-        Api.Status::Ok(res) => `location.reload()`
-        Api.Status::Error(err) => Window.navigate("/")
-      }
-    }
-  }
-
   fun navigateToReplyPage (event : Html.Event) : Promise(Never, Void) {
     Window.navigate("/reply/#{grumble.pk}")
   }

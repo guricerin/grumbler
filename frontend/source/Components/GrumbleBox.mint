@@ -84,6 +84,10 @@ component Components.GrumbleBox {
               aria-hidden="true"/>
           </span>
 
+          <span::iconNumber>
+            <{ Number.toString(grumble.repliedCount) }>
+          </span>
+
         </a>
       </div>
 

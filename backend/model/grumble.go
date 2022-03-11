@@ -27,6 +27,7 @@ type GrumbleRes struct {
 	UserId                   string
 	CreatedAt                time.Time
 	UserName                 string
+	RepliedCount             int
 	BookmarkedCount          int
 	IsBookmarkedBySigninUser bool
 }

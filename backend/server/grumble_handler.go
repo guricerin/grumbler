@@ -20,6 +20,7 @@ func grumbleRes(g model.GrumbleRes) gin.H {
 		"userId":                   g.UserId,
 		"userName":                 g.UserName,
 		"createdAt":                g.CreatedAt.Format("2006/01/02 15:04:05"),
+		"repliedCount":             g.RepliedCount,
 		"bookmarkedCount":          g.BookmarkedCount,
 		"isBookmarkedBySigninUser": g.IsBookmarkedBySigninUser,
 	}

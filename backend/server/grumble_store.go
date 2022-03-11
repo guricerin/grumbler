@@ -32,6 +32,11 @@ func (s *grumbleStore) RetrieveByPk(grumblePk string, signinUserId string) (mode
 	if err != nil {
 		return res, err
 	}
+	err = s.retrieveRepliedCount(tx, &res)
+	if err != nil {
+		tx.Rollback()
+		return res, err
+	}
 	err = s.retrieveBookmarkedCountAndBySigninUser(tx, &res, signinUserId)
 	if err != nil {
 		tx.Rollback()
@@ -65,6 +70,14 @@ func (s *grumbleStore) Create(content string, user model.User) (model.Grumble, e
 	}
 	err = tx.Commit()
 	return res, err
+}
+
+func (s *grumbleStore) retrieveRepliedCount(tx *sql.Tx, g *model.GrumbleRes) error {
+	query := `select count(*) from replies
+    where dst_grumble_pk = ?`
+	row := s.db.QueryRow(query, g.Pk)
+	row.Scan(&g.RepliedCount)
+	return nil
 }
 
 func (s *grumbleStore) retrieveBookmarkedCountAndBySigninUser(tx *sql.Tx, g *model.GrumbleRes, signinUserId string) error {
@@ -111,6 +124,11 @@ func (s *grumbleStore) RetrieveByUserId(signinUserId string, userId string) ([]m
 			tx.Rollback()
 			return nil, err
 		}
+		err = s.retrieveRepliedCount(tx, &g)
+		if err != nil {
+			tx.Rollback()
+			return res, err
+		}
 		err = s.retrieveBookmarkedCountAndBySigninUser(tx, &g, signinUserId)
 		if err != nil {
 			tx.Rollback()
@@ -148,6 +166,11 @@ func (s *grumbleStore) Search(signinUserId string, searchWord string) ([]model.G
 		if err != nil {
 			tx.Rollback()
 			return nil, err
+		}
+		err = s.retrieveRepliedCount(tx, &g)
+		if err != nil {
+			tx.Rollback()
+			return res, err
 		}
 		err = s.retrieveBookmarkedCountAndBySigninUser(tx, &g, signinUserId)
 		if err != nil {
@@ -274,6 +297,11 @@ func (s *grumbleStore) RetrieveBookmarkedGrumblesByUserId(signinUserId string, u
 			if err != nil {
 				tx.Rollback()
 				return nil, err
+			}
+			err = s.retrieveRepliedCount(tx, &g)
+			if err != nil {
+				tx.Rollback()
+				return res, err
 			}
 			err = s.retrieveBookmarkedCountAndBySigninUser(tx, &g, signinUserId)
 			if err != nil {

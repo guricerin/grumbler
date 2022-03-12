@@ -74,29 +74,29 @@ component Components.Header {
     case (userStatus) {
       UserStatus::Guest =>
         [
-          <NavbarItem
+          <Components.NavbarItem
             route="/signin"
             title="サインイン"/>,
-          <NavbarItem
+          <Components.NavbarItem
             route="/signup"
             title="新規登録"/>
         ]
 
       UserStatus::SignIn(user) =>
         [
-          <NavbarItem
+          <Components.NavbarItem
             route="/timeline"
             title="タイムライン"/>,
-          <NavbarItem
+          <Components.NavbarItem
             route="/post-grumble"
             title="ぼやく"/>,
-          <NavbarItem
+          <Components.NavbarItem
             route="/search"
             title="検索"/>,
-          <NavbarItem
+          <Components.NavbarItem
             route="/signout"
             title="サインアウト"/>,
-          <NavbarItem
+          <Components.NavbarItem
             route="/unsubscribe"
             title="退会"/>
         ]
@@ -106,13 +106,13 @@ component Components.Header {
   fun navbarUser : Html {
     case (userStatus) {
       UserStatus::Guest =>
-        <NavbarUser
+        <Components.NavbarUser
           route="/"
           title="Guest"
           icon="fas fa-user"/>
 
       UserStatus::SignIn(user) =>
-        <NavbarUser
+        <Components.NavbarUser
           route="/user/#{user.id}"
           title="#{user.name}@#{user.id}"
           icon="fas fa-user"/>
@@ -120,7 +120,7 @@ component Components.Header {
   }
 }
 
-component NavbarItem {
+component Components.NavbarItem {
   property route : String = ""
   property title : String = ""
 
@@ -136,7 +136,7 @@ component NavbarItem {
   }
 }
 
-component NavbarUser {
+component Components.NavbarUser {
   property route : String = ""
   property title : String = ""
   property icon : String = ""

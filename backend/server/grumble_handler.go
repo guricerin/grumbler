@@ -39,14 +39,19 @@ type bookmarkReq struct {
 	ByUserId  string `json:"byUserId"`
 }
 
-func grumbleDetailRes(mainGrumble model.GrumbleRes, replies []model.GrumbleRes) gin.H {
+func grumbleDetailRes(mainGrumble model.GrumbleRes, ancestors []model.GrumbleRes, replies []model.GrumbleRes) gin.H {
+	ancestorsJson := make([]gin.H, 0)
+	for _, r := range ancestors {
+		ancestorsJson = append(ancestorsJson, grumbleRes(r))
+	}
 	repliesJson := make([]gin.H, 0)
 	for _, r := range replies {
 		repliesJson = append(repliesJson, grumbleRes(r))
 	}
 	return gin.H{
-		"root":    grumbleRes(mainGrumble),
-		"replies": repliesJson,
+		"root":      grumbleRes(mainGrumble),
+		"ancestors": ancestorsJson,
+		"replies":   repliesJson,
 	}
 }
 
@@ -71,14 +76,28 @@ func (s *Server) getGrumbleDetail() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
-		replies, err := s.grumbleStore.RetrieveByDstPk(grumblePk, user.Id)
+		ancestors, err := s.grumbleStore.RetrieveReplyAncestors(grumblePk, user.Id)
 		if err != nil {
 			// todo
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
+		// 最古日時順
+		sort.Slice(ancestors, func(i, j int) bool {
+			return ancestors[i].CreatedAt.Before(ancestors[j].CreatedAt)
+		})
+		replies, err := s.grumbleStore.RetrieveByReplyDstPk(grumblePk, user.Id)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+		// 最古日時順
+		sort.Slice(replies, func(i, j int) bool {
+			return replies[i].CreatedAt.Before(replies[j].CreatedAt)
+		})
 
-		c.JSON(http.StatusOK, grumbleDetailRes(mainGrumble, replies))
+		c.JSON(http.StatusOK, grumbleDetailRes(mainGrumble, ancestors, replies))
 		return
 	}
 }

@@ -118,6 +118,14 @@ routes {
     }
   }
 
+  /user/:userId/grumble/:grumblePk/:anchor (userId : String, grumblePk : String, anchor : String) {
+    sequence {
+      Stores.GrumbleDetail.getGrumbleDetail(grumblePk)
+      Application.setPageWithAuthentication(Page::GrumbleDetail)
+      Window.triggerHashJump()
+    }
+  }
+
   /user/:userId/grumble/:grumblePk (userId : String, grumblePk : String) {
     sequence {
       Stores.GrumbleDetail.getGrumbleDetail(grumblePk)
@@ -134,9 +142,6 @@ routes {
   }
 
   * {
-    sequence {
-      Application.dbgUser()
-      Application.setPage(Page::Error(404))
-    }
+    Application.setPage(Page::Error(404))
   }
 }

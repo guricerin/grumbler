@@ -6,7 +6,6 @@ component Pages.GrumbleDetail {
     case (apiStatus) {
       Api.Status::Initial => Html.empty()
       Api.Status::Error(err) => <Errors errors={es}/>
-
       Api.Status::Ok(grumbleDetail) => core(grumbleDetail)
     }
   } where {
@@ -21,9 +20,11 @@ component Pages.GrumbleDetail {
 
       UserStatus::SignIn(user) =>
         <div>
+          <Components.GrumbleList grumbles={ancestors}/>
+
           <Components.GrumbleBox
-            signinUser={user}
-            grumble={grumbleDetail.root}/>
+            grumble={grumbleDetail.root}
+            signinUser={user}/>
 
           <hr/>
           <p>"このぼやきに対する返信一覧"</p>
@@ -32,6 +33,9 @@ component Pages.GrumbleDetail {
         </div>
     }
   } where {
+    ancestors =
+      Grumbles(grumbleDetail.ancestors)
+
     replies =
       Grumbles(grumbleDetail.replies)
   }

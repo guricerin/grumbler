@@ -25,32 +25,40 @@ component Components.GrumbleBox {
   }
 
   fun render : Html {
-    <div::wrap class="box">
-      <article class="media">
-        <div::child class="media-content">
-          <div class="content">
-            <p::text>
-              <a href="/user/#{grumble.userId}">
-                <strong>"#{grumble.userName}"</strong>
-                <small>"@#{grumble.userId}"</small>
-              </a>
+    <div>
+      <{ anchor() }>
 
-              <small::date>"#{grumble.createdAt}"</small>
+      <div::wrap class="box">
+        <article class="media">
+          <div::child class="media-content">
+            <div class="content">
+              <p::text>
+                <a href="/user/#{grumble.userId}">
+                  <strong>"#{grumble.userName}"</strong>
+                  <small>"@#{grumble.userId}"</small>
+                </a>
 
-              <br/>
+                <small::date>"#{grumble.createdAt}"</small>
 
-              <{ replyTo() }>
+                <br/>
 
-              <a::content href="/user/#{grumble.userId}/grumble/#{grumble.pk}">
-                <div>"#{grumble.content}"</div>
-              </a>
-            </p>
+                <{ replyTo() }>
+
+                <a::content href="/user/#{grumble.userId}/grumble/#{grumble.pk}/##{grumble.pk}">
+                  <div>"#{grumble.content}"</div>
+                </a>
+              </p>
+            </div>
+
+            <{ icons() }>
           </div>
-
-          <{ icons() }>
-        </div>
-      </article>
+        </article>
+      </div>
     </div>
+  }
+
+  fun anchor : Html {
+    <a name="#{grumble.pk}"/>
   }
 
   fun replyTo : Html {
@@ -96,6 +104,26 @@ component Components.GrumbleBox {
     margin-left: 5px;
   }
 
+  fun replyIcon : Html {
+    <div class="level-item">
+      <a
+        aria-label="reply"
+        onClick={navigateToReplyPage}>
+
+        <span class="icon s-small">
+          <i
+            class="far fa-comment"
+            aria-hidden="true"/>
+        </span>
+
+        <span::iconNumber>
+          <{ Number.toString(grumble.reply.repliedCount) }>
+        </span>
+
+      </a>
+    </div>
+  }
+
   fun bookmarkIcon : Html {
     if (grumble.isBookmarkedBySigninUser) {
       <div class="level-item">
@@ -138,23 +166,7 @@ component Components.GrumbleBox {
 
   fun icons : Html {
     <nav class="level is-mobile">
-      <div class="level-item">
-        <a
-          aria-label="reply"
-          onClick={navigateToReplyPage}>
-
-          <span class="icon s-small">
-            <i
-              class="far fa-comment"
-              aria-hidden="true"/>
-          </span>
-
-          <span::iconNumber>
-            <{ Number.toString(grumble.reply.repliedCount) }>
-          </span>
-
-        </a>
-      </div>
+      <{ replyIcon() }>
 
       <div class="level-item">
         <a aria-label="retweet">

@@ -45,7 +45,52 @@ func (s *grumbleStore) RetrieveByPk(grumblePk string, signinUserId string) (mode
 	return res, tx.Commit()
 }
 
-func (s *grumbleStore) RetrieveByDstPk(grumblePk string, signinUserId string) ([]model.GrumbleRes, error) {
+func (s *grumbleStore) RetrieveReplyAncestors(grumblePk string, signinUserId string) ([]model.GrumbleRes, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	query := `select g.pk, g.content, g.user_id, g.created_at, u.name
+    from grumbles as g
+    left join users as u
+        on g.user_id = u.id
+    left join replies as r
+        on r.dst_grumble_pk = g.pk
+    where r.src_grumble_pk = ?`
+	res := make([]model.GrumbleRes, 0)
+
+	var rec func(gpk string) error
+	rec = func(gpk string) error {
+		g := model.GrumbleRes{}
+		row := tx.QueryRow(query, gpk)
+		err = row.Scan(&g.Pk, &g.Content, &g.UserId, &g.CreatedAt, &g.UserName)
+		if err != nil {
+			// tx.Rollback()
+			return nil
+		}
+		err = s.retrieveReplyInfo(tx, &g)
+		if err != nil {
+			// tx.Rollback()
+			return err
+		}
+		err = s.retrieveBookmarkedCountAndBySigninUser(tx, &g, signinUserId)
+		if err != nil {
+			// tx.Rollback()
+			return err
+		}
+		res = append(res, g)
+		return rec(g.Pk)
+	}
+
+	err = rec(grumblePk)
+	if err != nil {
+		return nil, tx.Rollback()
+	}
+	return res, tx.Commit()
+}
+
+func (s *grumbleStore) RetrieveByReplyDstPk(grumblePk string, signinUserId string) ([]model.GrumbleRes, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return nil, err

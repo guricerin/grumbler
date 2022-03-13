@@ -21,13 +21,19 @@ func ValidateGrumble(text string) error {
 	}
 }
 
+type ReplyInfoFoGrumbleRes struct {
+	DstGrumblePk string
+	DstUserId    string
+	RepliedCount int
+}
+
 type GrumbleRes struct {
 	Pk                       string
 	Content                  string
 	UserId                   string
 	CreatedAt                time.Time
 	UserName                 string
-	RepliedCount             int
+	Reply                    ReplyInfoFoGrumbleRes
 	BookmarkedCount          int
 	IsBookmarkedBySigninUser bool
 }

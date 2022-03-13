@@ -4,7 +4,7 @@ record Grumble {
   userId : String,
   userName : String,
   createdAt : String,
-  repliedCount : Number,
+  reply : Reply,
   bookmarkedCount : Number,
   isBookmarkedBySigninUser : Bool
 }
@@ -17,7 +17,7 @@ module Grumble {
       userId = "",
       userName = "",
       createdAt = "",
-      repliedCount = 0,
+      reply = Reply.empty(),
       bookmarkedCount = 0,
       isBookmarkedBySigninUser = false
     }
@@ -25,6 +25,14 @@ module Grumble {
 
   fun decodes (obj : Object) : Result(Object.Error, Grumble) {
     decode obj as Grumble
+  }
+
+  fun isReply (g : Grumble) : Bool {
+    if (g.reply.dstUserId == "") {
+      false
+    } else {
+      true
+    }
   }
 }
 

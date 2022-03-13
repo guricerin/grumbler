@@ -1,13 +1,15 @@
 record Reply {
-  toGrumblePk : String,
-  toUserId : String
+  dstGrumblePk : String,
+  dstUserId : String,
+  repliedCount : Number
 }
 
 module Reply {
   fun empty : Reply {
     {
-      toGrumblePk = "",
-      toUserId = ""
+      dstGrumblePk = "",
+      dstUserId = "",
+      repliedCount = 0
     }
   }
 }

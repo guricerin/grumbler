@@ -13,6 +13,14 @@ type postGrumbleReq struct {
 	Content string `json:"content"`
 }
 
+func replyInfoForGrumbleResRes(r model.ReplyInfoFoGrumbleRes) gin.H {
+	return gin.H{
+		"dstGrumblePk": r.DstGrumblePk,
+		"dstUserId":    r.DstUserId,
+		"repliedCount": r.RepliedCount,
+	}
+}
+
 func grumbleRes(g model.GrumbleRes) gin.H {
 	return gin.H{
 		"pk":                       g.Pk,
@@ -20,7 +28,7 @@ func grumbleRes(g model.GrumbleRes) gin.H {
 		"userId":                   g.UserId,
 		"userName":                 g.UserName,
 		"createdAt":                g.CreatedAt.Format("2006/01/02 15:04:05"),
-		"repliedCount":             g.RepliedCount,
+		"reply":                    replyInfoForGrumbleResRes(g.Reply),
 		"bookmarkedCount":          g.BookmarkedCount,
 		"isBookmarkedBySigninUser": g.IsBookmarkedBySigninUser,
 	}

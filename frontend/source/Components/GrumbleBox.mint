@@ -2,6 +2,71 @@ component Components.GrumbleBox {
   property signinUser : User
   property grumble : Grumble
 
+  /* --> テキストを親要素内で折り返し */
+  style wrap {
+    overflow-wrap: break-word;
+  }
+
+  style child {
+    width: 100%;
+  }
+
+  /* <-- テキストを親要素内で折り返し */
+  style text {
+    white-space: pre-wrap;
+  }
+
+  style date {
+    margin-left: 7px;
+  }
+
+  style content {
+    color: black;
+  }
+
+  fun render : Html {
+    <div::wrap class="box">
+      <article class="media">
+        <div::child class="media-content">
+          <div class="content">
+            <p::text>
+              <a href="/user/#{grumble.userId}">
+                <strong>"#{grumble.userName}"</strong>
+                <small>"@#{grumble.userId}"</small>
+              </a>
+
+              <small::date>"#{grumble.createdAt}"</small>
+
+              <br/>
+
+              <{ replyTo() }>
+
+              <a::content href="/user/#{grumble.userId}/grumble/#{grumble.pk}">
+                <div>"#{grumble.content}"</div>
+              </a>
+            </p>
+          </div>
+
+          <{ icons() }>
+        </div>
+      </article>
+    </div>
+  }
+
+  fun replyTo : Html {
+    if (Grumble.isReply(grumble)) {
+      <small>
+        "返信先: "
+
+        <a href="/user/#{grumble.reply.dstUserId}">
+          "@#{grumble.reply.dstUserId}"
+        </a>
+      </small>
+    } else {
+      Html.empty()
+    }
+  }
+
   fun navigateToReplyPage (event : Html.Event) : Promise(Never, Void) {
     Window.navigate("/reply/#{grumble.pk}")
   }
@@ -85,7 +150,7 @@ component Components.GrumbleBox {
           </span>
 
           <span::iconNumber>
-            <{ Number.toString(grumble.repliedCount) }>
+            <{ Number.toString(grumble.reply.repliedCount) }>
           </span>
 
         </a>
@@ -103,54 +168,5 @@ component Components.GrumbleBox {
 
       <{ bookmarkIcon() }>
     </nav>
-  }
-
-  /* --> テキストを親要素内で折り返し */
-  style wrap {
-    overflow-wrap: break-word;
-  }
-
-  style child {
-    width: 100%;
-  }
-
-  /* <-- テキストを親要素内で折り返し */
-  style text {
-    white-space: pre-wrap;
-  }
-
-  style date {
-    margin-left: 7px;
-  }
-
-  style content {
-    color: black;
-  }
-
-  fun render : Html {
-    <div::wrap class="box">
-      <article class="media">
-        <div::child class="media-content">
-          <div class="content">
-            <p::text>
-              <a href="/user/#{grumble.userId}">
-                <strong>"#{grumble.userName}"</strong>
-                <small>"@#{grumble.userId}"</small>
-              </a>
-
-              <small::date>"#{grumble.createdAt}"</small>
-
-              <br/>
-
-              <a::content href="/user/#{grumble.userId}/grumble/#{grumble.pk}">
-                <div>"#{grumble.content}"</div>
-              </a>
-            </p>
-          </div>
-
-          <{ icons() }>
-        </div>
-      </article>
-    </div>
   }
 }

@@ -26,11 +26,13 @@ component Pages.GrumbleDetail {
             grumble={grumbleDetail.root}/>
 
           <hr/>
-          <Components.GrumbleList grumbles={gs}/>
+          <p>"このぼやきに対する返信一覧"</p>
+          <br/>
+          <Components.GrumbleList grumbles={replies}/>
         </div>
     }
   } where {
-    gs =
+    replies =
       Grumbles(grumbleDetail.replies)
   }
 }

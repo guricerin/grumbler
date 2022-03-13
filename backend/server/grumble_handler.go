@@ -71,7 +71,13 @@ func (s *Server) getGrumbleDetail() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
-		replies := make([]model.GrumbleRes, 0)
+		replies, err := s.grumbleStore.RetrieveByDstPk(grumblePk, user.Id)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
 		c.JSON(http.StatusOK, grumbleDetailRes(mainGrumble, replies))
 		return
 	}

@@ -280,12 +280,15 @@ func (s *grumbleStore) Search(signinUserId string, searchWord string) ([]model.G
 	return res, err
 }
 
-func (s *grumbleStore) DeleteByPk(pk string) error {
+func (s *grumbleStore) Delete(pk string, userId string) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("delete grumbles where pk = ?", pk)
+	// todo: bookmark, replies からも削除
+	query := `delete from grumbles
+    where pk = ? and user_id = ?`
+	_, err = tx.Exec(query, pk, userId)
 	if err != nil {
 		tx.Rollback()
 		return err

@@ -11,3 +11,17 @@ module GrumbleRes {
     decode obj as GrumbleRes
   }
 }
+
+record DeleteGrumbleReq {
+  grumblePk : String
+}
+
+record DeleteGrumbleRes {
+  ok : Bool
+}
+
+module DeleteGrumbleRes {
+  fun decodes (obj : Object) : Result(Object.Error, DeleteGrumbleRes) {
+    decode obj as DeleteGrumbleRes
+  }
+}

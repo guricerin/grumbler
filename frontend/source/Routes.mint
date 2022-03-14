@@ -59,6 +59,13 @@ routes {
     }
   }
 
+  /delete-grumble/:grumblePk (grumblePk : String) {
+    sequence {
+      Stores.GrumbleDetail.getGrumbleDetail(grumblePk)
+      Application.setPageWithAuthentication(Page::DeleteGrumble)
+    }
+  }
+
   /reply/:grumblePk (grumblePk : String) {
     sequence {
       Stores.GrumbleDetail.getGrumbleDetail(grumblePk)

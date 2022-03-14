@@ -49,7 +49,7 @@ func grumbleDetailRes(mainGrumble model.GrumbleRes, ancestors []model.GrumbleRes
 		repliesJson = append(repliesJson, grumbleRes(r))
 	}
 	return gin.H{
-		"root":      grumbleRes(mainGrumble),
+		"target":    grumbleRes(mainGrumble),
 		"ancestors": ancestorsJson,
 		"replies":   repliesJson,
 	}
@@ -168,6 +168,39 @@ func (s *Server) postGrumble() gin.HandlerFunc {
 		}
 
 		_, err = s.grumbleStore.Create(req.Content, user)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"ok": true,
+		})
+		return
+	}
+}
+
+type deleteGrumbleReq struct {
+	GrumblePk string `json:"grumblePk"`
+}
+
+func (s *Server) postDeleteGrumble() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusUnauthorized, errorRes(err))
+			return
+		}
+
+		var req deleteGrumbleReq
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+
+		err = s.grumbleStore.Delete(req.GrumblePk, user.Id)
 		if err != nil {
 			// todo
 			c.JSON(http.StatusInternalServerError, errorRes(err))

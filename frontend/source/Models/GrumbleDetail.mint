@@ -1,5 +1,5 @@
 record GrumbleDetail {
-  root : Grumble,
+  target : Grumble,
   ancestors : Array(Grumble),
   replies : Array(Grumble)
 }
@@ -7,7 +7,7 @@ record GrumbleDetail {
 module GrumbleDetail {
   fun empty : GrumbleDetail {
     {
-      root = Grumble.empty(),
+      target = Grumble.empty(),
       ancestors = [],
       replies = []
     }

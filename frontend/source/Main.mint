@@ -38,6 +38,7 @@ component Content {
           Page::UserDetail => <Pages.UserDetail/>
           Page::Timeline => <Pages.Timeline/>
           Page::PostGrumble => <Pages.PostGrumble/>
+          Page::DeleteGrumble => <Pages.DeleteGrumble/>
           Page::UserSettings => <Pages.UserSettings/>
           Page::GrumbleDetail => <Pages.GrumbleDetail/>
           Page::Reply => <Pages.Reply/>

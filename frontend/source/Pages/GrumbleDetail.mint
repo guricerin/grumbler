@@ -23,7 +23,7 @@ component Pages.GrumbleDetail {
           <Components.GrumbleList grumbles={ancestors}/>
 
           <Components.GrumbleBox
-            grumble={grumbleDetail.root}
+            grumble={grumbleDetail.target}
             signinUser={user}/>
 
           <hr/>

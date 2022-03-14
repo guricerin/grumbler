@@ -24,6 +24,11 @@ component Components.GrumbleBox {
     color: black;
   }
 
+  style both-ends {
+    display: flex;
+    justify-content: space-between;
+  }
+
   fun render : Html {
     <div>
       <{ anchor() }>
@@ -33,14 +38,18 @@ component Components.GrumbleBox {
           <div::child class="media-content">
             <div class="content">
               <p::text>
-                <a href="/user/#{grumble.userId}">
-                  <strong>"#{grumble.userName}"</strong>
-                  <small>"@#{grumble.userId}"</small>
-                </a>
+                <div::both-ends>
+                  <div>
+                    <a href="/user/#{grumble.userId}">
+                      <strong>"#{grumble.userName}"</strong>
+                      <small>"@#{grumble.userId}"</small>
+                    </a>
 
-                <small::date>"#{grumble.createdAt}"</small>
+                    <small::date>"#{grumble.createdAt}"</small>
+                  </div>
 
-                <br/>
+                  <{ signinUserMenu() }>
+                </div>
 
                 <{ replyTo() }>
 
@@ -55,6 +64,18 @@ component Components.GrumbleBox {
         </article>
       </div>
     </div>
+  }
+
+  fun signinUserMenu : Html {
+    if (signinUser.id == grumble.userId) {
+      <a href="/delete-grumble/#{grumble.pk}">
+        <i
+          class="fas fa-trash"
+          aria-hidden="true"/>
+      </a>
+    } else {
+      Html.empty()
+    }
   }
 
   fun anchor : Html {

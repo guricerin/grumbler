@@ -66,7 +66,7 @@ func (s *userStore) RetrieveByPk(pk uint64) (model.User, error) {
 	return user, err
 }
 
-// 対象ユーザに対応する他のテーブルの行も削除する
+// todo: 対象ユーザに対応する他のテーブルの行も削除する
 func (s *userStore) DeleteByPk(pk uint64) error {
 	tx, err := s.db.Begin()
 	if err != nil {

@@ -9,6 +9,7 @@ enum Page {
   UserDetail
   Timeline
   PostGrumble
+  DeleteGrumble
   UserSettings
   GrumbleDetail
   Reply

@@ -66,6 +66,7 @@ func (s *Server) setupRouter() {
 		auth.POST("/signout", s.postSignOut())
 		auth.POST("/unsubscribe", s.postUnsubscribe())
 		auth.POST("/grumble", s.postGrumble())
+		auth.POST("/delete-grumble", s.postDeleteGrumble())
 		auth.POST("/follow", s.postFollow())
 		auth.POST("/unfollow", s.postUnFollow())
 		auth.POST("/settings", s.postUserSettings())

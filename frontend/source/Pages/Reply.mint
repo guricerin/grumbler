@@ -16,7 +16,7 @@ component Pages.Reply {
       Api.Status::Initial => Html.empty()
       Api.Status::Error(err) => <Errors errors={es}/>
 
-      Api.Status::Ok(grumbleDetail) => core(grumbleDetail.root)
+      Api.Status::Ok(grumbleDetail) => core(grumbleDetail.target)
     }
   } where {
     es =

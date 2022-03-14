@@ -285,9 +285,12 @@ func (s *grumbleStore) Delete(pk string, userId string) error {
 	if err != nil {
 		return err
 	}
-	// todo: bookmark, replies からも削除
-	query := `delete from grumbles
-    where pk = ? and user_id = ?`
+	query := `delete g, r, b from grumbles as g
+    left join replies as r
+        on r.src_grumble_pk = g.pk
+    left join bookmarks as b
+        on b.grumble_pk = g.pk
+    where g.pk = ? and g.user_id = ?`
 	_, err = tx.Exec(query, pk, userId)
 	if err != nil {
 		tx.Rollback()

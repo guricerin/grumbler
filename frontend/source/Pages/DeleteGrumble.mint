@@ -38,7 +38,7 @@ component Pages.DeleteGrumble {
             <button::button
               class="button is-primary"
               type="submit"
-              onClick={submit(grumbleDetail.target)}>
+              onClick={submit(grumbleDetail.target, user)}>
 
               <{ "削除" }>
 
@@ -61,7 +61,11 @@ component Pages.DeleteGrumble {
     `history.back()`
   }
 
-  fun submit (target : Grumble, event : Html.Event) : Promise(Never, Void) {
+  fun submit (
+    target : Grumble,
+    signinUser : User,
+    event : Html.Event
+  ) : Promise(Never, Void) {
     sequence {
       req =
         { grumblePk = target.pk }
@@ -72,7 +76,7 @@ component Pages.DeleteGrumble {
         |> Api.send(DeleteGrumbleRes.decodes)
 
       case (status) {
-        Api.Status::Ok(res) => `history.back()`
+        Api.Status::Ok(res) => Window.navigate("/user/#{signinUser.id}")
         => setApiStatus(status)
       }
     }

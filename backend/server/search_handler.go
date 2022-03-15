@@ -9,6 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type searchReq struct {
+	Keyword string `json:"keyword"`
+	Kind    string `json:"kind"`
+}
+
 func (s *Server) getSearch() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		signinUser, err := s.fetchUserFromSession(c)
@@ -19,24 +24,15 @@ func (s *Server) getSearch() gin.HandlerFunc {
 			return
 		}
 
-		query := c.Query("q")
-		if query == "" {
-			// todo
-			log.Printf("getSearch() 1: %s\n", err.Error())
-			c.JSON(http.StatusBadRequest, errorRes(errors.New("検索対象の文字列が指定されていません。")))
-			return
-		}
-		kind := c.Query("k")
-		if kind == "" {
-			// todo
-			log.Printf("getSearch() 2: %s\n", err.Error())
-			c.JSON(http.StatusBadRequest, errorRes(errors.New("検索種別が指定されていません。")))
+		var req searchReq
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
 
-		switch kind {
+		switch req.Kind {
 		case "user_id":
-			users, err := s.userStore.SearchById(query)
+			users, err := s.userStore.Search(req.Keyword, UserIdSearch)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, errorRes(err))
 				return
@@ -50,7 +46,7 @@ func (s *Server) getSearch() gin.HandlerFunc {
 			})
 			return
 		case "user_name":
-			users, err := s.userStore.SearchByName(query)
+			users, err := s.userStore.Search(req.Keyword, UserNameSearch)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, errorRes(err))
 				return
@@ -64,7 +60,7 @@ func (s *Server) getSearch() gin.HandlerFunc {
 			})
 			return
 		case "grumble":
-			grumbles, err := s.grumbleStore.Search(signinUser.Id, query)
+			grumbles, err := s.grumbleStore.Search(signinUser.Id, req.Keyword)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, errorRes(err))
 				return

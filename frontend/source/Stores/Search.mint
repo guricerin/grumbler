@@ -30,10 +30,17 @@ store Stores.Search {
     }
   }
 
-  fun searchUser (query : String, kind : String) : Promise(Never, Void) {
+  fun searchUser (keyword : String, kind : String) : Promise(Never, Void) {
     sequence {
+      req =
+        {
+          keyword = keyword,
+          kind = kind
+        }
+
       status =
-        Http.get("#{@ENDPOINT}/auth/search?q=#{query}&k=#{kind}")
+        Http.post("#{@ENDPOINT}/auth/search")
+        |> Http.jsonBody(encode req)
         |> Api.send(Users.decodes)
 
       case (status) {
@@ -51,10 +58,17 @@ store Stores.Search {
     }
   }
 
-  fun searchGrumble (query : String) : Promise(Never, Void) {
+  fun searchGrumble (keyword : String) : Promise(Never, Void) {
     sequence {
+      req =
+        {
+          keyword = keyword,
+          kind = "grumble"
+        }
+
       status =
-        Http.get("#{@ENDPOINT}/auth/search?q=#{query}&k=grumble")
+        Http.post("#{@ENDPOINT}/auth/search")
+        |> Http.jsonBody(encode req)
         |> Api.send(Grumbles.decodes)
 
       case (status) {

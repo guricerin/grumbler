@@ -62,7 +62,7 @@ func (s *Server) setupRouter() {
 	auth := router.Group("/api/auth")
 	auth.Use(s.authenticationMiddleware())
 	{
-		auth.GET("/search", s.getSearch())
+		auth.POST("/search", s.getSearch())
 		auth.POST("/signout", s.postSignOut())
 		auth.POST("/unsubscribe", s.postUnsubscribe())
 		auth.POST("/grumble", s.postGrumble())

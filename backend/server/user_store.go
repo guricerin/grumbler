@@ -66,12 +66,12 @@ func (s *userStore) RetrieveByPk(pk uint64) (model.User, error) {
 	return user, err
 }
 
-// todo: 対象ユーザに対応する他のテーブルの行も削除する
 func (s *userStore) DeleteByPk(pk uint64) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
+	// 対象ユーザに対応する他のテーブルの行も削除する
 	query := `delete u, s, g, b, f, r from users as u
     left join sessions as s
         on u.pk = s.user_pk
@@ -93,44 +93,31 @@ func (s *userStore) DeleteByPk(pk uint64) error {
 	return err
 }
 
-func (s *userStore) SearchById(id string) ([]model.User, error) {
-	tx, err := s.db.Begin()
-	if err != nil {
-		return nil, err
-	}
-	users := make([]model.User, 0)
-	pattern := "%" + id + "%"
-	// rows, err := s.db.Query("select pk, id, name, password from users where id like '%' || ? || '%'", id)
-	rows, err := tx.Query("select pk, id, name, password, profile from users where id like ?", pattern)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	defer rows.Close()
+const (
+	UserIdSearch = iota
+	UserNameSearch
+)
 
-	for rows.Next() {
-		user := model.User{}
-		err = rows.Scan(&user.Pk, &user.Id, &user.Name, &user.Password, &user.Profile)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, user)
+func (s *userStore) Search(keyword string, kind int) ([]model.User, error) {
+	var query string
+	switch kind {
+	case UserIdSearch:
+		query = `select pk, id, name, password, profile from users
+        where id like concat('%', ?, '%')`
+	case UserNameSearch:
+		query = `select pk, id, name, password, profile from users
+        where name like concat('%', ?, '%')`
 	}
-
-	err = tx.Commit()
-	return users, err
+	return s.searchInner(query, keyword)
 }
 
-func (s *userStore) SearchByName(name string) ([]model.User, error) {
+func (s *userStore) searchInner(query string, keyword string) ([]model.User, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return nil, err
 	}
 	users := make([]model.User, 0)
-	pattern := "%" + name + "%"
-	query := `select pk, id, name, password, profile from users
-    where name like ?`
-	rows, err := tx.Query(query, pattern)
+	rows, err := tx.Query(query, keyword)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -146,8 +133,7 @@ func (s *userStore) SearchByName(name string) ([]model.User, error) {
 		users = append(users, user)
 	}
 
-	err = tx.Commit()
-	return users, err
+	return users, tx.Commit()
 }
 
 func (s *userStore) Update(user *model.User) error {

@@ -243,13 +243,12 @@ func (s *grumbleStore) Search(signinUserId string, searchWord string) ([]model.G
 		return nil, err
 	}
 	res := make([]model.GrumbleRes, 0)
-	pattern := "%" + searchWord + "%"
 	query := `select g.pk, g.content, g.user_id, g.created_at, u.name
     from grumbles as g
     left join users as u
         on g.user_id = u.id
-    where g.content like ?`
-	rows, err := tx.Query(query, pattern)
+    where g.content like concat('%', ?, '%')`
+	rows, err := tx.Query(query, searchWord)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -276,8 +275,7 @@ func (s *grumbleStore) Search(signinUserId string, searchWord string) ([]model.G
 		res = append(res, g)
 	}
 
-	err = tx.Commit()
-	return res, err
+	return res, tx.Commit()
 }
 
 func (s *grumbleStore) Delete(pk string, userId string) error {

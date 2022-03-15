@@ -72,7 +72,19 @@ func (s *userStore) DeleteByPk(pk uint64) error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("delete u, s from users as u left join sessions as s on u.pk = s.user_pk where u.pk = ?", pk)
+	query := `delete u, s, g, b, f, r from users as u
+    left join sessions as s
+        on u.pk = s.user_pk
+    left join grumbles as g
+        on u.id = g.user_id
+    left join bookmarks as b
+        on u.id = b.by_user_id
+    left join follows as f
+        on u.id = f.src_user_id or u.id = f.dst_user_id
+    left join replies as r
+        on g.pk = r.dst_grumble_pk or g.pk = r.src_grumble_pk
+    where u.pk = ?`
+	_, err = tx.Exec(query, pk)
 	if err != nil {
 		tx.Rollback()
 		return err

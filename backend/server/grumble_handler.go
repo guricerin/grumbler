@@ -36,7 +36,6 @@ func grumbleRes(g model.GrumbleRes) gin.H {
 
 type bookmarkReq struct {
 	GrumblePk string `json:"grumblePk"`
-	ByUserId  string `json:"byUserId"`
 }
 
 func grumbleDetailRes(mainGrumble model.GrumbleRes, ancestors []model.GrumbleRes, replies []model.GrumbleRes) gin.H {
@@ -150,6 +149,13 @@ func (s *Server) getTimeline() gin.HandlerFunc {
 
 func (s *Server) postGrumble() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		user, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusUnauthorized, errorRes(err))
+			return
+		}
+
 		var req postGrumbleReq
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
@@ -157,13 +163,6 @@ func (s *Server) postGrumble() gin.HandlerFunc {
 		}
 		if err := model.ValidateGrumble(req.Content); err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
-			return
-		}
-
-		user, err := s.fetchUserFromSession(c)
-		if err != nil {
-			// todo
-			c.JSON(http.StatusUnauthorized, errorRes(err))
 			return
 		}
 
@@ -216,13 +215,20 @@ func (s *Server) postDeleteGrumble() gin.HandlerFunc {
 
 func (s *Server) postBookmark() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		signinUser, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusUnauthorized, errorRes(err))
+			return
+		}
+
 		var req bookmarkReq
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
 
-		if _, err := s.grumbleStore.CreateBookmark(req.GrumblePk, req.ByUserId); err != nil {
+		if _, err := s.grumbleStore.CreateBookmark(req.GrumblePk, signinUser.Id); err != nil {
 			// todo
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
@@ -237,13 +243,20 @@ func (s *Server) postBookmark() gin.HandlerFunc {
 
 func (s *Server) postDeleteBookmark() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		signinUser, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusUnauthorized, errorRes(err))
+			return
+		}
+
 		var req bookmarkReq
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
 
-		if err := s.grumbleStore.DeleteBookmark(req.GrumblePk, req.ByUserId); err != nil {
+		if err := s.grumbleStore.DeleteBookmark(req.GrumblePk, signinUser.Id); err != nil {
 			// todo
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
@@ -258,6 +271,14 @@ func (s *Server) postDeleteBookmark() gin.HandlerFunc {
 
 func (s *Server) postReply() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		user, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			log.Printf("postReply() 2: %s\n", err.Error())
+			c.JSON(http.StatusUnauthorized, errorRes(err))
+			return
+		}
+
 		var req postReplyReq
 		if err := c.BindJSON(&req); err != nil {
 			// todo
@@ -269,14 +290,6 @@ func (s *Server) postReply() gin.HandlerFunc {
 			// todo
 			log.Printf("postReply() 1: %s\n", err.Error())
 			c.JSON(http.StatusBadRequest, errorRes(err))
-			return
-		}
-
-		user, err := s.fetchUserFromSession(c)
-		if err != nil {
-			// todo
-			log.Printf("postReply() 2: %s\n", err.Error())
-			c.JSON(http.StatusUnauthorized, errorRes(err))
 			return
 		}
 

@@ -103,10 +103,7 @@ component Components.GrumbleBox {
   fun doBookmark (apiUrl : String, event : Html.Event) : Promise(Never, Void) {
     sequence {
       bookmarkReq =
-        {
-          grumblePk = grumble.pk,
-          byUserId = signinUser.id
-        }
+        { grumblePk = grumble.pk }
 
       status =
         Http.post(apiUrl)

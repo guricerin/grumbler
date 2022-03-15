@@ -1,5 +1,4 @@
 record FollowReq {
-  srcUserId : String,
   dstUserId : String
 }
 

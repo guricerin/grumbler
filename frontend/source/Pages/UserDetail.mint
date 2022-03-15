@@ -3,13 +3,10 @@ component Pages.UserDetail {
   connect Stores.PageUser exposing { userDetail, showKind }
   state followApiStatus : Api.Status(FollowRes) = Api.Status::Initial
 
-  fun doFollow (signinUser : User, apiUrl : String, event : Html.Event) : Promise(Never, Void) {
+  fun doFollow (apiUrl : String, event : Html.Event) : Promise(Never, Void) {
     sequence {
       follow =
-        {
-          srcUserId = signinUser.id,
-          dstUserId = userDetail.user.id
-        }
+        { dstUserId = userDetail.user.id }
 
       status =
         Http.post("#{apiUrl}")
@@ -36,7 +33,7 @@ component Pages.UserDetail {
           if (userDetail.isFollow) {
             <a
               class="button is-outlined is-info"
-              onClick={doFollow(signinUser, "#{@ENDPOINT}/auth/unfollow")}>
+              onClick={doFollow("#{@ENDPOINT}/auth/unfollow")}>
 
               "フォロー解除"
 
@@ -44,7 +41,7 @@ component Pages.UserDetail {
           } else {
             <a
               class="button is-outlined is-info"
-              onClick={doFollow(signinUser, "#{@ENDPOINT}/auth/follow")}>
+              onClick={doFollow("#{@ENDPOINT}/auth/follow")}>
 
               "フォロー"
 

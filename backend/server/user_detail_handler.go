@@ -10,7 +10,6 @@ import (
 )
 
 type followReq struct {
-	SrcUserId string `josn:"srcUserId"`
 	DstUserId string `json:"dstUserId"`
 }
 
@@ -150,13 +149,20 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 
 func (s *Server) postFollow() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		signinUser, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusUnauthorized, errorRes(err))
+			return
+		}
+
 		var req followReq
 		if err := c.BindJSON(&req); err != nil {
 			log.Printf("postFollow(): %s\n", err.Error())
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
-		if err := s.followStore.Create(req.SrcUserId, req.DstUserId); err != nil {
+		if err := s.followStore.Create(signinUser.Id, req.DstUserId); err != nil {
 			log.Printf("postFollow(): %s\n", err.Error())
 			// todo
 			c.JSON(http.StatusInternalServerError, errorRes(err))
@@ -172,13 +178,20 @@ func (s *Server) postFollow() gin.HandlerFunc {
 
 func (s *Server) postUnFollow() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		signinUser, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			c.JSON(http.StatusUnauthorized, errorRes(err))
+			return
+		}
+
 		var req followReq
 		if err := c.BindJSON(&req); err != nil {
 			log.Printf("postUnFollow(): %s\n", err.Error())
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
-		if err := s.followStore.Delete(req.SrcUserId, req.DstUserId); err != nil {
+		if err := s.followStore.Delete(signinUser.Id, req.DstUserId); err != nil {
 			log.Printf("postUnFollow(): %s\n", err.Error())
 			// todo
 			c.JSON(http.StatusInternalServerError, errorRes(err))

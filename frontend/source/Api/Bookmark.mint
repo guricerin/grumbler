@@ -1,6 +1,5 @@
 record BookmarkReq {
-  grumblePk : String,
-  byUserId : String
+  grumblePk : String
 }
 
 record BookmarkRes {

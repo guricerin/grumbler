@@ -55,3 +55,11 @@ create table `replies` (
     `src_grumble_pk` varchar(26) not null,
     `dst_grumble_pk` varchar(26) not null
 );
+
+create table `regrumbles` (
+    `pk` int unsigned auto_increment primary key not null,
+    `created_at` datetime not null,
+    `grumble_pk` varchar(26) not null,
+    `dst_user_id` varchar(63) not null,
+    `by_user_id` varchar(63) not null
+);

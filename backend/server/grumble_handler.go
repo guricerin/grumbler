@@ -13,11 +13,20 @@ type postGrumbleReq struct {
 	Content string `json:"content"`
 }
 
-func replyInfoForGrumbleResRes(r model.ReplyInfoFoGrumbleRes) gin.H {
+func replyInfoForGrumbleResRes(r model.ReplyInfoForGrumbleRes) gin.H {
 	return gin.H{
 		"dstGrumblePk": r.DstGrumblePk,
 		"dstUserId":    r.DstUserId,
 		"repliedCount": r.RepliedCount,
+	}
+}
+
+func regrumbleInfoForGrumbleResRes(r model.RegrumbleInfoForGrumbleRes) gin.H {
+	return gin.H{
+		"isRegrumble":              r.IsRegrumble,
+		"isRegrumbledBySigninUser": r.IsRegrumbledBySigninUser,
+		"regrumbledCount":          r.RegrumbledCount,
+		"byUserId":                 r.ByUserId,
 	}
 }
 
@@ -29,6 +38,7 @@ func grumbleRes(g model.GrumbleRes) gin.H {
 		"userName":                 g.UserName,
 		"createdAt":                g.CreatedAt.Format("2006/01/02 15:04:05"),
 		"reply":                    replyInfoForGrumbleResRes(g.Reply),
+		"regrumble":                regrumbleInfoForGrumbleResRes(g.Regrumble),
 		"bookmarkedCount":          g.BookmarkedCount,
 		"isBookmarkedBySigninUser": g.IsBookmarkedBySigninUser,
 	}
@@ -304,6 +314,43 @@ func (s *Server) postReply() gin.HandlerFunc {
 		if err != nil {
 			// todo
 			log.Printf("postReply() 4: %s\n", err.Error())
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"ok": true,
+		})
+		return
+	}
+}
+
+type regrumbleReq struct {
+	GrumblePk string
+}
+
+func (s *Server) postRegrumble() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		signinUser, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			log.Printf("postRegrumble() 0: %s\n", err.Error())
+			c.JSON(http.StatusUnauthorized, errorRes(err))
+			return
+		}
+
+		var req regrumbleReq
+		if err := c.BindJSON(&req); err != nil {
+			// todo
+			log.Printf("postRegrumble() 1: %s\n", err.Error())
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+
+		_, err = s.grumbleStore.CreateRegrumble(req.GrumblePk, signinUser.Id)
+		if err != nil {
+			// todo
+			log.Printf("postRegrumble() 2: %s\n", err.Error())
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}

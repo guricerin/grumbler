@@ -73,6 +73,7 @@ func (s *Server) setupRouter() {
 		auth.POST("/bookmark", s.postBookmark())
 		auth.POST("/delete-bookmark", s.postDeleteBookmark())
 		auth.POST("/reply", s.postReply())
+		auth.POST("/regrumble", s.postRegrumble())
 		auth.GET("/grumble/:grumble_pk", s.getGrumbleDetail())
 
 		auth.GET("/user/:id", s.getUser())

@@ -142,6 +142,44 @@ component Components.GrumbleBox {
     </div>
   }
 
+  fun doRegrumble : Promise(Never, Void) {
+    sequence {
+      Window.confirm("リグランブルしますか？")
+
+      regrumbleReq =
+        { grumblePk = grumble.pk }
+
+      status =
+        Http.post("#{@ENDPOINT}/auth/regrumble")
+        |> Http.jsonBody(encode regrumbleReq)
+        |> Api.send(RegrumbleRes.decodes)
+
+      case (status) {
+        Api.Status::Initial => next { }
+        Api.Status::Ok(res) => `location.reload()`
+        Api.Status::Error(err) => Window.navigate("/")
+      }
+    } catch String => error {
+      Promise.never()
+    }
+  }
+
+  fun regrumbleIcon : Html {
+    <div class="level-item">
+      <a
+        aria-label="retweet"
+        onClick={doRegrumble}>
+
+        <span class="icon is-small">
+          <i
+            class="fas fa-retweet"
+            aria-hidden="true"/>
+        </span>
+
+      </a>
+    </div>
+  }
+
   fun bookmarkIcon : Html {
     if (grumble.isBookmarkedBySigninUser) {
       <div class="level-item">
@@ -185,17 +223,7 @@ component Components.GrumbleBox {
   fun icons : Html {
     <nav class="level is-mobile">
       <{ replyIcon() }>
-
-      <div class="level-item">
-        <a aria-label="retweet">
-          <span class="icon is-small">
-            <i
-              class="fas fa-retweet"
-              aria-hidden="true"/>
-          </span>
-        </a>
-      </div>
-
+      <{ regrumbleIcon() }>
       <{ bookmarkIcon() }>
     </nav>
   }

@@ -5,6 +5,7 @@ record Grumble {
   userName : String,
   createdAt : String,
   reply : Reply,
+  regrumble : Regrumble,
   bookmarkedCount : Number,
   isBookmarkedBySigninUser : Bool
 }
@@ -18,6 +19,7 @@ module Grumble {
       userName = "",
       createdAt = "",
       reply = Reply.empty(),
+      regrumble = Regrumble.empty(),
       bookmarkedCount = 0,
       isBookmarkedBySigninUser = false
     }

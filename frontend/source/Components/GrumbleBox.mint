@@ -100,24 +100,6 @@ component Components.GrumbleBox {
     Window.navigate("/reply/#{grumble.pk}")
   }
 
-  fun doBookmark (apiUrl : String, event : Html.Event) : Promise(Never, Void) {
-    sequence {
-      bookmarkReq =
-        { grumblePk = grumble.pk }
-
-      status =
-        Http.post(apiUrl)
-        |> Http.jsonBody(encode bookmarkReq)
-        |> Api.send(BookmarkRes.decodes)
-
-      case (status) {
-        Api.Status::Initial => next { }
-        Api.Status::Ok(res) => `location.reload()`
-        Api.Status::Error(err) => Window.navigate("/")
-      }
-    }
-  }
-
   style iconNumber {
     margin-left: 5px;
   }
@@ -126,6 +108,7 @@ component Components.GrumbleBox {
     <div class="level-item">
       <a
         aria-label="reply"
+        title="返信"
         onClick={navigateToReplyPage}>
 
         <span class="icon s-small">
@@ -164,20 +147,90 @@ component Components.GrumbleBox {
     }
   }
 
+  fun unRegrumble : Promise(Never, Void) {
+    sequence {
+      Window.confirm("リグランブルを取り消しますか？")
+
+      regrumbleReq =
+        { grumblePk = grumble.pk }
+
+      status =
+        Http.post("#{@ENDPOINT}/auth/delete-regrumble")
+        |> Http.jsonBody(encode regrumbleReq)
+        |> Api.send(RegrumbleRes.decodes)
+
+      case (status) {
+        Api.Status::Initial => next { }
+        Api.Status::Ok(res) => `location.reload()`
+        Api.Status::Error(err) => Window.navigate("/")
+      }
+    } catch String => error {
+      Promise.never()
+    }
+  }
+
+  style notRegrumbledBySigninUser {
+    color: gray;
+  }
+
   fun regrumbleIcon : Html {
-    <div class="level-item">
-      <a
-        aria-label="retweet"
-        onClick={doRegrumble}>
+    if (grumble.regrumble.isRegrumbledBySigninUser) {
+      <div class="level-item">
+        <a
+          aria-label="regrumble"
+          title="リグランブルを取り消す"
+          onClick={unRegrumble}>
 
-        <span class="icon is-small">
-          <i
-            class="fas fa-retweet"
-            aria-hidden="true"/>
-        </span>
+          <span class="icon is-small">
+            <i
+              class="fa fa-retweet"
+              aria-hidden="true"/>
+          </span>
 
-      </a>
-    </div>
+          <span::iconNumber>
+            <{ Number.toString(grumble.regrumble.regrumbledCount) }>
+          </span>
+
+        </a>
+      </div>
+    } else {
+      <div class="level-item">
+        <a
+          aria-label="regrumble"
+          title="リグランブル"
+          onClick={doRegrumble}>
+
+          <span class="icon is-small">
+            <i::notRegrumbledBySigninUser
+              class="fa fa-retweet"
+              aria-hidden="true"/>
+          </span>
+
+          <span::iconNumber>
+            <{ Number.toString(grumble.regrumble.regrumbledCount) }>
+          </span>
+
+        </a>
+      </div>
+    }
+  }
+
+  fun doBookmark (apiUrl : String, event : Html.Event) : Promise(Never, Void) {
+    sequence {
+      bookmarkReq =
+        { grumblePk = grumble.pk }
+
+      status =
+        Http.post(apiUrl)
+        |> Http.jsonBody(encode bookmarkReq)
+        |> Api.send(BookmarkRes.decodes)
+
+      case (status) {
+        Api.Status::Initial => next { }
+        Api.Status::Ok(res) => `location.reload()`
+        Api.Status::Error(err) => Window.navigate("/")
+      }
+    }
   }
 
   fun bookmarkIcon : Html {
@@ -185,6 +238,7 @@ component Components.GrumbleBox {
       <div class="level-item">
         <a
           aria-label="bookmark"
+          title="ブックマークを取り消す"
           onClick={doBookmark("#{@ENDPOINT}/auth/delete-bookmark")}>
 
           <span class="icon is-small">
@@ -202,7 +256,8 @@ component Components.GrumbleBox {
     } else {
       <div class="level-item">
         <a
-          aria-label="like"
+          aria-label="bookmark"
+          title="ブックマーク"
           onClick={doBookmark("#{@ENDPOINT}/auth/bookmark")}>
 
           <span class="icon is-small">

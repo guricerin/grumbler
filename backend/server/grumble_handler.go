@@ -23,6 +23,7 @@ func replyInfoForGrumbleResRes(r model.ReplyInfoForGrumbleRes) gin.H {
 
 func regrumbleInfoForGrumbleResRes(r model.RegrumbleInfoForGrumbleRes) gin.H {
 	return gin.H{
+		"createdAt":                r.CreatedAt.Format("2006/01/02 15:04:05"),
 		"isRegrumble":              r.IsRegrumble,
 		"isRegrumbledBySigninUser": r.IsRegrumbledBySigninUser,
 		"regrumbledCount":          r.RegrumbledCount,
@@ -142,10 +143,7 @@ func (s *Server) getTimeline() gin.HandlerFunc {
 			}
 			grumbles = append(grumbles, gs...)
 		}
-		// 最新日時順
-		sort.Slice(grumbles, func(i, j int) bool {
-			return grumbles[i].CreatedAt.After(grumbles[j].CreatedAt)
-		})
+		model.SortGrumblesForNewest(grumbles)
 
 		grumblesJson := make([]gin.H, 0)
 		for _, g := range grumbles {
@@ -351,6 +349,39 @@ func (s *Server) postRegrumble() gin.HandlerFunc {
 		if err != nil {
 			// todo
 			log.Printf("postRegrumble() 2: %s\n", err.Error())
+			c.JSON(http.StatusInternalServerError, errorRes(err))
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"ok": true,
+		})
+		return
+	}
+}
+
+func (s *Server) postDeleteRegrumble() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		signinUser, err := s.fetchUserFromSession(c)
+		if err != nil {
+			// todo
+			log.Printf("postDeleteRegrumble() 0: %s\n", err.Error())
+			c.JSON(http.StatusUnauthorized, errorRes(err))
+			return
+		}
+
+		var req regrumbleReq
+		if err := c.BindJSON(&req); err != nil {
+			// todo
+			log.Printf("postDeleteRegrumble() 1: %s\n", err.Error())
+			c.JSON(http.StatusBadRequest, errorRes(err))
+			return
+		}
+
+		err = s.grumbleStore.DeleteRegrumble(req.GrumblePk, signinUser.Id)
+		if err != nil {
+			// todo
+			log.Printf("postDeleteRegrumble() 2: %s\n", err.Error())
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}

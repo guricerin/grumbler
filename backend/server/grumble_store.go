@@ -176,6 +176,26 @@ func (s *grumbleStore) retrieveReplyInfo(tx *sql.Tx, g *model.GrumbleRes) error 
 	return nil
 }
 
+func (s *grumbleStore) retrieveRegrumbleInfo(tx *sql.Tx, g *model.GrumbleRes, signinUserId string) error {
+	query := `select count(*) from regrumbles
+    where grumble_pk = ?`
+	rows, err := tx.Query(query, g.Pk)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&g.Regrumble.RegrumbledCount)
+		if err != nil {
+			return err
+		}
+		break
+	}
+
+	query = `select `
+	return nil
+}
+
 func (s *grumbleStore) retrieveBookmarkedCountAndBySigninUser(tx *sql.Tx, g *model.GrumbleRes, signinUserId string) error {
 	query := `select count(*) from bookmarks
     where grumble_pk = ?`
@@ -192,6 +212,44 @@ func (s *grumbleStore) retrieveBookmarkedCountAndBySigninUser(tx *sql.Tx, g *mod
 	if count > 0 {
 		g.IsBookmarkedBySigninUser = true
 	}
+	return nil
+}
+
+func (s *grumbleStore) retrieveRegrumbledCountAndBySigninUser(tx *sql.Tx, g *model.GrumbleRes, signinUserId string) error {
+	query := `select count(*) from regrumbles
+    where grumble_pk = ?`
+	rows, err := s.db.Query(query, g.Pk)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&g.Regrumble.RegrumbledCount)
+		if err != nil {
+			return err
+		}
+		break
+	}
+
+	query = `select count(*) from regrumbles
+    where grumble_pk = ? and by_user_id = ?`
+	rows, err = s.db.Query(query, g.Pk, signinUserId)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var count int
+		err = rows.Scan(&count)
+		if err != nil {
+			return err
+		}
+		if count > 0 {
+			g.Regrumble.IsRegrumbledBySigninUser = true
+		}
+		break
+	}
+
 	return nil
 }
 
@@ -225,6 +283,11 @@ func (s *grumbleStore) RetrieveByUserId(signinUserId string, userId string) ([]m
 			tx.Rollback()
 			return res, err
 		}
+		err = s.retrieveRegrumbledCountAndBySigninUser(tx, &g, signinUserId)
+		if err != nil {
+			tx.Rollback()
+			return res, err
+		}
 		err = s.retrieveBookmarkedCountAndBySigninUser(tx, &g, signinUserId)
 		if err != nil {
 			tx.Rollback()
@@ -233,8 +296,57 @@ func (s *grumbleStore) RetrieveByUserId(signinUserId string, userId string) ([]m
 		res = append(res, g)
 	}
 
-	err = tx.Commit()
-	return res, err
+	// リグランブル取得
+	query = `select g.pk, g.content, g.user_id, g.created_at, u.name, re.created_at
+    from regrumbles as re
+    left join grumbles as g
+        on g.pk = re.grumble_pk
+    left join users as u
+        on g.user_id = u.id
+    where u.id = ?`
+	rows2, err := tx.Query(query, userId)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	defer rows2.Close()
+
+	for rows2.Next() {
+		g := model.GrumbleRes{}
+		g.Regrumble.IsRegrumble = true
+		err = rows2.Scan(&g.Pk, &g.Content, &g.UserId, &g.CreatedAt, &g.UserName, &g.Regrumble.CreatedAt)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		err = s.retrieveReplyInfo(tx, &g)
+		if err != nil {
+			tx.Rollback()
+			return res, err
+		}
+		err = s.retrieveRegrumbledCountAndBySigninUser(tx, &g, signinUserId)
+		if err != nil {
+			tx.Rollback()
+			return res, err
+		}
+		err = s.retrieveBookmarkedCountAndBySigninUser(tx, &g, signinUserId)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		res = append(res, g)
+	}
+	return res, tx.Commit()
+}
+
+func (s *grumbleStore) RetrieveRegrumblesByUserId(signinUserId string, userId string) ([]model.GrumbleRes, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	res := make([]model.GrumbleRes, 0)
+
+	return res, tx.Commit()
 }
 
 func (s *grumbleStore) Search(signinUserId string, searchWord string) ([]model.GrumbleRes, error) {
@@ -463,4 +575,20 @@ func (s *grumbleStore) CreateRegrumble(grumblePk string, byUserId string) (model
 	}
 
 	return res, tx.Commit()
+}
+
+func (s *grumbleStore) DeleteRegrumble(grumblePk string, byUserId string) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	query := `delete from regrumbles
+    where grumble_pk = ? and by_user_id = ?`
+	_, err = tx.Exec(query, grumblePk, byUserId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
 }

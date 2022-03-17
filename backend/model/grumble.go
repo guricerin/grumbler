@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"sort"
 	"time"
 )
 
@@ -28,9 +29,10 @@ type ReplyInfoForGrumbleRes struct {
 }
 
 type RegrumbleInfoForGrumbleRes struct {
-	IsRegrumble              bool
-	ByUserId                 string
 	RegrumbledCount          int
+	IsRegrumble              bool
+	CreatedAt                time.Time
+	ByUserId                 string
 	IsRegrumbledBySigninUser bool
 }
 
@@ -44,4 +46,26 @@ type GrumbleRes struct {
 	Regrumble                RegrumbleInfoForGrumbleRes
 	BookmarkedCount          int
 	IsBookmarkedBySigninUser bool
+}
+
+// 最新日時順
+// リグランブルの場合は、元のグランブルが投稿された日時ではなくリグランブルされた日時を元にソート
+func SortGrumblesForNewest(grumbles []GrumbleRes) {
+	sort.Slice(grumbles, func(i, j int) bool {
+		var createdAtI, createdAtJ time.Time
+		if grumbles[i].Regrumble.IsRegrumble && grumbles[j].Regrumble.IsRegrumble {
+			createdAtI = grumbles[i].Regrumble.CreatedAt
+			createdAtJ = grumbles[j].Regrumble.CreatedAt
+		} else if grumbles[i].Regrumble.IsRegrumble {
+			createdAtI = grumbles[i].Regrumble.CreatedAt
+			createdAtJ = grumbles[j].CreatedAt
+		} else if grumbles[j].Regrumble.IsRegrumble {
+			createdAtI = grumbles[i].CreatedAt
+			createdAtJ = grumbles[j].Regrumble.CreatedAt
+		} else {
+			createdAtI = grumbles[i].CreatedAt
+			createdAtJ = grumbles[j].CreatedAt
+		}
+		return createdAtI.After(createdAtJ)
+	})
 }

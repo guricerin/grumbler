@@ -417,9 +417,11 @@ func (s *grumbleStore) Delete(pk string, userId string) error {
 	if err != nil {
 		return err
 	}
-	query := `delete g, r, b from grumbles as g
+	query := `delete g, r, reg, b from grumbles as g
     left join replies as r
         on r.src_grumble_pk = g.pk
+    left join regrumbles as reg
+        on g.pk = reg.grumble_pk
     left join bookmarks as b
         on b.grumble_pk = g.pk
     where g.pk = ? and g.user_id = ?`

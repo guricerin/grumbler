@@ -72,13 +72,15 @@ func (s *userStore) DeleteByPk(pk uint64) error {
 		return err
 	}
 	// 対象ユーザに対応する他のテーブルの行も削除する
-	query := `delete u, s, g, b, f, r from users as u
+	query := `delete u, s, g, b, reg, f, r from users as u
     left join sessions as s
         on u.pk = s.user_pk
     left join grumbles as g
         on u.id = g.user_id
     left join bookmarks as b
         on u.id = b.by_user_id
+    left join regrumbles as reg
+        on u.id = reg.by_user_id or u.id = reg.dst_user_id
     left join follows as f
         on u.id = f.src_user_id or u.id = f.dst_user_id
     left join replies as r

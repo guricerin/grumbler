@@ -4,9 +4,9 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"sort"
 
 	"github.com/gin-gonic/gin"
+	"github.com/guricerin/grumbler/backend/model"
 )
 
 type searchReq struct {
@@ -65,10 +65,7 @@ func (s *Server) getSearch() gin.HandlerFunc {
 				c.JSON(http.StatusBadRequest, errorRes(err))
 				return
 			}
-			// 最新日時順
-			sort.Slice(grumbles, func(i, j int) bool {
-				return grumbles[i].CreatedAt.After(grumbles[j].CreatedAt)
-			})
+			model.SortGrumblesForNewest(grumbles)
 
 			grumblesJson := make([]gin.H, 0)
 			for _, g := range grumbles {

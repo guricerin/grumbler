@@ -37,6 +37,11 @@ func (s *grumbleStore) RetrieveByPk(grumblePk string, signinUserId string) (mode
 		tx.Rollback()
 		return res, err
 	}
+	err = s.retrieveRegrumbledInfo(tx, &res, signinUserId)
+	if err != nil {
+		tx.Rollback()
+		return res, err
+	}
 	err = s.retrieveBookmarkedCountAndBySigninUser(tx, &res, signinUserId)
 	if err != nil {
 		tx.Rollback()
@@ -66,17 +71,21 @@ func (s *grumbleStore) RetrieveReplyAncestors(grumblePk string, signinUserId str
 		row := tx.QueryRow(query, gpk)
 		err = row.Scan(&g.Pk, &g.Content, &g.UserId, &g.CreatedAt, &g.UserName)
 		if err != nil {
-			// tx.Rollback()
+			// row が終端に達したときに err!=nil となるので、ココでは無視
 			return nil
 		}
 		err = s.retrieveReplyInfo(tx, &g)
 		if err != nil {
+			// ロールバックは再帰関数のトップの呼び出し元で行う。
 			// tx.Rollback()
+			return err
+		}
+		err = s.retrieveRegrumbledInfo(tx, &g, signinUserId)
+		if err != nil {
 			return err
 		}
 		err = s.retrieveBookmarkedCountAndBySigninUser(tx, &g, signinUserId)
 		if err != nil {
-			// tx.Rollback()
 			return err
 		}
 		res = append(res, g)
@@ -85,7 +94,8 @@ func (s *grumbleStore) RetrieveReplyAncestors(grumblePk string, signinUserId str
 
 	err = rec(grumblePk)
 	if err != nil {
-		return nil, tx.Rollback()
+		tx.Rollback()
+		return nil, err
 	}
 	return res, tx.Commit()
 }
@@ -117,6 +127,11 @@ func (s *grumbleStore) RetrieveByReplyDstPk(grumblePk string, signinUserId strin
 			return nil, err
 		}
 		err = s.retrieveReplyInfo(tx, &g)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		err = s.retrieveRegrumbledInfo(tx, &g, signinUserId)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
@@ -350,6 +365,7 @@ func (s *grumbleStore) RetrieveRegrumblesByUserId(signinUserId string, userId st
 	return res, tx.Commit()
 }
 
+// リグランブルは取得しない。オリジナルのグランブルのみ。
 func (s *grumbleStore) Search(signinUserId string, searchWord string) ([]model.GrumbleRes, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
@@ -376,6 +392,11 @@ func (s *grumbleStore) Search(signinUserId string, searchWord string) ([]model.G
 			return nil, err
 		}
 		err = s.retrieveReplyInfo(tx, &g)
+		if err != nil {
+			tx.Rollback()
+			return res, err
+		}
+		err = s.retrieveRegrumbledInfo(tx, &g, signinUserId)
 		if err != nil {
 			tx.Rollback()
 			return res, err

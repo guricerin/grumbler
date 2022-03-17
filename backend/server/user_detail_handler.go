@@ -80,10 +80,7 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, errorRes(err))
 			return
 		}
-		// 最新日時順
-		sort.Slice(grumbles, func(i, j int) bool {
-			return grumbles[i].CreatedAt.After(grumbles[j].CreatedAt)
-		})
+		model.SortGrumblesForNewest(grumbles)
 
 		follows, err := s.followStore.RetrieveFollows(user.Id)
 		if err != nil {

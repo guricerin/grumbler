@@ -215,7 +215,7 @@ func (s *grumbleStore) retrieveBookmarkedCountAndBySigninUser(tx *sql.Tx, g *mod
 	return nil
 }
 
-func (s *grumbleStore) retrieveRegrumbledCountAndBySigninUser(tx *sql.Tx, g *model.GrumbleRes, signinUserId string) error {
+func (s *grumbleStore) retrieveRegrumbledInfo(tx *sql.Tx, g *model.GrumbleRes, signinUserId string) error {
 	query := `select count(*) from regrumbles
     where grumble_pk = ?`
 	rows, err := s.db.Query(query, g.Pk)
@@ -283,7 +283,7 @@ func (s *grumbleStore) RetrieveByUserId(signinUserId string, userId string) ([]m
 			tx.Rollback()
 			return res, err
 		}
-		err = s.retrieveRegrumbledCountAndBySigninUser(tx, &g, signinUserId)
+		err = s.retrieveRegrumbledInfo(tx, &g, signinUserId)
 		if err != nil {
 			tx.Rollback()
 			return res, err
@@ -296,14 +296,14 @@ func (s *grumbleStore) RetrieveByUserId(signinUserId string, userId string) ([]m
 		res = append(res, g)
 	}
 
-	// リグランブル取得
+	// userIdがリグランブルしたグランブルを取得
 	query = `select g.pk, g.content, g.user_id, g.created_at, u.name, re.created_at
     from regrumbles as re
     left join grumbles as g
         on g.pk = re.grumble_pk
     left join users as u
         on g.user_id = u.id
-    where u.id = ?`
+    where re.by_user_id = ?`
 	rows2, err := tx.Query(query, userId)
 	if err != nil {
 		tx.Rollback()
@@ -314,6 +314,7 @@ func (s *grumbleStore) RetrieveByUserId(signinUserId string, userId string) ([]m
 	for rows2.Next() {
 		g := model.GrumbleRes{}
 		g.Regrumble.IsRegrumble = true
+		g.Regrumble.ByUserId = userId
 		err = rows2.Scan(&g.Pk, &g.Content, &g.UserId, &g.CreatedAt, &g.UserName, &g.Regrumble.CreatedAt)
 		if err != nil {
 			tx.Rollback()
@@ -324,7 +325,7 @@ func (s *grumbleStore) RetrieveByUserId(signinUserId string, userId string) ([]m
 			tx.Rollback()
 			return res, err
 		}
-		err = s.retrieveRegrumbledCountAndBySigninUser(tx, &g, signinUserId)
+		err = s.retrieveRegrumbledInfo(tx, &g, signinUserId)
 		if err != nil {
 			tx.Rollback()
 			return res, err

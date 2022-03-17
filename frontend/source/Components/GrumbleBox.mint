@@ -38,6 +38,8 @@ component Components.GrumbleBox {
           <div::child class="media-content">
             <div class="content">
               <p::text>
+                <{ regrumbledBy() }>
+
                 <div::both-ends>
                   <div>
                     <a href="/user/#{grumble.userId}">
@@ -64,6 +66,20 @@ component Components.GrumbleBox {
         </article>
       </div>
     </div>
+  }
+
+  fun regrumbledBy : Html {
+    if (grumble.regrumble.isRegrumble) {
+      <div>
+        <span>
+          <a href="/user/#{grumble.regrumble.byUserId}">
+            <small>"@#{grumble.regrumble.byUserId} がリグランブル"</small>
+          </a>
+        </span>
+      </div>
+    } else {
+      Html.empty()
+    }
   }
 
   fun signinUserMenu : Html {
@@ -170,7 +186,11 @@ component Components.GrumbleBox {
   }
 
   style notRegrumbledBySigninUser {
-    color: gray;
+    color: silver;
+  }
+
+  style regrumbledBySigninUser {
+    color: limegreen;
   }
 
   fun regrumbleIcon : Html {
@@ -182,7 +202,7 @@ component Components.GrumbleBox {
           onClick={unRegrumble}>
 
           <span class="icon is-small">
-            <i
+            <i::regrumbledBySigninUser
               class="fa fa-retweet"
               aria-hidden="true"/>
           </span>
@@ -233,6 +253,10 @@ component Components.GrumbleBox {
     }
   }
 
+  style bookmarkedBySigninUser {
+    color: orange;
+  }
+
   fun bookmarkIcon : Html {
     if (grumble.isBookmarkedBySigninUser) {
       <div class="level-item">
@@ -242,7 +266,7 @@ component Components.GrumbleBox {
           onClick={doBookmark("#{@ENDPOINT}/auth/delete-bookmark")}>
 
           <span class="icon is-small">
-            <i
+            <i::bookmarkedBySigninUser
               class="fas fa-bookmark"
               aria-hidden="true"/>
           </span>

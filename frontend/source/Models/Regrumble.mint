@@ -1,4 +1,5 @@
 record Regrumble {
+  createdAt : String,
   isRegrumble : Bool,
   byUserId : String,
   regrumbledCount : Number,
@@ -8,6 +9,7 @@ record Regrumble {
 module Regrumble {
   fun empty : Regrumble {
     {
+      createdAt = "",
       isRegrumble = false,
       byUserId = "",
       regrumbledCount = 0,

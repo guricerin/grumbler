@@ -155,7 +155,6 @@ func (s *Server) fetchUserFromSession(c *gin.Context) (user model.User, err erro
 	if err != nil {
 		return
 	}
-	log.Printf("fetchUserFromSession() token: %s\n", token)
 	sess, err := s.sessionStore.RetrieveByToken(token)
 	if err != nil {
 		log.Println("failed to RetrieveByToken")

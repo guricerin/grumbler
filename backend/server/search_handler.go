@@ -18,9 +18,8 @@ func (s *Server) getSearch() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		signinUser, err := s.fetchUserFromSession(c)
 		if err != nil {
-			// todo
 			log.Printf("getSearch() 0: %s\n", err.Error())
-			c.JSON(http.StatusBadRequest, errorRes(err))
+			c.JSON(http.StatusBadRequest, errorRes(errors.New("bad request")))
 			return
 		}
 
@@ -34,7 +33,7 @@ func (s *Server) getSearch() gin.HandlerFunc {
 		case "user_id":
 			users, err := s.userStore.Search(req.Keyword, UserIdSearch)
 			if err != nil {
-				c.JSON(http.StatusBadRequest, errorRes(err))
+				c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 				return
 			}
 			usersJson := make([]gin.H, 0)
@@ -48,7 +47,7 @@ func (s *Server) getSearch() gin.HandlerFunc {
 		case "user_name":
 			users, err := s.userStore.Search(req.Keyword, UserNameSearch)
 			if err != nil {
-				c.JSON(http.StatusBadRequest, errorRes(err))
+				c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 				return
 			}
 			usersJson := make([]gin.H, 0)
@@ -62,7 +61,7 @@ func (s *Server) getSearch() gin.HandlerFunc {
 		case "grumble":
 			grumbles, err := s.grumbleStore.Search(signinUser.Id, req.Keyword)
 			if err != nil {
-				c.JSON(http.StatusBadRequest, errorRes(err))
+				c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 				return
 			}
 			model.SortGrumblesForNewest(grumbles)

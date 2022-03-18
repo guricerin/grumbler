@@ -32,14 +32,14 @@ func (s *Server) signinCheck() gin.HandlerFunc {
 		if err != nil {
 			// todo
 			log.Printf("signinCheck(): %s\n", err.Error())
-			c.JSON(http.StatusUnauthorized, errorRes(err))
+			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 
 		err = s.resetSessToken(c)
 		if err != nil {
 			log.Printf("signinCheck(): %s\n", err.Error())
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
@@ -55,7 +55,7 @@ func (s *Server) getUser() gin.HandlerFunc {
 		if err != nil {
 			// todo
 			log.Printf("getUser(): %s\n", err.Error())
-			c.JSON(http.StatusBadRequest, errorRes(err))
+			c.JSON(http.StatusBadRequest, errorRes(errors.New("bad request")))
 			return
 		}
 
@@ -88,7 +88,7 @@ func (s *Server) postSignUp() gin.HandlerFunc {
 			// idがだぶってないのでok
 			hashedPassword, err := encryptPassword(req.Password)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, errorRes(errors.New("サーバエラー")))
+				c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 				return
 			}
 			signupUser := model.User{
@@ -99,18 +99,18 @@ func (s *Server) postSignUp() gin.HandlerFunc {
 			}
 			err = s.userStore.Create(&signupUser)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, errorRes(errors.New("サーバエラー")))
+				c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 				return
 			}
 
 			token, err := createUuid()
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, errorRes(errors.New("サーバエラー")))
+				c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 				return
 			}
 			err = s.sessionStore.Create(token, signupUser)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, errorRes(errors.New("サーバエラー")))
+				c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 				return
 			}
 			s.setCookie(c, token)
@@ -121,8 +121,7 @@ func (s *Server) postSignUp() gin.HandlerFunc {
 				"profile": "",
 			})
 		} else if err != nil && err != sql.ErrNoRows {
-			// todo: err msgをユーザ用に変更
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 		} else {
 			// duplicate id
 			msg := fmt.Sprintf("ユーザID '%s' は既に使用されています。", req.Id)
@@ -151,7 +150,7 @@ func (s *Server) postSignIn() gin.HandlerFunc {
 				return
 			} else {
 				// todo: err msgをユーザ用に変更
-				c.JSON(http.StatusInternalServerError, errorRes(err))
+				c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 				log.Printf("%s\n", err.Error())
 				return
 			}
@@ -166,15 +165,13 @@ func (s *Server) postSignIn() gin.HandlerFunc {
 
 		token, err := createUuid()
 		if err != nil {
-			// todo: err msgをユーザ用に変更
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			log.Printf("%s\n", err.Error())
 			return
 		}
 
 		if err = s.sessionStore.Create(token, user); err != nil {
-			// todo: err msgをユーザ用に変更
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			log.Printf("%s\n", err.Error())
 			return
 		}
@@ -189,19 +186,17 @@ func (s *Server) postSignOut() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, err := s.fetchUserFromSession(c)
 		if err != nil {
-			c.JSON(http.StatusForbidden, errorRes(err))
+			c.JSON(http.StatusForbidden, errorRes(errors.New("forbidden")))
 			return
 		}
 		err = s.deleteCookie(c)
 		if err != nil {
-			// todo: err msgをユーザ用に変更
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
 		if err := s.sessionStore.DeleteByUserPk(user.Pk); err != nil {
-			// todo: err msgをユーザ用に変更
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
@@ -215,20 +210,18 @@ func (s *Server) postUnsubscribe() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, err := s.fetchUserFromSession(c)
 		if err != nil {
-			c.JSON(http.StatusForbidden, errorRes(err))
+			c.JSON(http.StatusForbidden, errorRes(errors.New("forbidden")))
 			return
 		}
 		err = s.deleteCookie(c)
 		if err != nil {
-			// todo: err msgをユーザ用に変更
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
 		err = s.userStore.DeleteByPk(user.Pk)
 		if err != nil {
-			// todo: err msgをユーザ用に変更
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 

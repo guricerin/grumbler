@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"sort"
@@ -76,20 +77,20 @@ func (s *Server) getGrumbleDetail() gin.HandlerFunc {
 		user, err := s.fetchUserFromSession(c)
 		if err != nil {
 			// todo
-			c.JSON(http.StatusUnauthorized, errorRes(err))
+			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 
 		mainGrumble, err := s.grumbleStore.RetrieveByPk(grumblePk, user.Id)
 		if err != nil {
 			// todo
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 		ancestors, err := s.grumbleStore.RetrieveReplyAncestors(grumblePk, user.Id)
 		if err != nil {
 			// todo
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 		// 最古日時順
@@ -99,7 +100,7 @@ func (s *Server) getGrumbleDetail() gin.HandlerFunc {
 		replies, err := s.grumbleStore.RetrieveByReplyDstPk(grumblePk, user.Id)
 		if err != nil {
 			// todo
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 		// 最古日時順
@@ -117,28 +118,28 @@ func (s *Server) getTimeline() gin.HandlerFunc {
 		user, err := s.fetchUserFromSession(c)
 		if err != nil {
 			// todo
-			c.JSON(http.StatusUnauthorized, errorRes(err))
+			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 
 		grumbles, err := s.grumbleStore.RetrieveByUserId(user.Id, user.Id)
 		if err != nil {
 			// todo
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
 		follows, err := s.followStore.RetrieveFollows(user.Id)
 		if err != nil {
 			// todo
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 		for _, f := range follows {
 			gs, err := s.grumbleStore.RetrieveByUserId(user.Id, f.DstUserId)
 			if err != nil {
 				// todo
-				c.JSON(http.StatusInternalServerError, errorRes(err))
+				c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 				return
 			}
 			grumbles = append(grumbles, gs...)
@@ -160,7 +161,7 @@ func (s *Server) postGrumble() gin.HandlerFunc {
 		user, err := s.fetchUserFromSession(c)
 		if err != nil {
 			// todo
-			c.JSON(http.StatusUnauthorized, errorRes(err))
+			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 
@@ -177,7 +178,7 @@ func (s *Server) postGrumble() gin.HandlerFunc {
 		_, err = s.grumbleStore.Create(req.Content, user)
 		if err != nil {
 			// todo
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
@@ -197,7 +198,7 @@ func (s *Server) postDeleteGrumble() gin.HandlerFunc {
 		user, err := s.fetchUserFromSession(c)
 		if err != nil {
 			// todo
-			c.JSON(http.StatusUnauthorized, errorRes(err))
+			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 
@@ -210,7 +211,7 @@ func (s *Server) postDeleteGrumble() gin.HandlerFunc {
 		err = s.grumbleStore.Delete(req.GrumblePk, user.Id)
 		if err != nil {
 			// todo
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
@@ -226,7 +227,7 @@ func (s *Server) postBookmark() gin.HandlerFunc {
 		signinUser, err := s.fetchUserFromSession(c)
 		if err != nil {
 			// todo
-			c.JSON(http.StatusUnauthorized, errorRes(err))
+			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 
@@ -238,7 +239,7 @@ func (s *Server) postBookmark() gin.HandlerFunc {
 
 		if _, err := s.grumbleStore.CreateBookmark(req.GrumblePk, signinUser.Id); err != nil {
 			// todo
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
@@ -254,7 +255,7 @@ func (s *Server) postDeleteBookmark() gin.HandlerFunc {
 		signinUser, err := s.fetchUserFromSession(c)
 		if err != nil {
 			// todo
-			c.JSON(http.StatusUnauthorized, errorRes(err))
+			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 
@@ -266,7 +267,7 @@ func (s *Server) postDeleteBookmark() gin.HandlerFunc {
 
 		if err := s.grumbleStore.DeleteBookmark(req.GrumblePk, signinUser.Id); err != nil {
 			// todo
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
@@ -283,7 +284,7 @@ func (s *Server) postReply() gin.HandlerFunc {
 		if err != nil {
 			// todo
 			log.Printf("postReply() 2: %s\n", err.Error())
-			c.JSON(http.StatusUnauthorized, errorRes(err))
+			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 
@@ -305,14 +306,14 @@ func (s *Server) postReply() gin.HandlerFunc {
 		if err != nil {
 			// todo
 			log.Printf("postReply() 3: %s\n", err.Error())
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 		_, err = s.grumbleStore.CreateReply(grumble.Pk, req.DstGrumblePk)
 		if err != nil {
 			// todo
 			log.Printf("postReply() 4: %s\n", err.Error())
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
@@ -333,7 +334,7 @@ func (s *Server) postRegrumble() gin.HandlerFunc {
 		if err != nil {
 			// todo
 			log.Printf("postRegrumble() 0: %s\n", err.Error())
-			c.JSON(http.StatusUnauthorized, errorRes(err))
+			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 
@@ -349,7 +350,7 @@ func (s *Server) postRegrumble() gin.HandlerFunc {
 		if err != nil {
 			// todo
 			log.Printf("postRegrumble() 2: %s\n", err.Error())
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
@@ -366,7 +367,7 @@ func (s *Server) postDeleteRegrumble() gin.HandlerFunc {
 		if err != nil {
 			// todo
 			log.Printf("postDeleteRegrumble() 0: %s\n", err.Error())
-			c.JSON(http.StatusUnauthorized, errorRes(err))
+			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 
@@ -382,7 +383,7 @@ func (s *Server) postDeleteRegrumble() gin.HandlerFunc {
 		if err != nil {
 			// todo
 			log.Printf("postDeleteRegrumble() 2: %s\n", err.Error())
-			c.JSON(http.StatusInternalServerError, errorRes(err))
+			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 

@@ -569,24 +569,23 @@ func (s *grumbleStore) CreateReply(srcGrumblePk string, dstGrumblePk string) (mo
 	return res, tx.Commit()
 }
 
-func (s *grumbleStore) CreateRegrumble(grumblePk string, byUserId string) (model.Regrumble, error) {
-	res := model.Regrumble{}
+func (s *grumbleStore) CreateRegrumble(grumblePk string, byUserId string) error {
 	tx, err := s.db.Begin()
 	if err != nil {
-		return res, err
+		return err
 	}
 	query := `select user_id from grumbles
     where pk = ?`
 	row := tx.QueryRow(query, grumblePk)
 	if row.Err() != nil {
 		tx.Rollback()
-		return res, row.Err()
+		return row.Err()
 	}
 	var dstUserId string
 	err = row.Scan(&dstUserId)
 	if err != nil {
 		tx.Rollback()
-		return res, err
+		return err
 	}
 	now := time.Now()
 	query = `insert into regrumbles
@@ -595,10 +594,10 @@ func (s *grumbleStore) CreateRegrumble(grumblePk string, byUserId string) (model
 	_, err = tx.Exec(query, now, grumblePk, dstUserId, byUserId)
 	if err != nil {
 		tx.Rollback()
-		return res, err
+		return err
 	}
 
-	return res, tx.Commit()
+	return tx.Commit()
 }
 
 func (s *grumbleStore) DeleteRegrumble(grumblePk string, byUserId string) error {

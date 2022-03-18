@@ -346,7 +346,7 @@ func (s *Server) postRegrumble() gin.HandlerFunc {
 			return
 		}
 
-		_, err = s.grumbleStore.CreateRegrumble(req.GrumblePk, signinUser.Id)
+		err = s.grumbleStore.CreateRegrumble(req.GrumblePk, signinUser.Id)
 		if err != nil {
 			// todo
 			log.Printf("postRegrumble() 2: %s\n", err.Error())

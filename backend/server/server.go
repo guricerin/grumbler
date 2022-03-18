@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -45,6 +47,7 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) setupRouter() {
+	gin.DefaultWriter = io.MultiWriter(os.Stdout)
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{s.cfg.FrontOrigin},

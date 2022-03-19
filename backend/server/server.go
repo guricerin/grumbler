@@ -51,6 +51,7 @@ func (s *Server) Run() error {
 func (s *Server) setupRouter() {
 	gin.DefaultWriter = io.MultiWriter(os.Stdout)
 	router := gin.Default()
+
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{s.cfg.FrontOrigin},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "OPTION"},
@@ -59,6 +60,8 @@ func (s *Server) setupRouter() {
 		// PreFlight要求がキャッシュされる時間
 		MaxAge: 24 * time.Hour,
 	}))
+
+	router.Use(s.RequestBodyLog)
 
 	router.GET("/api/signin-check", s.signinCheck())
 	router.POST("/api/signin", s.postSignIn())

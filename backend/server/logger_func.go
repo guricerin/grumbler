@@ -1,7 +1,10 @@
 package server
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"runtime"
 
 	"github.com/gin-gonic/gin"
@@ -9,18 +12,33 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// Request Bodyはストリームなので一度読み込んだら破棄されるため、バッファーを経由させる。
+func (s *Server) RequestBodyLog(c *gin.Context) {
+	buf := new(bytes.Buffer)
+	_, err := io.Copy(buf, c.Request.Body)
+	if err != nil {
+
+	}
+	body := buf.Bytes()
+	c.Request.Body = ioutil.NopCloser(bytes.NewReader(body))
+
+	s.logger.Info().
+		Str("method", c.Request.Method).
+		Str("host", c.Request.Host).
+		Str("url", c.Request.RequestURI).
+		Str("client_ip", c.ClientIP()).
+		Str("user_agent", c.Request.UserAgent()).
+		Int64("content_length", c.Request.ContentLength).
+		Str("content_type", c.Request.Header.Get("Content-Type")).
+		Str("request_body", string(body)).
+		Send()
+}
+
 func commonLog(e *zerolog.Event, c *gin.Context, statusCode int, user *model.User) *zerolog.Event {
 	caller := ""
 	_, fileName, line, ok := runtime.Caller(2)
 	if ok {
 		caller = fmt.Sprintf("%s:%d", fileName, line)
-	}
-
-	// todo: bodyを読み取れていない
-	buf := make([]byte, 4096)
-	len, err := c.Request.Body.Read(buf)
-	if err != nil {
-		len = 0
 	}
 
 	userId := ""
@@ -38,7 +56,6 @@ func commonLog(e *zerolog.Event, c *gin.Context, statusCode int, user *model.Use
 		Str("user_agent", c.Request.UserAgent()).
 		Int64("content_length", c.Request.ContentLength).
 		Str("content_type", c.Request.Header.Get("Content-Type")).
-		Str("request_body", string(buf[0:len])).
 		Str("caller", caller).
 		Dict("user", zerolog.Dict().
 			Str("id", userId).

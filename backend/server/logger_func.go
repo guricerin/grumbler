@@ -81,3 +81,7 @@ func (s *Server) Error(c *gin.Context, statusCode int, user *model.User, err err
 		Err(err).
 		Send()
 }
+
+func (s *Server) Fatal(err error) {
+	s.logger.Fatal().Stack().Err(err).Send()
+}

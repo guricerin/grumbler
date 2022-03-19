@@ -23,6 +23,6 @@ func main() {
 	s := server.NewServer(cfg, db)
 
 	if err := s.Run(); err != nil {
-		log.Fatal(err)
+		s.Fatal(err)
 	}
 }

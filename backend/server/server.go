@@ -109,28 +109,8 @@ func (s *Server) setupLogger(isDebug bool, logFilePath string) {
 	}
 
 	zerolog.SetGlobalLevel(logLevel)
-	logger := zerolog.New(io.MultiWriter(os.Stderr, rotator)).With().Timestamp().Logger()
+	logger := zerolog.New(io.MultiWriter(os.Stderr, rotator)).With().Stack().Timestamp().Logger()
 	s.logger = logger
-}
-
-func (s *Server) Info(c *gin.Context, user *model.User, msg string) {
-	userId := ""
-	userName := ""
-	if user != nil {
-		userId = user.Id
-		userName = user.Name
-	}
-
-	s.logger.Info().
-		Str("method", c.Request.Method).
-		Str("host", c.Request.Host).
-		Str("url", c.Request.RequestURI).
-		Str("fullpath", c.FullPath()).
-		Str("client_ip", c.ClientIP()).
-		Dict("user", zerolog.Dict().
-			Str("id", userId).
-			Str("name", userName)).
-		Msg(msg)
 }
 
 // 認証

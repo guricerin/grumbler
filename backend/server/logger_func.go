@@ -34,7 +34,6 @@ func commonLog(e *zerolog.Event, c *gin.Context, statusCode int, user *model.Use
 		Str("method", c.Request.Method).
 		Str("host", c.Request.Host).
 		Str("url", c.Request.RequestURI).
-		Str("fullpath", c.FullPath()).
 		Str("client_ip", c.ClientIP()).
 		Str("user_agent", c.Request.UserAgent()).
 		Int64("content_length", c.Request.ContentLength).

@@ -7,9 +7,11 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/oklog/ulid v1.3.1
+	github.com/rs/zerolog v1.26.1
 	github.com/spf13/viper v1.9.0
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/crypto v0.0.0-20211209193657-4570a0811e8b
+	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
 
 require (

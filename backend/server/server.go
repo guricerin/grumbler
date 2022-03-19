@@ -14,6 +14,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/guricerin/grumbler/backend/model"
 	"github.com/guricerin/grumbler/backend/util"
+	"github.com/rs/zerolog"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 const (
@@ -22,6 +24,7 @@ const (
 
 type Server struct {
 	cfg          util.Config
+	logger       zerolog.Logger
 	router       *gin.Engine
 	userStore    userStore
 	sessionStore sessionStore
@@ -38,6 +41,7 @@ func NewServer(cfg util.Config, db *sql.DB) Server {
 		followStore:  NewFollowStore(db),
 	}
 	s.setupRouter()
+	s.setupLogger(false, "/var/log/app/grumbler/backend.log")
 	return s
 }
 
@@ -87,6 +91,46 @@ func (s *Server) setupRouter() {
 	}
 
 	s.router = router
+}
+
+func (s *Server) setupLogger(isDebug bool, logFilePath string) {
+	logLevel := zerolog.InfoLevel
+	if isDebug {
+		logLevel = zerolog.DebugLevel
+	}
+
+	// ログファイルのローテーション
+	rotator := &lumberjack.Logger{
+		Filename:   logFilePath,
+		MaxSize:    10, // mbyte
+		MaxBackups: 5,
+		MaxAge:     30,   // 古いログファイルの寿命（day）
+		Compress:   true, // 古いログファイルをgzipで圧縮
+	}
+
+	zerolog.SetGlobalLevel(logLevel)
+	logger := zerolog.New(io.MultiWriter(os.Stderr, rotator)).With().Timestamp().Logger()
+	s.logger = logger
+}
+
+func (s *Server) Info(c *gin.Context, user *model.User, msg string) {
+	userId := ""
+	userName := ""
+	if user != nil {
+		userId = user.Id
+		userName = user.Name
+	}
+
+	s.logger.Info().
+		Str("method", c.Request.Method).
+		Str("host", c.Request.Host).
+		Str("url", c.Request.RequestURI).
+		Str("fullpath", c.FullPath()).
+		Str("client_ip", c.ClientIP()).
+		Dict("user", zerolog.Dict().
+			Str("id", userId).
+			Str("name", userName)).
+		Msg(msg)
 }
 
 // 認証

@@ -43,7 +43,7 @@ func (s *Server) signinCheck() gin.HandlerFunc {
 			return
 		}
 
-		log.Printf("signinCheck(): ok\n")
+		s.Info(c, &user, "ok")
 		c.JSON(http.StatusOK, userRes(user))
 	}
 }

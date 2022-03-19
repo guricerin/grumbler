@@ -2,7 +2,6 @@ package server
 
 import (
 	"errors"
-	"log"
 	"net/http"
 	"sort"
 
@@ -59,22 +58,22 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		signinUser, err := s.fetchUserFromSession(c)
 		if err != nil {
-			log.Printf("getUserDetail() 0: %s\n", err.Error())
-			c.JSON(http.StatusBadRequest, errorRes(errors.New("bad request")))
+			s.Warn(c, http.StatusUnauthorized, nil, err)
+			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 
 		userId := c.Param("id")
 		user, err := s.userStore.RetrieveById(userId)
 		if err != nil {
-			log.Printf("getUserDetail() 1: %s\n", err.Error())
+			s.Error(c, http.StatusInternalServerError, &signinUser, err)
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
 
 		grumbles, err := s.grumbleStore.RetrieveByUserId(signinUser.Id, user.Id)
 		if err != nil {
-			log.Printf("getUserDetail() 2: %s\n", err.Error())
+			s.Error(c, http.StatusInternalServerError, &signinUser, err)
 			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
@@ -82,7 +81,7 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 
 		follows, err := s.followStore.RetrieveFollows(user.Id)
 		if err != nil {
-			log.Printf("getUserDetail() 3: %s\n", err.Error())
+			s.Error(c, http.StatusInternalServerError, &signinUser, err)
 			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
@@ -90,7 +89,7 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 		for _, f := range follows {
 			u, err := s.userStore.RetrieveById(f.DstUserId)
 			if err != nil {
-				log.Printf("getUserDetail() 4: %s\n", err.Error())
+				s.Error(c, http.StatusInternalServerError, &signinUser, err)
 				c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 				return
 			}
@@ -99,7 +98,7 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 
 		followers, err := s.followStore.RetrieveFollowers(user.Id)
 		if err != nil {
-			log.Printf("getUserDetail() 5: %s\n", err.Error())
+			s.Error(c, http.StatusInternalServerError, &signinUser, err)
 			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
@@ -107,7 +106,7 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 		for _, f := range followers {
 			u, err := s.userStore.RetrieveById(f.SrcUserId)
 			if err != nil {
-				log.Printf("getUserDetail() 6: %s\n", err.Error())
+				s.Error(c, http.StatusInternalServerError, &signinUser, err)
 				c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 				return
 			}
@@ -116,7 +115,7 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 
 		bookmarks, err := s.grumbleStore.RetrieveBookmarkedGrumblesByUserId(signinUser.Id, user.Id)
 		if err != nil {
-			log.Printf("getUserDetail() 7: %s\n", err.Error())
+			s.Error(c, http.StatusInternalServerError, &signinUser, err)
 			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
@@ -127,11 +126,12 @@ func (s *Server) getUserDetail() gin.HandlerFunc {
 
 		isFollow, isFollower, err := s.followStore.RetrieveFollowRelation(signinUser.Id, userId)
 		if err != nil {
-			log.Printf("getUserDetail() 8: %s\n", err.Error())
+			s.Error(c, http.StatusInternalServerError, &signinUser, err)
 			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
+		s.Info(c, http.StatusOK, &signinUser, "success to get user detail")
 		c.JSON(http.StatusOK, userDetailRes(user, grumbles, followUsers, followerUsers, bookmarks, isFollow, isFollower))
 	}
 }
@@ -140,22 +140,24 @@ func (s *Server) postFollow() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		signinUser, err := s.fetchUserFromSession(c)
 		if err != nil {
+			s.Warn(c, http.StatusUnauthorized, nil, err)
 			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 
 		var req followReq
 		if err := c.BindJSON(&req); err != nil {
-			log.Printf("postFollow(): %s\n", err.Error())
+			s.Warn(c, http.StatusBadRequest, &signinUser, err)
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
 		if err := s.followStore.Create(signinUser.Id, req.DstUserId); err != nil {
-			log.Printf("postFollow(): %s\n", err.Error())
+			s.Error(c, http.StatusInternalServerError, &signinUser, err)
 			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
+		s.Info(c, http.StatusOK, &signinUser, "success to follow")
 		c.JSON(http.StatusOK, gin.H{
 			"ok": true,
 		})
@@ -167,22 +169,24 @@ func (s *Server) postUnFollow() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		signinUser, err := s.fetchUserFromSession(c)
 		if err != nil {
+			s.Warn(c, http.StatusUnauthorized, nil, err)
 			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 
 		var req followReq
 		if err := c.BindJSON(&req); err != nil {
-			log.Printf("postUnFollow(): %s\n", err.Error())
+			s.Warn(c, http.StatusBadRequest, &signinUser, err)
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
 		if err := s.followStore.Delete(signinUser.Id, req.DstUserId); err != nil {
-			log.Printf("postUnFollow(): %s\n", err.Error())
+			s.Error(c, http.StatusInternalServerError, &signinUser, err)
 			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
+		s.Info(c, http.StatusOK, &signinUser, "success to unfollow")
 		c.JSON(http.StatusOK, gin.H{
 			"ok": true,
 		})
@@ -194,24 +198,24 @@ func (s *Server) postUserSettings() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		signinUser, err := s.fetchUserFromSession(c)
 		if err != nil {
-			log.Printf("postUserSettings() 0: %s\n", err.Error())
+			s.Warn(c, http.StatusUnauthorized, nil, err)
 			c.JSON(http.StatusUnauthorized, errorRes(errors.New("unauthorized")))
 			return
 		}
 		var req userSettingsReq
 		if err := c.BindJSON(&req); err != nil {
-			log.Printf("postUserSettings() 1: %s\n", err.Error())
+			s.Warn(c, http.StatusBadRequest, &signinUser, err)
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
 
 		if err := model.ValidateUserName(req.Name); err != nil {
-			log.Printf("postUserSettings() 2: %s\n", err.Error())
+			s.Warn(c, http.StatusBadRequest, &signinUser, err)
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
 		if err := model.ValidateUserProfile(req.Profile); err != nil {
-			log.Printf("postUserSettings() 3: %s\n", err.Error())
+			s.Warn(c, http.StatusBadRequest, &signinUser, err)
 			c.JSON(http.StatusBadRequest, errorRes(err))
 			return
 		}
@@ -219,11 +223,12 @@ func (s *Server) postUserSettings() gin.HandlerFunc {
 		signinUser.Name = req.Name
 		signinUser.Profile = req.Profile
 		if err := s.userStore.Update(&signinUser); err != nil {
-			log.Printf("postUserSettings() 4: %s\n", err.Error())
+			s.Error(c, http.StatusInternalServerError, &signinUser, err)
 			c.JSON(http.StatusInternalServerError, errorRes(errors.New("server error")))
 			return
 		}
 
+		s.Info(c, http.StatusOK, &signinUser, "success to change user setting")
 		c.JSON(http.StatusOK, gin.H{
 			"ok": true,
 		})

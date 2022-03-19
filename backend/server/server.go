@@ -2,10 +2,8 @@ package server
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -184,32 +182,10 @@ func (s *Server) fetchUserFromSession(c *gin.Context) (user model.User, err erro
 	}
 	sess, err := s.sessionStore.RetrieveByToken(token)
 	if err != nil {
-		log.Println("failed to RetrieveByToken")
 		return
 	}
 	user, err = s.userStore.RetrieveByPk(sess.UserPk)
 	return
-}
-
-// ページリソースのユーザと、それにアクセスしようとしているユーザは同一か
-func (s *Server) authorizationCheck(c *gin.Context) (model.User, error) {
-	userId := c.Param("id")
-	log.Printf("id: %s\n", userId)
-	dummy := model.User{}
-	rsrcUser, err := s.userStore.RetrieveById(userId)
-	if err != nil {
-		return dummy, err
-	}
-	curUser, err := s.fetchUserFromSession(c)
-	if err != nil {
-		return dummy, err
-	}
-
-	if rsrcUser.Pk == curUser.Pk {
-		return rsrcUser, nil
-	} else {
-		return dummy, errors.New("wrong user")
-	}
 }
 
 func userRes(user model.User) gin.H {

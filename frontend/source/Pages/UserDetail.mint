@@ -31,7 +31,7 @@ component Pages.UserDetail {
       UserStatus::SignIn(signinUser) =>
         if (signinUser.id != userDetail.user.id) {
           if (userDetail.isFollow) {
-            <a
+            <a::button
               class="button is-outlined is-info"
               onClick={doFollow("#{@ENDPOINT}/auth/unfollow")}>
 
@@ -39,7 +39,7 @@ component Pages.UserDetail {
 
             </a>
           } else {
-            <a
+            <a::button
               class="button is-outlined is-info"
               onClick={doFollow("#{@ENDPOINT}/auth/follow")}>
 
@@ -64,7 +64,7 @@ component Pages.UserDetail {
     case (userStatus) {
       UserStatus::SignIn(signinUser) =>
         if (signinUser.id == userDetail.user.id) {
-          <a
+          <a::button
             class="button is-outlined is-info"
             onClick={moveToSettingsPage}>
 
@@ -84,6 +84,10 @@ component Pages.UserDetail {
     ls
     |> Array.size
     |> Number.toString
+  }
+
+  style button {
+    margin-top: 10px;
   }
 
   style text {

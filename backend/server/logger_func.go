@@ -17,8 +17,10 @@ func (s *Server) RequestBodyLog(c *gin.Context) {
 	buf := new(bytes.Buffer)
 	_, err := io.Copy(buf, c.Request.Body)
 	if err != nil {
-
+		s.logger.Error().Stack().Err(err).Send()
+		return
 	}
+
 	body := buf.Bytes()
 	c.Request.Body = ioutil.NopCloser(bytes.NewReader(body))
 

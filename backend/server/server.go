@@ -61,6 +61,7 @@ func (s *Server) setupRouter() {
 		MaxAge: 24 * time.Hour,
 	}))
 
+	router.Use(s.limitReqBodySizeMiddleware())
 	router.Use(s.RequestBodyLog)
 
 	router.GET("/api/signin-check", s.signinCheck())
@@ -130,6 +131,13 @@ func (s *Server) authenticationMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		c.Next()
+	}
+}
+
+func (s *Server) limitReqBodySizeMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, int64(s.cfg.RequestContentLengthMaxByte))
 		c.Next()
 	}
 }

@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"regexp"
+	"unicode/utf8"
 )
 
 type User struct {
@@ -14,7 +15,7 @@ type User struct {
 }
 
 func ValidateUserName(name string) error {
-	l := len(name)
+	l := utf8.RuneCountInString(name)
 	if 0 < l && l < 33 {
 		return nil
 	} else {

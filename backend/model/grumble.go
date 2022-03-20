@@ -4,6 +4,7 @@ import (
 	"errors"
 	"sort"
 	"time"
+	"unicode/utf8"
 )
 
 type Grumble struct {
@@ -14,7 +15,7 @@ type Grumble struct {
 }
 
 func ValidateGrumble(text string) error {
-	l := len(text)
+	l := utf8.RuneCountInString(text)
 	if 0 < l && l < 301 {
 		return nil
 	} else {

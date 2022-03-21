@@ -25,6 +25,7 @@ services:
       - db
     volumes:
       - ./backend:/go/src/app
+      - ./backend/logs:/var/log/grumbler
     restart: always
 
   db:

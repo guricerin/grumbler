@@ -39,7 +39,7 @@ func NewServer(cfg util.Config, db *sql.DB) Server {
 		followStore:  NewFollowStore(db),
 	}
 	s.setupRouter()
-	s.setupLogger(false, "/var/log/app/grumbler/backend.log")
+	s.setupLogger(false)
 	return s
 }
 
@@ -95,7 +95,7 @@ func (s *Server) setupRouter() {
 	s.router = router
 }
 
-func (s *Server) setupLogger(isDebug bool, logFilePath string) {
+func (s *Server) setupLogger(isDebug bool) {
 	logLevel := zerolog.InfoLevel
 	if isDebug {
 		logLevel = zerolog.DebugLevel
@@ -103,11 +103,11 @@ func (s *Server) setupLogger(isDebug bool, logFilePath string) {
 
 	// ログファイルのローテーション
 	rotator := &lumberjack.Logger{
-		Filename:   logFilePath,
-		MaxSize:    10, // mbyte
-		MaxBackups: 5,
-		MaxAge:     30,   // 古いログファイルの寿命（day）
-		Compress:   true, // 古いログファイルをgzipで圧縮
+		Filename:   s.cfg.LogFilePath,
+		MaxSize:    s.cfg.LogFileMaxSize, // mbyte
+		MaxBackups: s.cfg.LogFileMaxBackups,
+		MaxAge:     s.cfg.LogFileMaxAge, // 古いログファイルの寿命（day）
+		Compress:   true,                // 古いログファイルをgzipで圧縮
 	}
 
 	zerolog.SetGlobalLevel(logLevel)

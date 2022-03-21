@@ -8,6 +8,10 @@ type Config struct {
 	DbUrl                       string `mapstructure:"db_url"`
 	FrontOrigin                 string `mapstructure:"front_origin"`
 	RequestContentLengthMaxByte int    `mapstructure:"request_content_length_max_byte"`
+	LogFilePath                 string `mapstructure:"log_file_path"`
+	LogFileMaxSize              int    `mapstructure:"log_file_max_size"`
+	LogFileMaxBackups           int    `mapstructure:"log_file_max_backups"`
+	LogFileMaxAge               int    `mapstructure:"log_file_max_age"`
 }
 
 func LoadConfig() (cfg Config, err error) {

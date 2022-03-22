@@ -32,8 +32,9 @@ services:
     container_name: grumbler-db
     image: mysql:8.0
     volumes:
-      - ./db/my.cnf:/etc/mysql/conf.d/my.cnf
-      - ./db/initdb.d:/docker-entrypoint-initdb.d
+      - ./db/my.cnf:/etc/mysql/conf.d/my.cnf # DB設定
+      - ./db/initdb.d:/docker-entrypoint-initdb.d # セットアップ
+      - ./db/data:/var/lib/mysql # データ永続化
     environment:
       MYSQL_ROOT_PASSWORD: password
       TZ: 'Asia/Tokyo'

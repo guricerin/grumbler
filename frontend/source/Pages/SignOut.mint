@@ -19,7 +19,7 @@ component Pages.SignOut {
 
   fun cancel (user : User, event : Html.Event) : Promise(Never, Void) {
     sequence {
-      Window.navigate("/user/#{user.id}/timeline")
+      Window.navigate("/timeline")
     }
   }
 

@@ -174,14 +174,12 @@ func (s *Server) fetchSessToken(c *gin.Context) (string, error) {
 func (s *Server) setCookie(c *gin.Context, token string) {
 	week := 60 * 60 * 24 * 7
 	c.SetSameSite(http.SameSiteLaxMode)
-	// todo: domain
-	c.SetCookie(SESSION_TOKEN, token, week, "/api", "localhost", true, true)
+	c.SetCookie(SESSION_TOKEN, token, week, "/api", s.cfg.ServerDomain, true, true)
 }
 
 func (s *Server) deleteCookie(c *gin.Context) (err error) {
 	c.SetSameSite(http.SameSiteLaxMode)
-	// todo: domain
-	c.SetCookie(SESSION_TOKEN, "dummy", -1, "/api", "localhost", true, true)
+	c.SetCookie(SESSION_TOKEN, "dummy", -1, "/api", s.cfg.ServerDomain, true, true)
 	return
 }
 

@@ -5,6 +5,7 @@ import "github.com/spf13/viper"
 type Config struct {
 	ServerHost                  string `mapstructure:"server_host"`
 	ServerPort                  string `mapstructure:"server_port"`
+	ServerDomain                string `mapstructure:"server_domain"`
 	DbUrl                       string `mapstructure:"db_url"`
 	FrontOrigin                 string `mapstructure:"front_origin"`
 	RequestContentLengthMaxByte int    `mapstructure:"request_content_length_max_byte"`

@@ -1,6 +1,7 @@
 {
   "server_host": "0.0.0.0",
   "server_port": "8080",
+  "server_domain": "localhost",
   "db_url": "grumbler:grumbler1234@tcp(db:3306)/grumbler_db?charset=utf8mb4&parseTime=true&loc=Asia%2FTokyo",
   "front_origin": "http://localhost:3000",
   "request_content_length_max_byte": 2048,

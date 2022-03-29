@@ -94,7 +94,7 @@ component Pages.Search {
           </div>
         </form>
 
-        <nav class="level is-mobile">
+        <nav class="level">
           <div class="level-left">
             <div class="level-item">
               <button::button

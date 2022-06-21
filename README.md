@@ -1,5 +1,7 @@
 # grumbler
 
+＊公開終了  
+
 Twitterの劣化パクリWebアプリ。  
 
 ![arch](./docs/architecture.drawio.svg)
